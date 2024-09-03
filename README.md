@@ -1,1 +1,1 @@
-# SchoolAssistant
+# SchoolKiller
