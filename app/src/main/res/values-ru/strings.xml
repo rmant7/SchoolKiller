@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SchoolKiller</string>
+
+	// Button Labels
+    <string name="next_button_label">Дальше</string>
+    <string name="solve_button_label">Решить</string>
+
+    // Text Field Labels
+    <string name="additional_information_TextField_label">Дополнительная информация</string>
+    <string name="What_to_solve_TextField_label">Что решить?</string>
+
+    // Drop Down Menu Labels
+    <string name="solution_language_label">Язык решения</string>
+    <string name="upload_a_file_label">Загрузить файл</string>
+    <string name="explanations_label">Пояснения</string>
+    <string name="class_label">"Класс"</string>
+
+</resources>
