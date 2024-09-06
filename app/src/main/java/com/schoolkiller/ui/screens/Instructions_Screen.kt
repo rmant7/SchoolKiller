@@ -28,7 +28,7 @@ fun InstructionsScreen(
     onNavigateToNextPage: () -> Unit
 ) {
 
-    val classOptions = remember { context.resources.getStringArray(R.array.classes).toList() }
+    val classOptions = remember { context.resources.getStringArray(R.array.grades).toList() }
     val languageOptions = remember { context.resources.getStringArray(R.array.languages).toList() }
     val explanationOptions = remember { context.resources.getStringArray(R.array.explanations).toList() }
     var selectedGrade by remember { mutableStateOf(classOptions[0]) }
@@ -50,7 +50,7 @@ fun InstructionsScreen(
             maxHeightIn = 200.dp,
             xDpOffset = 265.dp,
             yDpOffset = (-30).dp,
-            label = R.string.class_label,
+            label = R.string.grade_label,
             selectedOption = selectedGrade,
             options = classOptions,
             onOptionSelected = { selectedGrade = it }
