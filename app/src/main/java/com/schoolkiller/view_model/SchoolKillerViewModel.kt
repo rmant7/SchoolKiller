@@ -3,31 +3,26 @@ package com.schoolkiller.view_model
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateMap
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.schoolkiller.data_Layer.entities.Picture
 import com.schoolkiller.data_Layer.repositories.PictureRepository
 import com.schoolkiller.domain.usecases.AddPictureUseCase
 import com.schoolkiller.domain.usecases.DeletePictureUseCase
-import com.schoolkiller.utils.ClassOptions
+import com.schoolkiller.utils.GradeOptions
 import com.schoolkiller.utils.ExplanationLevelOptions
 import com.schoolkiller.utils.SolutionLanguageOptions
 import com.schoolkiller.utils.UploadFileMethodOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SchoolKillerViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
     private val pictureRepository: PictureRepository,
     private val addPictureUseCase: AddPictureUseCase,
     private val deletePictureUseCase: DeletePictureUseCase
@@ -35,9 +30,9 @@ class SchoolKillerViewModel @Inject constructor(
 
     val allPictures = pictureRepository.allPictures
 
-    private var _selectedClassOption by mutableStateOf(ClassOptions.NONE)
-    val selectedClassOption: ClassOptions
-        get() = _selectedClassOption
+    private var _selectedGradeOption by mutableStateOf(GradeOptions.NONE)
+    val selectedGradeOption: GradeOptions
+        get() = _selectedGradeOption
 
     private var _selectedLanguageOption by mutableStateOf(SolutionLanguageOptions.ORIGINAL_TASK_LANGUAGE)
     val selectedSolutionLanguageOption: SolutionLanguageOptions
@@ -56,8 +51,8 @@ class SchoolKillerViewModel @Inject constructor(
         get() = _selectedUploadMethodOption
 
 
-    fun updateSelectedClassOption(newClassSelection: ClassOptions) {
-        _selectedClassOption = newClassSelection
+    fun updateSelectedGradeOption(newClassSelection: GradeOptions) {
+        _selectedGradeOption = newClassSelection
     }
 
     fun updateSelectedLanguageOption(newLanguageSelection: SolutionLanguageOptions) {

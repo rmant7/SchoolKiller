@@ -16,8 +16,8 @@
     <string name="explanations_label">Пояснения</string>
     <string name="grade_label">"Класс"</string>
 
-// Элементы раскрывающегося меню
-    <string-array name="оценки">
+// Drop Down Menu Entries
+    <string-array name="grades">
         <item>Не важно</item>
         <item>1</item>
         <item>2</item>
@@ -40,7 +40,7 @@
         <item>Иврит</item>
     </string-array>
 
-    <string-array name="объяснения">
+    <string-array name="explanations">
         <item>Без объяснения</item>
         <item>Краткое объяснение</item>
         <item>Подробное объяснение</item>

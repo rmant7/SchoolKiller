@@ -7,13 +7,8 @@ enum class SolutionLanguageOptions(private val arrayIndex: Int) {
     ORIGINAL_TASK_LANGUAGE(0),
     ENGLISH(1),
     RUSSIAN(2),
-    HEBREW(3),
-    SPANISH(4),
-    FRENCH(5),
-    GERMAN(6),
-    ITALIAN(7),
-    PORTUGUESE(8),
-    GREEK(9);
+    HEBREW(3);
+
 
 
     fun getString(context: Context): String {

@@ -9,6 +9,7 @@
     // Text Field Labels
     <string name="additional_information_TextField_label">מידע נוסף</string>
     <string name="What_to_solve_TextField_label">מה לפתור?</string>
+<!--    <string name="What_to_solve_TextField_label">מה לפתור?</string>-->
 
     // Drop Down Menu Labels
     <string name="solution_language_label">שפת הפתרון</string>

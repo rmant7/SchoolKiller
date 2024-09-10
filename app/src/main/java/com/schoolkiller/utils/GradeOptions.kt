@@ -3,7 +3,7 @@ package com.schoolkiller.utils
 import android.content.Context
 import com.schoolkiller.R
 
-enum class ClassOptions(private val arrayIndex: Int) {
+enum class GradeOptions(private val arrayIndex: Int) {
     NONE(0),
     CLASS_1(1),
     CLASS_2(2),
@@ -19,13 +19,13 @@ enum class ClassOptions(private val arrayIndex: Int) {
     CLASS_12(12);
 
     fun getString(context: Context): String {
-        val classArray = context.resources.getStringArray(R.array.classes)
+        val classArray = context.resources.getStringArray(R.array.grades)
         return classArray[arrayIndex]
     }
 
     companion object {
-        fun fromString(context: Context, string: String): ClassOptions? {
-            val classArray = context.resources.getStringArray(R.array.classes)
+        fun fromString(context: Context, string: String): GradeOptions? {
+            val classArray = context.resources.getStringArray(R.array.grades)
             val index = classArray.indexOf(string)
             return if (index != -1) entries[index] else null
         }
