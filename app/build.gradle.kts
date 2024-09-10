@@ -1,6 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    // Room
+    id ("androidx.room")
+    // KSP
+    id("com.google.devtools.ksp")
+    // Dagger-Hilt
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -36,6 +42,11 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    // Room Specific
+    room {
+        schemaDirectory("$projectDir/schemas")
+    }
+
     buildFeatures {
         compose = true
     }
@@ -51,7 +62,40 @@ android {
 
 dependencies {
 
+    // CameraX
+    implementation (libs.androidx.camera.camera2)
+    implementation (libs.androidx.camera.lifecycle)
+    implementation (libs.androidx.camera.view)
+
+    // Coil
+    implementation(libs.coil.compose)
+
+    // Navigation
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    // Room Database
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
+    // DataStore Preferences
+    implementation(libs.androidx.datastore.preferences)
+
+    // Dagger - Hilt
+    implementation(libs.hilt.android)
+    ksp (libs.dagger.compiler)
+    ksp (libs.hilt.compiler)
+    ksp (libs.hilt.android.compiler)
+
+    // ViewModel
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    // ViewModel utilities for Compose
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    // Lifecycle utilities for Compose
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    // Saved state module for ViewModel
+    implementation(libs.androidx.lifecycle.viewmodel.savedstate)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

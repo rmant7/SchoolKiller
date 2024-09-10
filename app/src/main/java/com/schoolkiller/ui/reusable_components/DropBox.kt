@@ -1,5 +1,6 @@
 package com.schoolkiller.ui.reusable_components
 
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,17 +28,20 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.schoolkiller.R
 
+
 @Composable
-fun DropBox(
+fun <T> DropBox(
     modifier: Modifier = Modifier,
+    context: Context,
     dropMenuModifier: Modifier = Modifier,
     maxHeightIn: Dp? = null,
     xDpOffset: Dp? = null,
     yDpOffset: Dp? = null,
     label: Int,
-    selectedOption: String,
-    options: List<String>,
-    onOptionSelected: (String) -> Unit,
+    selectedOption: (T),
+    options: List<T>,
+    onOptionSelected: (T) -> Unit,
+    optionToString: (T, Context) -> String,
     contentDescription: Int = R.string.ArrowDropDown_icon_content_description
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -52,12 +56,15 @@ fun DropBox(
                 modifier = modifier
                     .clickable { expanded = !expanded }
                     .fillMaxWidth(),
-                value = selectedOption,
+                value = optionToString(selectedOption, context),
                 readOnly = true,
                 textStyle = TextStyle(textAlign = TextAlign.Start),
                 onValueChange = { },
                 label = {
-                    Text(text = stringResource(id = label))
+                    Text(
+                        text = stringResource(id = label),
+                        textAlign = TextAlign.Start
+                    )
                 },
                 trailingIcon = {
                     Icon(
@@ -84,7 +91,7 @@ fun DropBox(
                         },
                         text = {
                             Text(
-                                text = option,
+                                text = optionToString(option, context),
                                 textAlign = TextAlign.Start
                             )
                         }

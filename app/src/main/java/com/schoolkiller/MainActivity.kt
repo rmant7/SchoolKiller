@@ -10,7 +10,10 @@ import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.ui.unit.dp
 import com.schoolkiller.ui.navigation.NavigationController
 import com.schoolkiller.ui.theme.SchoolKillerTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
