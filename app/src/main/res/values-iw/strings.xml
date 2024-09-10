@@ -11,14 +11,14 @@
     <string name="What_to_solve_TextField_label">מה לפתור?</string>
 
     // Drop Down Menu Labels
-    <string name="solution_language_label">שפת הפתרו</string>
+    <string name="solution_language_label">שפת הפתרון</string>
     <string name="upload_a_file_label">להעלות קובץ</string>
     <string name="explanations_label">הסברים</string>
-    <string name="class_label">"כיתה"</string>
+    <string name="grade_label">"כיתה"</string>
 	
     // Drop Down Menu Entries
-    <string-array name="classes">
-        <item> </item>
+    <string-array name="grades">
+        <item>לא משנה</item>
         <item>א</item>
         <item>ב</item>
         <item>ג</item>
@@ -33,5 +33,26 @@
         <item>יב</item>
     </string-array>
 
+    // Drop Down Menu Entries
+    <string-array name="languages">
+		<item>שפת המשימה המקורית</item>
+        <item>אנגלית</item>
+        <item>רוסית</item>
+        <item>עברית</item>    
+	</string-array>
+
+    // Drop Down Menu Entries
+    <string-array name="explanations">
+        <item>בלי הסבר</item>
+        <item>הסבר קצר</item>
+        <item>הסבר מפורט</item>
+    </string-array>
+
+	<string-array name="upload_file_methods">
+        <item>צלם תמונה</item>
+        <item>העלה תמונה</item>
+        <item>העלה קובץ</item>
+        <item>ספק קישור</item>
+    </string-array>
 
 </resources>

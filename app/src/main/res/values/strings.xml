@@ -18,11 +18,11 @@
     <string name="solution_language_label">Solution language</string>
     <string name="upload_a_file_label">Upload a file</string>
     <string name="explanations_label">Explanations</string>
-    <string name="class_label">"Class"</string>
+    <string name="grade_label">"Grade"</string>
 
     // Drop Down Menu Entries
-    <string-array name="classes">
-        <item> </item>
+    <string-array name="grades">
+        <item>Not relevant</item>
         <item>1</item>
         <item>2</item>
         <item>3</item>
@@ -42,12 +42,6 @@
         <item>English</item>
         <item>Russian</item>
         <item>Hebrew</item>
-        <item>Spanish</item>
-        <item>French</item>
-        <item>German</item>
-        <item>Italian</item>
-        <item>Portuguese</item>
-        <item>Greek</item>
     </string-array>
 
     <string-array name="explanations">

@@ -14,6 +14,41 @@
     <string name="solution_language_label">Язык решения</string>
     <string name="upload_a_file_label">Загрузить файл</string>
     <string name="explanations_label">Пояснения</string>
-    <string name="class_label">"Класс"</string>
+    <string name="grade_label">"Класс"</string>
 
-</resources>
+// Элементы раскрывающегося меню
+    <string-array name="оценки">
+        <item>Не важно</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+    </string-array>
+
+    <string-array name="languages">
+        <item>Исходный язык задачи</item>
+        <item>Английский</item>
+        <item>Русский</item>
+        <item>Иврит</item>
+    </string-array>
+
+    <string-array name="объяснения">
+        <item>Без объяснения</item>
+        <item>Краткое объяснение</item>
+        <item>Подробное объяснение</item>
+    </string-array>
+
+    <string-array name="upload_file_methods">
+        <item>Сфотографировать</item>
+        <item>Загрузить изображение</item>
+        <item>Загрузить файл</item>
+        <item>Предоставить ссылку</item>
+    </string-array></resources>
