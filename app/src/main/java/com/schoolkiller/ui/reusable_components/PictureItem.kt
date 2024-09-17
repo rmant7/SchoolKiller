@@ -50,6 +50,7 @@ import kotlin.math.abs
 @Composable
 fun PictureItem(
     modifier: Modifier = Modifier,
+    imageModifier: Modifier = Modifier,
     imageUri : Uri,
     offsetValue: Float,
     onOffsetChange: (Float) -> Unit,
@@ -98,14 +99,14 @@ fun PictureItem(
 //            )
     ) {
         Row(
-            modifier = modifier
+            modifier = imageModifier
                 .fillMaxWidth()
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
             AsyncImage(
-                modifier = Modifier
+                modifier = modifier
                     .size(64.dp)
                     .clip(RoundedCornerShape(8.dp)),
                 model = imageUri,
