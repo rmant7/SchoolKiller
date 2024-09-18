@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">SchoolKiller</string>
 
+    // Content Descriptions
+    <string name="ai_school_assistant_image_content_description">Изображение AI School Assistant</string>
+    <string name="upload_to_ai_school_image_assistant_content_description">Загрузить изображение AI School Assistant</string>
+    <string name="ArrowDropDown_icon_content_description">Открыть sub-меню</string>
+
 	// Button Labels
     <string name="next_button_label">Дальше</string>
     <string name="solve_button_label">Решить</string>
+    <string name="check_solution_button_label">Проверить решение</string>
+    <string name="cheat_sheet_button_label">Шпаргалка</string>
 
     // Text Field Labels
     <string name="additional_information_TextField_label">Дополнительная информация</string>

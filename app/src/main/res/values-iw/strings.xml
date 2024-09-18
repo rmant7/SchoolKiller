@@ -2,9 +2,16 @@
 <resources>
     <string name="app_name">SchoolKiller</string>
 
+    // Content Descriptions
+    <string name="ai_school_assistant_image_content_description">AI School Assistant Image</string>
+    <string name="upload_to_ai_school_image_assistant_content_description">העלה ל AI School Assistant Image</string>
+    <string name="ArrowDropDown_icon_content_description">פותח תפריט משנה</string>
+
     // Button Labels
     <string name="next_button_label">הבא</string>
     <string name="solve_button_label">לפתור</string>
+    <string name="check_solution_button_label">בדוק פתרון</string>
+    <string name="cheat_sheet_button_label">גיליון לרמות</string>
 
     // Text Field Labels
     <string name="additional_information_TextField_label">מידע נוסף</string>

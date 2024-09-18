@@ -7,9 +7,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.schoolkiller.ui.screens.GeminiAnswerScreen
-import com.schoolkiller.ui.screens.ResultScreen
+import com.schoolkiller.ui.screens.AnswerScreen
 import com.schoolkiller.ui.screens.HomeScreen
+import com.schoolkiller.ui.screens.ResultScreen
 import com.schoolkiller.utils.Constants
 import com.schoolkiller.view_model.SchoolKillerViewModel
 
@@ -28,7 +28,7 @@ fun NavigationController(
                 context = context,
                 viewModel = viewModel,
                 onNavigateToResultScreen = {  navController.navigate(Screens.ResultScreen.route) },
-                onNavigateToGeminiAnswerScreen = { navController.navigate(Screens.GeminiAnswerScreen) }
+//                onNavigateToGeminiAnswerScreen = { navController.navigate(Screens.GeminiAnswerScreen) }
             )
         }
 
@@ -37,17 +37,22 @@ fun NavigationController(
                 context = context,
                 viewModel = viewModel,
                 onNavigateToNextPage = {
-                    navController.navigate(Screens.HomeScreen.route)
+                    navController.navigate(Screens.AnswerScreen.route)
+                   // navController.navigate(Screens.HomeScreen.route)
                 }
             )
         }
 
-        composable(Screens.GeminiAnswerScreen.route){
-            GeminiAnswerScreen(
-                context = context,
-                viewModel = viewModel
-            )
+        composable(Screens.AnswerScreen.route){
+            AnswerScreen(viewModel = viewModel)
         }
+
+//        composable(Screens.GeminiAnswerScreen.route){
+//            GeminiAnswerScreen(
+//                context = context,
+//                viewModel = viewModel
+//            )
+//        }
 
     }
 }
@@ -55,5 +60,6 @@ fun NavigationController(
 sealed class Screens(val route: String) {
     data object ResultScreen : Screens(Constants.RESULT_SCREEN)
     data object HomeScreen : Screens(Constants.HOME_SCREEN)
-    data object GeminiAnswerScreen : Screens(Constants.GEMINI_ANSWER_SCREEN)
+    data object AnswerScreen : Screens(Constants.ANSWER_SCREEN)
+//    data object GeminiAnswerScreen : Screens(Constants.GEMINI_ANSWER_SCREEN)
 }

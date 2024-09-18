@@ -1,5 +1,6 @@
 [versions]
 agp = "8.6.0"
+devLangchain4jOpenAi = "0.34.0"
 cameraCamera2 = "1.3.4"
 coilCompose = "2.7.0"
 datastorePreferences = "1.1.1"
@@ -30,6 +31,8 @@ common = "0.10.0"
 secretsGradlePlugin = "2.0.1"
 
 [libraries]
+langchain4j = { module = "dev.langchain4j:langchain4j", version.ref = "devLangchain4jOpenAi" }
+dev-langchain4j-langchain4j-open-ai = { module = "dev.langchain4j:langchain4j-open-ai", version.ref = "devLangchain4jOpenAi" }
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
 androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraCamera2" }
 androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraCamera2" }
