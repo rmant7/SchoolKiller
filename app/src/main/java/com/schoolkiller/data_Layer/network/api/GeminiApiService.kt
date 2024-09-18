@@ -10,6 +10,8 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.utils.io.ByteReadChannel
+import kotlinx.coroutines.Job
+import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
 class GeminiApiService @Inject constructor(
@@ -19,7 +21,6 @@ class GeminiApiService @Inject constructor(
     suspend fun uploadFileWithProgress(
         fileByteArray: ByteArray,
         fileName: String,
-//        progressListener: (Long, Long) -> Unit
     ): Result<UploadModel> {
 
         val response: HttpResponse = client.post(
@@ -42,7 +43,6 @@ class GeminiApiService @Inject constructor(
     suspend fun uploadFileBytes(
         uploadUrl: String,
         fileByteArray: ByteArray,
-//        progressListener: (Long, Long) -> Unit
     ): Result<String> {
 
         val response: HttpResponse = client.post(uploadUrl) {
@@ -81,4 +81,6 @@ class GeminiApiService @Inject constructor(
     }
 
 }
-    data class UploadModel(val uploadUrl: String)
+
+@Serializable
+data class UploadModel(val uploadUrl: String)

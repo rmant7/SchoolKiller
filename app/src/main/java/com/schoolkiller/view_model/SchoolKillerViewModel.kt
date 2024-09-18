@@ -1,11 +1,11 @@
 package com.schoolkiller.view_model
 
 import android.net.Uri
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.schoolkiller.data_Layer.entities.Picture
@@ -15,8 +15,6 @@ import com.schoolkiller.domain.usecases.AddPictureUseCase
 import com.schoolkiller.domain.usecases.DeletePictureUseCase
 import com.schoolkiller.domain.usecases.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.GetImageByteArrayUseCase
-import com.schoolkiller.domain.usecases.ImagePickerUseCase
-import com.schoolkiller.ui.UiState
 import com.schoolkiller.utils.ExplanationLevelOptions
 import com.schoolkiller.utils.GradeOptions
 import com.schoolkiller.utils.SolutionLanguageOptions
@@ -25,6 +23,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -58,7 +57,7 @@ class SchoolKillerViewModel @Inject constructor(
 
 
     private val _selectedImages = MutableStateFlow(mutableStateListOf<Uri>())
-    val selectedImages: StateFlow<List<Uri>> = _selectedImages
+    val selectedImages: StateFlow<SnapshotStateList<Uri>> = _selectedImages
 
     private var _selectedUploadMethodOption by mutableStateOf(UploadFileMethodOptions.TAKE_A_PICTURE)
     val selectedUploadMethodOption: UploadFileMethodOptions
@@ -82,11 +81,11 @@ class SchoolKillerViewModel @Inject constructor(
     }
 
     fun onImagesSelected(newImages: List<Uri>) {
-        _selectedImages.value += newImages
+        _selectedImages.update { it.apply { addAll(newImages) } }
     }
 
     fun onImageDeleted(imageToDelete: Uri) {
-        _selectedImages.value -= imageToDelete
+        _selectedImages.update { it.apply { remove(imageToDelete) } }
     }
 
 
@@ -109,7 +108,7 @@ class SchoolKillerViewModel @Inject constructor(
 //    val uiState: StateFlow<UiState> =
 //        _uiState.asStateFlow()
 
-    private val _textGenerationResult = MutableStateFlow<String?>("waiting...")
+    private val _textGenerationResult = MutableStateFlow<String?>("")
     val textGenerationResult = _textGenerationResult.asStateFlow()
 
     fun UpdateTextGenerationResult(resultText: String?) {
@@ -117,16 +116,13 @@ class SchoolKillerViewModel @Inject constructor(
     }
 
 
-    private val _uploadProgress = MutableStateFlow(0L)
-    val uploadProgress: StateFlow<Long> = _uploadProgress
-
 
     fun uploadFile(
         imageUri: Uri,
         fileName: String,
         prompt: String
     ) {
-        viewModelScope.launch {
+         viewModelScope.launch {
             val fileByteArray = getImageByteArrayUseCase.invoke(imageUri = imageUri)
             val uploadResult = geminiApiService.uploadFileWithProgress(
                 fileByteArray,
@@ -152,10 +148,11 @@ class SchoolKillerViewModel @Inject constructor(
                         UpdateTextGenerationResult("Something went wrong!")
                     }
                 }
-
             }
         }
+
     }
+
 }
 
 

@@ -11,6 +11,8 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -33,6 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
@@ -51,7 +54,7 @@ fun HomeScreen(
     context: Context,
     viewModel: SchoolKillerViewModel = hiltViewModel(),
     onNavigateToResultScreen: () -> Unit,
-//    onNavigateToGeminiAnswerScreen: () -> Unit
+    onNavigateToGeminiAnswerScreen: () -> Unit
 ) {
 
     val pictures by viewModel.allPictures.collectAsState(initial = emptyList())
@@ -63,9 +66,7 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
 
     val resultText = viewModel.textGenerationResult.collectAsState()
-    var prompt by remember { mutableStateOf("describe the image") }
-
-
+    var prompt by remember { mutableStateOf(context.getString(R.string.prompt_text)) }
 
 
 
@@ -88,15 +89,36 @@ fun HomeScreen(
 //            onOptionSelected = { viewModel.updateSelectedUploadMethodOption(it) },
 //            optionToString = { option, context -> option.getString(context) }
 //        )
-        ImagePicker(context = context, viewModel = viewModel)
+
 
         LazyColumn(
             modifier = modifier
-                .height(480.dp),
+                .fillMaxHeight(0.85f),
+//                .height(480.dp),
             state = state,
             content = {
 
-                itemsIndexed(images.value) { index, imageUri ->
+                item {
+                    OutlinedTextField(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 100.dp),
+                        value = prompt,
+                        onValueChange = { prompt = it },
+
+                        )
+                }
+
+
+                item { Spacer(modifier.height(8.dp)) }
+
+                item { ImagePicker(context = context, viewModel = viewModel) }
+
+                item { Spacer(modifier.height(8.dp)) }
+
+                itemsIndexed(
+                    images.value,
+                    key = { index, _ -> images.value[index] }) { index, imageUri ->
                     var offset by remember { mutableFloatStateOf(0f) }
 
                     val isSelected = index == selectedImageIndex.value
@@ -127,21 +149,18 @@ fun HomeScreen(
                         onOffsetChange = { newOffset -> offset = newOffset },
                         onRemove = {
                             viewModel.onImageDeleted(imageUri)
+                            if (selectedImageIndex.value == index) {
+                                selectedImageIndex.value = null
+                            }
                         }
                     )
 
                 }
-                item {
-                    OutlinedTextField(
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 100.dp),
-                        value = prompt,
-                        onValueChange = { prompt = it },
 
-                        )
-                }
 
+                item { Spacer(modifier.height(8.dp)) }
+
+                if (resultText.value?.isNotEmpty() == true) {
                 item {
                     OutlinedTextField(
                         modifier = modifier
@@ -152,6 +171,7 @@ fun HomeScreen(
                         readOnly = true
                     )
                 }
+            }
             }
         )
 
@@ -178,25 +198,25 @@ fun HomeScreen(
             verticalAlignment = Alignment.CenterVertically,
             content = {
 
-                UniversalButton(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                        .weight(1f),
-                    label = R.string.cheat_sheet_button_label
-                ) {
-                    onNavigateToResultScreen()
-                }
+//                UniversalButton(
+//                    modifier = modifier
+//                        .fillMaxWidth()
+//                        .padding(horizontal = 8.dp)
+//                        .weight(1f),
+//                    label = R.string.cheat_sheet_button_label
+//                ) {
+//                    onNavigateToResultScreen()
+//                }
 
-                UniversalButton(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                        .weight(1f),
-                    label = R.string.check_solution_button_label
-                ) {
-                    onNavigateToResultScreen()
-                }
+//                UniversalButton(
+//                    modifier = modifier
+//                        .fillMaxWidth()
+//                        .padding(horizontal = 8.dp)
+//                        .weight(1f),
+//                    label = R.string.check_solution_button_label
+//                ) {
+//                    onNavigateToResultScreen()
+//                }
 
                 UniversalButton(
                     modifier = modifier
@@ -209,10 +229,11 @@ fun HomeScreen(
                         images.value.isEmpty() -> {
                             Toast.makeText(
                                 context,
-                                "Please upload an image from the device",
+                                "Please load an image from the device",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
+
                         selectedImageUri != null -> {
                             viewModel.uploadFile(
                                 imageUri = selectedImageUri,
@@ -220,6 +241,7 @@ fun HomeScreen(
                                 prompt
                             )
                         }
+
                         else -> {
                             Toast.makeText(
                                 context,

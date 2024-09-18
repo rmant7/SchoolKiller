@@ -28,7 +28,7 @@ fun NavigationController(
                 context = context,
                 viewModel = viewModel,
                 onNavigateToResultScreen = {  navController.navigate(Screens.ResultScreen.route) },
-//                onNavigateToGeminiAnswerScreen = { navController.navigate(Screens.GeminiAnswerScreen) }
+                onNavigateToGeminiAnswerScreen = { navController.navigate(Screens.GeminiAnswerScreen) }
             )
         }
 
@@ -42,12 +42,12 @@ fun NavigationController(
             )
         }
 
-//        composable(Screens.GeminiAnswerScreen.route){
-//            GeminiAnswerScreen(
-//                context = context,
-//                viewModel = viewModel
-//            )
-//        }
+        composable(Screens.GeminiAnswerScreen.route){
+            GeminiAnswerScreen(
+                context = context,
+                viewModel = viewModel
+            )
+        }
 
     }
 }
@@ -55,5 +55,5 @@ fun NavigationController(
 sealed class Screens(val route: String) {
     data object ResultScreen : Screens(Constants.RESULT_SCREEN)
     data object HomeScreen : Screens(Constants.HOME_SCREEN)
-//    data object GeminiAnswerScreen : Screens(Constants.GEMINI_ANSWER_SCREEN)
+    data object GeminiAnswerScreen : Screens(Constants.GEMINI_ANSWER_SCREEN)
 }
