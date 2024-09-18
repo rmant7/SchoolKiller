@@ -1,6 +1,5 @@
 package com.schoolkiller.ui.screens
 
-import ExposedDropBox
 import android.content.Context
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -18,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
 import com.schoolkiller.ui.reusable_components.ApplicationScaffold
+import com.schoolkiller.ui.reusable_components.DropBox
 import com.schoolkiller.ui.reusable_components.UniversalButton
 import com.schoolkiller.utils.ExplanationLevelOptions
 import com.schoolkiller.utils.GradeOptions
@@ -44,6 +44,8 @@ fun ResultScreen(
     var additionalInformationText by remember { mutableStateOf("") }
 
 
+
+
     // remove
 //    val classOptions = remember { context.resources.getStringArray(R.array.grades).toList() }
 //    val languageOptions = remember { context.resources.getStringArray(R.array.languages).toList() }
@@ -57,8 +59,10 @@ fun ResultScreen(
     ApplicationScaffold {
 
 
-        ExposedDropBox(
+        DropBox(
             maxHeightIn = 200.dp,
+            xDpOffset = 205.dp,
+            yDpOffset = (-30).dp,
             context = context,
             label = R.string.grade_label,
             selectedOption = selectedGrade,
@@ -67,8 +71,10 @@ fun ResultScreen(
             optionToString = { option, context -> option.getString(context) }
         )
 
-        ExposedDropBox(
+        DropBox(
             maxHeightIn = 200.dp,
+            xDpOffset = 155.dp,
+            yDpOffset = (-30).dp,
             context = context,
             label = R.string.solution_language_label,
             selectedOption = selectedSolutionLanguage,
@@ -77,8 +83,10 @@ fun ResultScreen(
             optionToString = { option, context -> option.getString(context) }
         )
 
-        ExposedDropBox(
+        DropBox(
             maxHeightIn = 200.dp,
+            xDpOffset = 155.dp,
+            yDpOffset = (-30).dp,
             context = context,
             label = R.string.explanations_label,
             selectedOption = selectedExplanationLevel,
