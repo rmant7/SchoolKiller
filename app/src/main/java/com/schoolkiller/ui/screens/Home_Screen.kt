@@ -1,6 +1,7 @@
 package com.schoolkiller.ui.screens
 
 import android.content.Context
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
@@ -9,13 +10,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -32,6 +31,7 @@ import com.schoolkiller.R
 import com.schoolkiller.ui.reusable_components.ApplicationScaffold
 import com.schoolkiller.ui.reusable_components.ImagePicker
 import com.schoolkiller.ui.reusable_components.PictureItem
+import com.schoolkiller.ui.reusable_components.ScreenImage
 import com.schoolkiller.ui.reusable_components.UniversalButton
 import com.schoolkiller.view_model.SchoolKillerViewModel
 
@@ -44,6 +44,7 @@ fun HomeScreen(
 //    onNavigateToGeminiAnswerScreen: () -> Unit
 ) {
 
+
     val pictures by viewModel.allPictures.collectAsState(initial = emptyList())
     val selectedUploadFileMethod = viewModel.selectedUploadMethodOption
     val images = viewModel.selectedImages.collectAsState()
@@ -52,7 +53,8 @@ fun HomeScreen(
     val state = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
-    val resultText = viewModel.textGenerationResult.collectAsState()
+    //Moved to Answer_Screen
+    //val resultText = viewModel.textGenerationResult.collectAsState()
     var prompt by remember { mutableStateOf("describe the image") }
 
 
@@ -62,27 +64,27 @@ fun HomeScreen(
     ApplicationScaffold(
     ) {
 
-//        ScreenImage(
-//            image = R.drawable.upload_to_school_assistant,
-//            contentDescription = R.string.upload_to_ai_school_image_assistant_content_description
-//        )
+        ScreenImage(
+            image = R.drawable.upload_to_school_assistant,
+            contentDescription = R.string.upload_to_ai_school_image_assistant_content_description
+       )
 
-//        DropBox(
-//            context = context,
-//            maxHeightIn = 200.dp,
-//            xDpOffset = 155.dp,
-//            yDpOffset = (-30).dp,
-//            label = R.string.upload_a_file_label,
-//            selectedOption = selectedUploadFileMethod,
-//            options = UploadFileMethodOptions.entries.toList(),
-//            onOptionSelected = { viewModel.updateSelectedUploadMethodOption(it) },
-//            optionToString = { option, context -> option.getString(context) }
-//        )
+        /*DropBox(
+            context = context,
+            maxHeightIn = 200.dp,
+            xDpOffset = 155.dp,
+            yDpOffset = (-30).dp,
+           label = R.string.upload_a_file_label,
+            selectedOption = selectedUploadFileMethod,
+           options = UploadFileMethodOptions.entries.toList(),
+            onOptionSelected = { viewModel.updateSelectedUploadMethodOption(it) },
+            optionToString = { option, context -> option.getString(context) }
+        )*/
         ImagePicker(context = context, viewModel = viewModel)
 
         LazyColumn(
             modifier = modifier
-                .height(480.dp),
+                .height(100.dp),
             state = state,
             content = {
 
@@ -121,7 +123,10 @@ fun HomeScreen(
                     )
 
                 }
-                item {
+
+                //Description prompt input field
+
+                /*item {
                     OutlinedTextField(
                         modifier = modifier
                             .fillMaxWidth()
@@ -130,9 +135,11 @@ fun HomeScreen(
                         onValueChange = { prompt = it },
 
                         )
-                }
+                }*/
 
-                item {
+                //AI Result text field was moved to Answer Screen
+
+                /*item {
                     OutlinedTextField(
                         modifier = modifier
                             .fillMaxWidth(),
@@ -141,7 +148,7 @@ fun HomeScreen(
                         onValueChange = {},
                         readOnly = true
                     )
-                }
+                }*/
             }
         )
 
@@ -168,7 +175,9 @@ fun HomeScreen(
             verticalAlignment = Alignment.CenterVertically,
             content = {
 
-                UniversalButton(
+                //Cheat sheet and Check Solution Buttons
+
+               /* UniversalButton(
                     modifier = modifier
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp)
@@ -186,13 +195,13 @@ fun HomeScreen(
                     label = R.string.check_solution_button_label
                 ) {
                     onNavigateToResultScreen()
-                }
+                }*/
 
                 UniversalButton(
                     modifier = modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                        .weight(1f),
+                        .padding(horizontal = 8.dp),
+                        //.weight(1f),
                     label = R.string.solve_button_label
                 ) {
                     when {
@@ -204,11 +213,13 @@ fun HomeScreen(
                             ).show()
                         }
                         selectedImageUri != null -> {
-                            viewModel.uploadFile(
+                            /*viewModel.fetchGeminiResponse(
                                 imageUri = selectedImageUri,
                                 fileName = "$selectedImageUri}",
                                 prompt
-                            )
+                            )*/
+                            viewModel.updateSelectedUri(selectedImageUri)
+                            onNavigateToResultScreen()
                         }
                         else -> {
                             Toast.makeText(

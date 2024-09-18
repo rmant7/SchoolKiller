@@ -19,6 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
 import com.schoolkiller.ui.reusable_components.ApplicationScaffold
 import com.schoolkiller.ui.reusable_components.UniversalButton
+import com.schoolkiller.utils.AiModelOptions
 import com.schoolkiller.utils.ExplanationLevelOptions
 import com.schoolkiller.utils.GradeOptions
 import com.schoolkiller.utils.SolutionLanguageOptions
@@ -38,6 +39,7 @@ fun ResultScreen(
 //    var selectedGrade by remember { mutableStateOf(classOptions[0]) }
 //    var selectedLanguage by remember { mutableStateOf(languageOptions[0]) }
 //    var selectedExplanation by remember { mutableStateOf(explanationOptions[0]) }
+    val selectedAiModel = viewModel.selectedAiModelOption
     val selectedGrade = viewModel.selectedGradeOption
     val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption
     val selectedExplanationLevel = viewModel.selectedExplanationLevelOption
@@ -55,6 +57,16 @@ fun ResultScreen(
 
 
     ApplicationScaffold {
+
+        ExposedDropBox(
+            maxHeightIn = 200.dp,
+            context = context,
+            label = R.string.grade_label,
+            selectedOption = selectedAiModel,
+            options = AiModelOptions.entries.toList(),
+            onOptionSelected = { viewModel.updateSelectedAiModelOption(it) },
+            optionToString = { option, context -> option.getString(context) }
+        )
 
 
         ExposedDropBox(
@@ -106,6 +118,9 @@ fun ResultScreen(
             modifier = modifier.fillMaxWidth(),
             label = R.string.next_button_label,
         ) {
+            viewModel.selectedUri?.let {
+                viewModel.fetchAIResponse(it, "", viewModel.selectedAiModelOption)
+            }
             onNavigateToNextPage()
         }
 

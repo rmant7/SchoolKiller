@@ -23,6 +23,11 @@
     <string name="grade_label">"Grade"</string>
 
     // Drop Down Menu Entries
+    <string-array name="AI_models">
+        <item>Model 1</item>
+        <item>Model 2</item>
+    </string-array>
+
     <string-array name="grades">
         <item>Not relevant</item>
         <item>1</item>

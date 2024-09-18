@@ -78,6 +78,10 @@ android {
 
 dependencies {
 
+    //LangChain4j
+    implementation (libs.dev.langchain4j.langchain4j.open.ai)
+    implementation (libs.langchain4j)
+
     // CameraX
     implementation (libs.androidx.camera.camera2)
     implementation (libs.androidx.camera.lifecycle)
