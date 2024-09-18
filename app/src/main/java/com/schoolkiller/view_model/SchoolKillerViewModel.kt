@@ -1,7 +1,6 @@
 package com.schoolkiller.view_model
 
 import android.net.Uri
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -15,8 +14,6 @@ import com.schoolkiller.domain.usecases.AddPictureUseCase
 import com.schoolkiller.domain.usecases.DeletePictureUseCase
 import com.schoolkiller.domain.usecases.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.GetImageByteArrayUseCase
-import com.schoolkiller.domain.usecases.ImagePickerUseCase
-import com.schoolkiller.ui.UiState
 import com.schoolkiller.utils.ExplanationLevelOptions
 import com.schoolkiller.utils.GradeOptions
 import com.schoolkiller.utils.SolutionLanguageOptions

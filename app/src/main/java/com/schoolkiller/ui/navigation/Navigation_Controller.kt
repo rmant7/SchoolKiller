@@ -7,9 +7,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.schoolkiller.ui.screens.GeminiAnswerScreen
-import com.schoolkiller.ui.screens.ResultScreen
 import com.schoolkiller.ui.screens.HomeScreen
+import com.schoolkiller.ui.screens.ResultScreen
 import com.schoolkiller.utils.Constants
 import com.schoolkiller.view_model.SchoolKillerViewModel
 
