@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SchoolKiller</string>
+
+    // Content Descriptions
+    <string name="ai_school_assistant_image_content_description">AI School Assistant Image</string>
+    <string name="upload_to_ai_school_image_assistant_content_description">העלה ל AI School Assistant Image</string>
+    <string name="ArrowDropDown_icon_content_description">פותח תפריט משנה</string>
+
+    // Button Labels
+    <string name="next_button_label">הבא</string>
+    <string name="solve_button_label">לפתור</string>
+    <string name="check_solution_button_label">בדוק פתרון</string>
+    <string name="cheat_sheet_button_label">גיליון לרמות</string>
+
+    // Text Field Labels
+    <string name="additional_information_TextField_label">מידע נוסף</string>
+    <string name="What_to_solve_TextField_label">מה לפתור?</string>
+<!--    <string name="What_to_solve_TextField_label">מה לפתור?</string>-->
+
+    // Drop Down Menu Labels
+    <string name="solution_language_label">שפת הפתרון</string>
+    <string name="upload_a_file_label">להעלות קובץ</string>
+    <string name="explanations_label">הסברים</string>
+    <string name="grade_label">"כיתה"</string>
+	
+    // Drop Down Menu Entries
+    <string-array name="grades">
+        <item>לא משנה</item>
+        <item>א</item>
+        <item>ב</item>
+        <item>ג</item>
+        <item>ד</item>
+        <item>ה</item>
+        <item>ו</item>
+        <item>ז</item>
+        <item>ח</item>
+        <item>ט</item>
+        <item>י</item>
+        <item>יא</item>
+        <item>יב</item>
+    </string-array>
+
+    // Drop Down Menu Entries
+    <string-array name="languages">
+		<item>שפת המשימה המקורית</item>
+        <item>אנגלית</item>
+        <item>רוסית</item>
+        <item>עברית</item>    
+	</string-array>
+
+    // Drop Down Menu Entries
+    <string-array name="explanations">
+        <item>בלי הסבר</item>
+        <item>הסבר קצר</item>
+        <item>הסבר מפורט</item>
+    </string-array>
+
+	<string-array name="upload_file_methods">
+        <item>צלם תמונה</item>
+        <item>העלה תמונה</item>
+        <item>העלה קובץ</item>
+        <item>ספק קישור</item>
+    </string-array>
+
+</resources>

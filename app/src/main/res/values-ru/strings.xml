@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SchoolKiller</string>
+
+    // Content Descriptions
+    <string name="ai_school_assistant_image_content_description">Изображение AI School Assistant</string>
+    <string name="upload_to_ai_school_image_assistant_content_description">Загрузить изображение AI School Assistant</string>
+    <string name="ArrowDropDown_icon_content_description">Открыть sub-меню</string>
+
+	// Button Labels
+    <string name="next_button_label">Дальше</string>
+    <string name="solve_button_label">Решить</string>
+    <string name="check_solution_button_label">Проверить решение</string>
+    <string name="cheat_sheet_button_label">Шпаргалка</string>
+
+    // Text Field Labels
+    <string name="additional_information_TextField_label">Дополнительная информация</string>
+    <string name="What_to_solve_TextField_label">Что решить?</string>
+
+    // Drop Down Menu Labels
+    <string name="solution_language_label">Язык решения</string>
+    <string name="upload_a_file_label">Загрузить файл</string>
+    <string name="explanations_label">Пояснения</string>
+    <string name="grade_label">"Класс"</string>
+
+// Drop Down Menu Entries
+    <string-array name="grades">
+        <item>Не важно</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+    </string-array>
+
+    <string-array name="languages">
+        <item>Исходный язык задачи</item>
+        <item>Английский</item>
+        <item>Русский</item>
+        <item>Иврит</item>
+    </string-array>
+
+    <string-array name="explanations">
+        <item>Без объяснения</item>
+        <item>Краткое объяснение</item>
+        <item>Подробное объяснение</item>
+    </string-array>
+
+    <string-array name="upload_file_methods">
+        <item>Сфотографировать</item>
+        <item>Загрузить изображение</item>
+        <item>Загрузить файл</item>
+        <item>Предоставить ссылку</item>
+    </string-array></resources>
