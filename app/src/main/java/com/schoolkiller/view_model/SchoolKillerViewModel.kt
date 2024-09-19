@@ -1,46 +1,34 @@
 package com.schoolkiller.view_model
 
-import android.app.Application
-import android.database.Cursor
-import android.graphics.Bitmap
 import android.net.Uri
-import android.provider.MediaStore
-import android.util.Base64
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.schoolkiller.SchoolKillerApplication
 import com.schoolkiller.data_Layer.entities.Picture
 import com.schoolkiller.data_Layer.network.api.GeminiApiService
 import com.schoolkiller.data_Layer.repositories.PictureRepository
-import com.schoolkiller.domain.usecases.AddPictureUseCase
-import com.schoolkiller.domain.usecases.DeletePictureUseCase
-import com.schoolkiller.domain.usecases.ExtractGeminiResponseUseCase
-import com.schoolkiller.domain.usecases.GetImageByteArrayUseCase
-import com.schoolkiller.utils.AiModelOptions
+import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
+import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
+import com.schoolkiller.domain.usecases.database.AddPictureUseCase
+import com.schoolkiller.domain.usecases.database.DeletePictureUseCase
+import com.schoolkiller.domain.usecases.prompt.ConvertPromptUseCases
 import com.schoolkiller.utils.ExplanationLevelOptions
 import com.schoolkiller.utils.GradeOptions
 import com.schoolkiller.utils.SolutionLanguageOptions
 import com.schoolkiller.utils.UploadFileMethodOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.langchain4j.data.message.AiMessage
-import dev.langchain4j.data.message.ImageContent
-import dev.langchain4j.data.message.TextContent
-import dev.langchain4j.data.message.UserMessage
-import dev.langchain4j.model.openai.OpenAiChatModel
-import dev.langchain4j.model.output.Response
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
 
@@ -51,20 +39,31 @@ class SchoolKillerViewModel @Inject constructor(
     private val deletePictureUseCase: DeletePictureUseCase,
     private val geminiApiService: GeminiApiService,
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
-    private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase, application: Application
-) : AndroidViewModel(application) {
+    private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
+    private val convertPromptUseCases: ConvertPromptUseCases
+) : ViewModel() {
+
+    // removed Application context from viewModel because it can bring memory leaks
+    // we can inject context through use cases with hilt or use parameters here in the functions
 
     val allPictures = pictureRepository.allPictures
 
     //selected Uri
-    private var _selectedUri by mutableStateOf<Uri?>(null)
-    val selectedUri: Uri?
-        get() = _selectedUri
+    private var _selectedUri = MutableStateFlow<Uri?>(null)
+    val selectedUri: StateFlow<Uri?> = _selectedUri
+
+    // converted prompt by Additional Information Screen
+    private var _originalPrompt = MutableStateFlow<String>("")
+    val originalPrompt: StateFlow<String> = _originalPrompt
+
+    // Additional Information Text addition
+    private var _additionalInfoText = MutableStateFlow<String>("")
+    val additionalInfoText: StateFlow<String> = _additionalInfoText
 
     //model selection
-    private var _selectedAiModelOption by mutableStateOf(AiModelOptions.MODEL_ONE)
-    val selectedAiModelOption: AiModelOptions
-        get() = _selectedAiModelOption
+//    private var _selectedAiModelOption by mutableStateOf(AiModelOptions.MODEL_ONE)
+//    val selectedAiModelOption: AiModelOptions
+//        get() = _selectedAiModelOption
 
     private var _selectedGradeOption by mutableStateOf(GradeOptions.NONE)
     val selectedGradeOption: GradeOptions
@@ -80,19 +79,27 @@ class SchoolKillerViewModel @Inject constructor(
 
 
     private val _selectedImages = MutableStateFlow(mutableStateListOf<Uri>())
-    val selectedImages: StateFlow<List<Uri>> = _selectedImages
+    val selectedImages: StateFlow<SnapshotStateList<Uri>> = _selectedImages
 
     private var _selectedUploadMethodOption by mutableStateOf(UploadFileMethodOptions.TAKE_A_PICTURE)
     val selectedUploadMethodOption: UploadFileMethodOptions
         get() = _selectedUploadMethodOption
 
-    fun updateSelectedUri(newUri: Uri){
-        _selectedUri = newUri
+    fun updateSelectedUri(newUri: Uri?) {
+        _selectedUri.value = newUri
     }
 
-    fun updateSelectedAiModelOption(newAiModelSelection: AiModelOptions) {
-        _selectedAiModelOption = newAiModelSelection
+    fun updatePrompt(convertedPrompt: String) {
+        _originalPrompt.value = convertedPrompt
     }
+
+    fun updateAdditionalInfoText(addedText: String) {
+        _additionalInfoText.value = addedText
+    }
+
+//    fun updateSelectedAiModelOption(newAiModelSelection: AiModelOptions) {
+//        _selectedAiModelOption = newAiModelSelection
+//    }
 
     fun updateSelectedGradeOption(newClassSelection: GradeOptions) {
         _selectedGradeOption = newClassSelection
@@ -111,11 +118,11 @@ class SchoolKillerViewModel @Inject constructor(
     }
 
     fun onImagesSelected(newImages: List<Uri>) {
-        _selectedImages.value += newImages
+        _selectedImages.update { it.apply { addAll(newImages) } }
     }
 
     fun onImageDeleted(imageToDelete: Uri) {
-        _selectedImages.value -= imageToDelete
+        _selectedImages.update { it.apply { remove(imageToDelete) } }
     }
 
 
@@ -132,71 +139,64 @@ class SchoolKillerViewModel @Inject constructor(
     }
 
 
-//    private val _uiState: MutableStateFlow<UiState> =
-//        MutableStateFlow(UiState.Initial)
-//    val uiState: StateFlow<UiState> =
-//        _uiState.asStateFlow()
 
-    private val _textGenerationResult = MutableStateFlow<String?>("waiting...")
+    private val _textGenerationResult = MutableStateFlow<String?>("")
     val textGenerationResult = _textGenerationResult.asStateFlow()
 
-    private fun updateTextGenerationResult(resultText: String?) {
+    fun updateTextGenerationResult(resultText: String?) {
         _textGenerationResult.value = resultText
     }
 
 
-    private val _uploadProgress = MutableStateFlow(0L)
-    val uploadProgress: StateFlow<Long> = _uploadProgress
+//    fun fetchAIResponse(
+//        imageUri: Uri,
+//        fileName: String,
+//        aiModelOption: AiModelOptions
+//    ) {
+//        fetchGeminiResponse(imageUri, fileName, "")
+//
+//        //OpenAi solution crashes
+//
+//        /*when (aiModelOption) {
+//           AiModelOptions.MODEL_ONE -> fetchOpenAiResponse(imageUri)
+//            AiModelOptions.MODEL_TWO -> fetchGeminiResponse(
+//                imageUri, fileName, ""
+//            )
+//        }*/
+//    }
 
-    fun fetchAIResponse(
-        imageUri: Uri,
-        fileName: String,
-        aiModelOption: AiModelOptions
-    ) {
-        fetchGeminiResponse(imageUri, fileName, "")
+//    private fun convertToBase64(selectedUri: Uri): String {
+//        val bitmap = MediaStore.Images.Media.getBitmap(
+//            getApplication<SchoolKillerApplication>().contentResolver,
+//            selectedUri)
+//        val outputStream = ByteArrayOutputStream()
+//        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+//        val byteArray = outputStream.toByteArray()
+//
+//        val encodedString: String = Base64.encodeToString(
+//            byteArray, Base64.DEFAULT)
+//        return encodedString
+//    }
 
-        //OpenAi solution crashes
+//    private fun fetchOpenAiResponse(imageUri: Uri) {
+//        viewModelScope.launch (Dispatchers.IO){
+//           val model: OpenAiChatModel = OpenAiChatModel.builder()
+//                .apiKey("demo")
+//                .modelName("gpt-4o-mini")
+//                .build()
+//
+//            val userMessage: UserMessage = UserMessage.from(
+//                TextContent.from("What is in this picture?"),
+//                ImageContent.from(convertToBase64(imageUri), "image/png",
+//                    ImageContent.DetailLevel.LOW)
+//            )
+//            val response: Response<AiMessage> = model.generate(userMessage)
+//
+//            updateTextGenerationResult(response.content().text())
+//        }
+//    }
 
-        /*when (aiModelOption) {
-           AiModelOptions.MODEL_ONE -> fetchOpenAiResponse(imageUri)
-            AiModelOptions.MODEL_TWO -> fetchGeminiResponse(
-                imageUri, fileName, ""
-            )
-        }*/
-    }
-
-    private fun convertToBase64(selectedUri: Uri): String {
-        val bitmap = MediaStore.Images.Media.getBitmap(
-            getApplication<SchoolKillerApplication>().contentResolver,
-            selectedUri)
-        val outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-        val byteArray = outputStream.toByteArray()
-
-        val encodedString: String = Base64.encodeToString(
-            byteArray, Base64.DEFAULT)
-        return encodedString
-    }
-
-    private fun fetchOpenAiResponse(imageUri: Uri) {
-        viewModelScope.launch (Dispatchers.IO){
-           val model: OpenAiChatModel = OpenAiChatModel.builder()
-                .apiKey("demo")
-                .modelName("gpt-4o-mini")
-                .build()
-
-            val userMessage: UserMessage = UserMessage.from(
-                TextContent.from("What is in this picture?"),
-                ImageContent.from(convertToBase64(imageUri), "image/png",
-                    ImageContent.DetailLevel.LOW)
-            )
-            val response: Response<AiMessage> = model.generate(userMessage)
-
-            updateTextGenerationResult(response.content().text())
-        }
-    }
-
-    private fun fetchGeminiResponse(
+    fun fetchGeminiResponse(
         imageUri: Uri,
         fileName: String,
         prompt: String
@@ -224,13 +224,41 @@ class SchoolKillerViewModel @Inject constructor(
                         updateTextGenerationResult(textResponse)
                     } else {
                         // Handle the case where the URI couldn't be extracted
-                        updateTextGenerationResult("Something went wrong!")
+                        updateTextGenerationResult("Something went wrong!") // TODO { hardcode string }
                     }
                 }
 
             }
         }
     }
+
+    fun importGradeToOriginalPrompt() {
+        updatePrompt(
+            convertPromptUseCases.importGradeToPromptUseCase.invoke(
+                gradeOption = selectedGradeOption,
+                originalPrompt = originalPrompt.value
+            )
+        )
+    }
+
+    fun importLanguageToOriginalPrompt() {
+        updatePrompt(
+            convertPromptUseCases.importLanguageToPromptUseCase.invoke(
+                languageOption = selectedSolutionLanguageOption,
+                originalPrompt = originalPrompt.value
+            )
+        )
+    }
+
+    fun importAdditionalInfoToOriginalPrompt() {
+        updatePrompt(
+            convertPromptUseCases.importAdditionalInfoToPromptUseCase.invoke(
+                originalPrompt = originalPrompt.value,
+                additionalInformationText = additionalInfoText.value
+            )
+        )
+    }
+
 }
 
 

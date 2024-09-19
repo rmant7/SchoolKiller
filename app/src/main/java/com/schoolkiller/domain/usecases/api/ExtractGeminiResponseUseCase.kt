@@ -1,4 +1,4 @@
-package com.schoolkiller.domain.usecases
+package com.schoolkiller.domain.usecases.api
 
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
@@ -12,7 +12,7 @@ class ExtractGeminiResponseUseCase @Inject constructor(
         val json = Json { ignoreUnknownKeys = true }
         val geminiResponse = json.decodeFromString<GeminiResponse>(jsonResponse)
         return geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text
-            ?: "No content available"
+            ?: "No content available"  // TODO { hardcode string }
     }
 }
 

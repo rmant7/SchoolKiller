@@ -1,19 +1,19 @@
 package com.schoolkiller.ui.screens
 
 import android.content.Context
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -40,8 +40,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     context: Context,
     viewModel: SchoolKillerViewModel = hiltViewModel(),
-    onNavigateToResultScreen: () -> Unit,
-//    onNavigateToGeminiAnswerScreen: () -> Unit
+    onNavigateToAdditionalInformationScreen: () -> Unit,
 ) {
 
 
@@ -53,12 +52,6 @@ fun HomeScreen(
     val state = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
-    //Moved to Answer_Screen
-    //val resultText = viewModel.textGenerationResult.collectAsState()
-    var prompt by remember { mutableStateOf("describe the image") }
-
-
-
 
 
     ApplicationScaffold(
@@ -67,7 +60,7 @@ fun HomeScreen(
         ScreenImage(
             image = R.drawable.upload_to_school_assistant,
             contentDescription = R.string.upload_to_ai_school_image_assistant_content_description
-       )
+        )
 
         /*DropBox(
             context = context,
@@ -84,7 +77,7 @@ fun HomeScreen(
 
         LazyColumn(
             modifier = modifier
-                .height(100.dp),
+                .fillMaxHeight(0.75f),
             state = state,
             content = {
 
@@ -101,14 +94,11 @@ fun HomeScreen(
                         }
                         .then(
                             if (isSelected) Modifier.border(
-                                BorderStroke(
-                                    4.dp,
-                                    MaterialTheme.colorScheme.primary
-                                )
+                                width = 4.dp,
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(16.dp)
                             ) else Modifier
                         )
-
-
 
                     PictureItem(
                         imageModifier = imageModifier,
@@ -119,36 +109,12 @@ fun HomeScreen(
                         onOffsetChange = { newOffset -> offset = newOffset },
                         onRemove = {
                             viewModel.onImageDeleted(imageUri)
+                            if (selectedImageIndex.value == index) {
+                                selectedImageIndex.value = null
+                            }
                         }
                     )
-
                 }
-
-                //Description prompt input field
-
-                /*item {
-                    OutlinedTextField(
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 100.dp),
-                        value = prompt,
-                        onValueChange = { prompt = it },
-
-                        )
-                }*/
-
-                //AI Result text field was moved to Answer Screen
-
-                /*item {
-                    OutlinedTextField(
-                        modifier = modifier
-                            .fillMaxWidth(),
-//                            .heightIn(max = 280.dp),
-                        value = "${resultText.value}",
-                        onValueChange = {},
-                        readOnly = true
-                    )
-                }*/
             }
         )
 
@@ -177,61 +143,56 @@ fun HomeScreen(
 
                 //Cheat sheet and Check Solution Buttons
 
-               /* UniversalButton(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                        .weight(1f),
-                    label = R.string.cheat_sheet_button_label
-                ) {
-                    onNavigateToResultScreen()
-                }
+                /* UniversalButton(
+                     modifier = modifier
+                         .fillMaxWidth()
+                         .padding(horizontal = 8.dp)
+                         .weight(1f),
+                     label = R.string.cheat_sheet_button_label
+                 ) {
+                     onNavigateToResultScreen()
+                 }
 
-                UniversalButton(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                        .weight(1f),
-                    label = R.string.check_solution_button_label
-                ) {
-                    onNavigateToResultScreen()
-                }*/
+                 UniversalButton(
+                     modifier = modifier
+                         .fillMaxWidth()
+                         .padding(horizontal = 8.dp)
+                         .weight(1f),
+                     label = R.string.check_solution_button_label
+                 ) {
+                     onNavigateToResultScreen()
+                 }*/
 
                 UniversalButton(
                     modifier = modifier
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp),
-                        //.weight(1f),
+                    //.weight(1f),
                     label = R.string.solve_button_label
                 ) {
                     when {
                         images.value.isEmpty() -> {
                             Toast.makeText(
                                 context,
-                                "Please upload an image from the device",
+                                "Please upload an image from the device", // TODO { hardcode string }
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
+
                         selectedImageUri != null -> {
-                            /*viewModel.fetchGeminiResponse(
-                                imageUri = selectedImageUri,
-                                fileName = "$selectedImageUri}",
-                                prompt
-                            )*/
                             viewModel.updateSelectedUri(selectedImageUri)
-                            onNavigateToResultScreen()
+                            onNavigateToAdditionalInformationScreen()
                         }
+
                         else -> {
                             Toast.makeText(
                                 context,
-                                "Please select an image from the list",
+                                "Please select an image from the list", // TODO { hardcode string }
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
                     }
-//                        onNavigateToGeminiAnswerScreen()
                 }
-
             }
         )
 

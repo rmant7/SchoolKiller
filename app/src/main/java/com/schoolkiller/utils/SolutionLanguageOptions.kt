@@ -3,7 +3,7 @@ package com.schoolkiller.utils
 import android.content.Context
 import com.schoolkiller.R
 
-enum class SolutionLanguageOptions(private val arrayIndex: Int) {
+enum class SolutionLanguageOptions(val arrayIndex: Int) {
     ORIGINAL_TASK_LANGUAGE(0),
     ENGLISH(1),
     RUSSIAN(2),

@@ -7,7 +7,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.schoolkiller.ui.screens.AnswerScreen
+import com.schoolkiller.ui.screens.AdditionalInformationScreen
 import com.schoolkiller.ui.screens.HomeScreen
 import com.schoolkiller.ui.screens.ResultScreen
 import com.schoolkiller.utils.Constants
@@ -27,39 +27,42 @@ fun NavigationController(
             HomeScreen(
                 context = context,
                 viewModel = viewModel,
-                onNavigateToResultScreen = {  navController.navigate(Screens.ResultScreen.route) },
-//                onNavigateToGeminiAnswerScreen = { navController.navigate(Screens.GeminiAnswerScreen) }
+                onNavigateToAdditionalInformationScreen = {
+                    navController.navigate(Screens.AdditionalInformationScreen.route)
+                },
             )
         }
+
+        composable(Screens.AdditionalInformationScreen.route) {
+            AdditionalInformationScreen(
+                context = context,
+                viewModel = viewModel,
+                onNavigateToResultScreen = {
+                    navController.navigate(Screens.ResultScreen.route)
+                }
+            )
+        }
+
+//        composable(Screens.AnswerScreen.route){
+//            AnswerScreen(viewModel = viewModel)
+//        }
 
         composable(Screens.ResultScreen.route) {
             ResultScreen(
                 context = context,
                 viewModel = viewModel,
-                onNavigateToNextPage = {
-                    navController.navigate(Screens.AnswerScreen.route)
-                   // navController.navigate(Screens.HomeScreen.route)
+                onNavigateToHomeScreen = {
+                    navController.navigate(Screens.HomeScreen.route)
                 }
             )
         }
-
-        composable(Screens.AnswerScreen.route){
-            AnswerScreen(viewModel = viewModel)
-        }
-
-//        composable(Screens.GeminiAnswerScreen.route){
-//            GeminiAnswerScreen(
-//                context = context,
-//                viewModel = viewModel
-//            )
-//        }
 
     }
 }
 
 sealed class Screens(val route: String) {
-    data object ResultScreen : Screens(Constants.RESULT_SCREEN)
     data object HomeScreen : Screens(Constants.HOME_SCREEN)
-    data object AnswerScreen : Screens(Constants.ANSWER_SCREEN)
-//    data object GeminiAnswerScreen : Screens(Constants.GEMINI_ANSWER_SCREEN)
+    data object AdditionalInformationScreen : Screens(Constants.ADDITIONAL_INFORMATION_SCREEN)
+    data object ResultScreen : Screens(Constants.RESULT_SCREEN)
+    //    data object AnswerScreen : Screens(Constants.ANSWER_SCREEN)
 }

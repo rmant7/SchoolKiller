@@ -6,8 +6,8 @@ object Constants {
 
     // Screens
     const val HOME_SCREEN = "Home_Screen"
+    const val ADDITIONAL_INFORMATION_SCREEN = "Additional_Information_Screen"
     const val RESULT_SCREEN = "Result_Screen"
-    const val GEMINI_ANSWER_SCREEN = "Gemini_Answer_Screen"
     const val ANSWER_SCREEN = "Answer_Screen"
 
     // Database

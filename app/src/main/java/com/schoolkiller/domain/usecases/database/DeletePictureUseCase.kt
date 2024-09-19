@@ -1,4 +1,4 @@
-package com.schoolkiller.domain.usecases
+package com.schoolkiller.domain.usecases.database
 
 import com.schoolkiller.data_Layer.entities.Picture
 import com.schoolkiller.data_Layer.repositories.PictureRepository

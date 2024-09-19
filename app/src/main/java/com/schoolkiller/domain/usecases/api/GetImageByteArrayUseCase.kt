@@ -1,4 +1,4 @@
-package com.schoolkiller.domain.usecases
+package com.schoolkiller.domain.usecases.api
 
 import android.content.Context
 import android.graphics.Bitmap
