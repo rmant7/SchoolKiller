@@ -73,7 +73,7 @@ class SchoolKillerViewModel @Inject constructor(
     val selectedSolutionLanguageOption: SolutionLanguageOptions
         get() = _selectedLanguageOption
 
-    private var _selectedExplanationLevelOption by mutableStateOf(ExplanationLevelOptions.NO_EXPLANATION)
+    private var _selectedExplanationLevelOption by mutableStateOf(ExplanationLevelOptions.SHORT_EXPLANATION)
     val selectedExplanationLevelOption: ExplanationLevelOptions
         get() = _selectedExplanationLevelOption
 
@@ -245,6 +245,15 @@ class SchoolKillerViewModel @Inject constructor(
         updatePrompt(
             convertPromptUseCases.importLanguageToPromptUseCase.invoke(
                 languageOption = selectedSolutionLanguageOption,
+                originalPrompt = originalPrompt.value
+            )
+        )
+    }
+
+    fun importExplanationToOriginalPrompt() {
+        updatePrompt(
+            convertPromptUseCases.importExplanationToPromptUseCase.invoke(
+                explanationOption = selectedExplanationLevelOption,
                 originalPrompt = originalPrompt.value
             )
         )

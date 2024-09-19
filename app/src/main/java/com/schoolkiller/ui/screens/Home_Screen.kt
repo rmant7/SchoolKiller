@@ -151,7 +151,7 @@ fun HomeScreen(
                      label = R.string.cheat_sheet_button_label
                  ) {
                      onNavigateToResultScreen()
-                 }
+                 }*/
 
                  UniversalButton(
                      modifier = modifier
@@ -160,8 +160,10 @@ fun HomeScreen(
                          .weight(1f),
                      label = R.string.check_solution_button_label
                  ) {
-                     onNavigateToResultScreen()
-                 }*/
+                     //onNavigateToResultScreen()
+
+
+                 }
 
                 UniversalButton(
                     modifier = modifier

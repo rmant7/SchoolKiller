@@ -115,7 +115,10 @@ fun AdditionalInformationScreen(
             label = R.string.explanations_label,
             selectedOption = selectedExplanationLevel,
             options = ExplanationLevelOptions.entries.toList(),
-            onOptionSelected = { viewModel.updateSelectedExplanationLevelOption(it) },
+            onOptionSelected = {
+                viewModel.updateSelectedExplanationLevelOption(it)
+                viewModel.importExplanationToOriginalPrompt()
+            },
             optionToString = { option, context -> option.getString(context) }
         )
 
@@ -124,7 +127,9 @@ fun AdditionalInformationScreen(
                 .fillMaxWidth()
                 .heightIn(max = 95.dp),
             value = additionalInformationText.value,
-            onValueChange = { viewModel.updateAdditionalInfoText(it) },
+            onValueChange = {
+                viewModel.updateAdditionalInfoText(it)
+            },
             label = {
                 Text(
                     modifier = modifier.fillMaxWidth(),
@@ -142,6 +147,7 @@ fun AdditionalInformationScreen(
 //                viewModel.fetchAIResponse(it, "", viewModel.selectedAiModelOption)
 //            }
             viewModel.updateTextGenerationResult("")
+            viewModel.importAdditionalInfoToOriginalPrompt()
             onNavigateToResultScreen()
         }
 
