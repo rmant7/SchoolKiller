@@ -58,11 +58,7 @@ fun AdditionalInformationScreen(
 //    var additionalInformationText by remember { mutableStateOf("") }
 
 
-    LaunchedEffect(true) {
-        viewModel.updatePrompt(
-            context.getString(R.string.prompt_text)
-        )
-    }
+
 
 
     ApplicationScaffold {
