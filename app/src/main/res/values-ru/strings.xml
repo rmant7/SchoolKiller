@@ -7,11 +7,17 @@
     <string name="upload_to_ai_school_image_assistant_content_description">Загрузить изображение AI School Assistant</string>
     <string name="ArrowDropDown_icon_content_description">Открыть sub-меню</string>
 
+    // Prompt
+    //changed (the original task language/ chosen language) to (language shown on this picture or text)
+    <string name="prompt_text">решить эту задачу (как класс + th-grader). покажите решение и объясните (кратко), как туда добраться, объясняя только использование (язык, показанный на этом рисунке или тексте). используйте цепочку мыслей, прежде чем отвечать.</string>
+
 	// Button Labels
     <string name="next_button_label">Дальше</string>
     <string name="solve_button_label">Решить</string>
     <string name="check_solution_button_label">Проверить решение</string>
     <string name="cheat_sheet_button_label">Шпаргалка</string>
+    <string name="start_again">Начать заново</string>
+    <string name="try_again">Попробуйте снова</string>
 
     // Text Field Labels
     <string name="additional_information_TextField_label">Дополнительная информация</string>
