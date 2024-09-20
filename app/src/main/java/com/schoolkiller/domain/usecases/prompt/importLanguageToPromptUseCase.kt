@@ -18,7 +18,7 @@ class ImportLanguageToPromptUseCase @Inject constructor(
         originalPrompt: String,
     ): String {
         val defaultLanguagePrompt =
-            "(language shown on this picture or text)" //"(the original task language/ chosen language)"
+            "(language shown on this picture)" //"(the original task language/ chosen language)"
         /*return when (languageOption) {
             SolutionLanguageOptions.ORIGINAL_TASK_LANGUAGE -> {
                 val languageString = languagesArray.getOrNull(languageOption.arrayIndex)

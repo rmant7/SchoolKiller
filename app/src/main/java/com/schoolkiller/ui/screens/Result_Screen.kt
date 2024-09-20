@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.schoolkiller.R
 import com.schoolkiller.ui.reusable_components.ApplicationScaffold
+import com.schoolkiller.ui.reusable_components.SolutionImage
 //import com.schoolkiller.ui.reusable_components.SolutionImage
 import com.schoolkiller.ui.reusable_components.UniversalButton
 import com.schoolkiller.view_model.SchoolKillerViewModel
@@ -73,7 +74,7 @@ fun ResultScreen(
             state = state,
             content = {
 
-               /* item {
+                item {
                     image.value?.let {
                         SolutionImage(
                             image = it,
@@ -81,7 +82,7 @@ fun ResultScreen(
                             contentDescription = resultText.value
                         )
                     }
-                }*/
+                }
 
                 item { Spacer(modifier.height(16.dp)) }
 

@@ -1,8 +1,8 @@
 package com.schoolkiller.ui.screens
 
 import android.content.Context
+import android.net.Uri
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +16,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+
+import androidx.compose.runtime.State
+import androidx.compose.runtime.LaunchedEffect
+
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -23,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -41,6 +46,7 @@ fun HomeScreen(
     context: Context,
     viewModel: SchoolKillerViewModel = hiltViewModel(),
     onNavigateToAdditionalInformationScreen: () -> Unit,
+    onNavigateToCheckSolutionOptionsScreen: () -> Unit
 ) {
 
 
@@ -52,7 +58,11 @@ fun HomeScreen(
     val state = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
-
+    LaunchedEffect(true) {
+        viewModel.updatePrompt(
+            context.getString(R.string.prompt_text)
+        )
+    }
 
     ApplicationScaffold(
     ) {
@@ -138,66 +148,76 @@ fun HomeScreen(
             modifier = modifier
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically,
-            content = {
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-                //Cheat sheet and Check Solution Buttons
+            //Cheat sheet button, can be removed (?)
+            /* UniversalButton(
+                 modifier = modifier
+                     .fillMaxWidth()
+                     .padding(horizontal = 8.dp)
+                     .weight(1f),
+                 label = R.string.cheat_sheet_button_label
+             ) {
+                 onNavigateToResultScreen()
+             }*/
 
-                /* UniversalButton(
-                     modifier = modifier
-                         .fillMaxWidth()
-                         .padding(horizontal = 8.dp)
-                         .weight(1f),
-                     label = R.string.cheat_sheet_button_label
-                 ) {
-                     onNavigateToResultScreen()
-                 }*/
-
-                 UniversalButton(
-                     modifier = modifier
-                         .fillMaxWidth()
-                         .padding(horizontal = 8.dp)
-                         .weight(1f),
-                     label = R.string.check_solution_button_label
-                 ) {
-                     //onNavigateToResultScreen()
-
-
-                 }
-
-                UniversalButton(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
-                    //.weight(1f),
-                    label = R.string.solve_button_label
-                ) {
-                    when {
-                        images.value.isEmpty() -> {
-                            Toast.makeText(
-                                context,
-                                "Please upload an image from the device", // TODO { hardcode string }
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-
-                        selectedImageUri != null -> {
-                            viewModel.updateSelectedUri(selectedImageUri)
-                            onNavigateToAdditionalInformationScreen()
-                        }
-
-                        else -> {
-                            Toast.makeText(
-                                context,
-                                "Please select an image from the list", // TODO { hardcode string }
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
+            UniversalButton(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .weight(1f),
+                label = R.string.check_solution_button_label
+            ) {
+                onNext(
+                    images, context, selectedImageUri, viewModel
+                ) { onNavigateToCheckSolutionOptionsScreen() }
             }
-        )
+
+            UniversalButton(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .weight(1f),
+                label = R.string.solve_button_label
+            ) {
+                onNext(
+                    images, context, selectedImageUri, viewModel
+                ) { onNavigateToAdditionalInformationScreen() }
+            }
+        }
 
 
+    }
+}
+
+private fun onNext(
+    images: State<SnapshotStateList<Uri>>,
+    context: Context,
+    selectedImageUri: Uri?,
+    viewModel: SchoolKillerViewModel,
+    onNavigateToNextScreen: () -> Unit
+) {
+    when {
+        images.value.isEmpty() -> {
+            Toast.makeText(
+                context,
+                "Please upload an image from the device", // TODO { hardcode string }
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        selectedImageUri != null -> {
+            viewModel.updateSelectedUri(selectedImageUri)
+            onNavigateToNextScreen()
+        }
+
+        else -> {
+            Toast.makeText(
+                context,
+                "Please select an image from the list", // TODO { hardcode string }
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 }

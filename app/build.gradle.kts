@@ -3,7 +3,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-//    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+
     // Room
     id ("androidx.room")
     // KSP
@@ -68,11 +68,6 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-
-//    secrets {
-//        propertiesFileName = "secrets.properties"
-//        defaultPropertiesFileName = "local.defaults.properties"
-//    }
 
 }
 

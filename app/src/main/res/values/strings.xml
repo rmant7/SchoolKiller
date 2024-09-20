@@ -8,7 +8,8 @@
 
     // Prompt
     //changed (the original task language/ chosen language) to (language shown on this picture or text)
-    <string name="prompt_text">solve this task (as grade+th grader). show the solution and explain (briefly) how to get there, when explaining only use (language shown on this picture or text). use a chain of thoughts before answering.</string>
+    <string name="prompt_text">solve this task (as grade+th grader). show the solution and explain (briefly) how to get there, explain in (language shown on this picture). use a chain of thoughts before answering.</string>
+    <string name="check_solution_text">check this solution and rate it on scale (1–100), explain in (language shown on this picture), use a chain of thoughts before answering</string>
 
 
     // Button Labels
