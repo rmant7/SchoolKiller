@@ -8,7 +8,7 @@ object Constants {
     const val HOME_SCREEN = "Home_Screen"
     const val ADDITIONAL_INFORMATION_SCREEN = "Additional_Information_Screen"
     const val RESULT_SCREEN = "Result_Screen"
-    const val ANSWER_SCREEN = "Answer_Screen"
+    const val CHECK_SOLUTION_INFORMATION_SCREEN = "Check_Solution_Information_Screen"
 
     // Database
     const val DATABASE_NAME = "school_killer_database"
