@@ -7,11 +7,17 @@
     <string name="upload_to_ai_school_image_assistant_content_description">העלה ל AI School Assistant Image</string>
     <string name="ArrowDropDown_icon_content_description">פותח תפריט משנה</string>
 
+    // Prompt
+    //changed (the original task language/ chosen language) to (language shown on this picture or text)
+    <string name="prompt_text">לפתור משימה זו (כתלמיד כיתה +). הצג את הפתרון והסבר (בקצרה) כיצד להגיע לשם, כאשר הוא מסביר רק שימוש (שפה המוצגת בתמונה זו או בטקסט). תשתמש בשרשרת מחשבות לפני שתענה.</string>
+
     // Button Labels
     <string name="next_button_label">הבא</string>
     <string name="solve_button_label">לפתור</string>
     <string name="check_solution_button_label">בדוק פתרון</string>
     <string name="cheat_sheet_button_label">גיליון לרמות</string>
+    <string name="start_again">התחל מחדש</string>
+    <string name="try_again">נסה שוב</string>
 
     // Text Field Labels
     <string name="additional_information_TextField_label">מידע נוסף</string>
