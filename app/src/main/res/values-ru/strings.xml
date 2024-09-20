@@ -48,7 +48,8 @@
     </string-array>
 
     <string-array name="explanations">
-        <item>Без объяснения</item>
+        <!-- Unused
+        <item>Без объяснения</item>-->
         <item>Краткое объяснение</item>
         <item>Подробное объяснение</item>
     </string-array>

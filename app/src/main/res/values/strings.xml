@@ -7,7 +7,8 @@
     <string name="ArrowDropDown_icon_content_description">Opens a submenu</string>
 
     // Prompt
-    <string name="prompt_text">solve this task (as grade+th grader). show the solution and explain briefly how to get there, when explaining only use (the original task language/ chosen language). use a chain of thoughts before answering.</string>
+    //changed (the original task language/ chosen language) to (language shown on this picture or text)
+    <string name="prompt_text">solve this task (as grade+th grader). show the solution and explain (briefly) how to get there, when explaining only use (language shown on this picture or text). use a chain of thoughts before answering.</string>
 
 
     // Button Labels
@@ -30,7 +31,7 @@
 
     // Drop Down Menu Entries
     <string-array name="AI_models">
-        <item>Model 1</item>
+        <item>Model 1 </item>
         <item>Model 2</item>
     </string-array>
 
@@ -58,7 +59,8 @@
     </string-array>
 
     <string-array name="explanations">
-        <item>No explanation</item>
+        <!-- Unused
+        <item>No explanation</item> -->
         <item>Short explanation</item>
         <item>Detailed explanation</item>
     </string-array>

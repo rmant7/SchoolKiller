@@ -17,20 +17,28 @@ class ImportLanguageToPromptUseCase @Inject constructor(
         languageOption: SolutionLanguageOptions,
         originalPrompt: String,
     ): String {
-        return when (languageOption) {
+        val defaultLanguagePrompt =
+            "(language shown on this picture or text)" //"(the original task language/ chosen language)"
+        /*return when (languageOption) {
             SolutionLanguageOptions.ORIGINAL_TASK_LANGUAGE -> {
                 val languageString = languagesArray.getOrNull(languageOption.arrayIndex)
                     ?: "" // Handle potential out-of-bounds access
 //                originalPrompt.replace("/ chosen language", "")
-                originalPrompt.replace("(the original task language/ chosen language)", " $languageString")
+                originalPrompt.replace(originalLangPrompt, " $languageString")
             }
 
             else -> {
                 val languageString = languagesArray.getOrNull(languageOption.arrayIndex)
                     ?: "" // Handle potential out-of-bounds access
-                originalPrompt.replace("(the original task language/ chosen language)", " $languageString language")
+                originalPrompt.replace(originalLangPrompt, " $languageString language")
             }
+        }*/
+        if (languageOption != SolutionLanguageOptions.ORIGINAL_TASK_LANGUAGE) {
+            val languageString = languagesArray.getOrNull(languageOption.arrayIndex)
+                ?: "" // Handle potential out-of-bounds access
+            return originalPrompt.replace(defaultLanguagePrompt, " $languageString language")
         }
+        return originalPrompt
     }
 
 }

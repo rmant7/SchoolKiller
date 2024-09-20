@@ -3,11 +3,11 @@ package com.schoolkiller.utils
 import android.content.Context
 import com.schoolkiller.R
 
-enum class ExplanationLevelOptions(private val arrayIndex: Int) {
+enum class ExplanationLevelOptions(val arrayIndex: Int) {
 
-    NO_EXPLANATION(0),
-    SHORT_EXPLANATION(1),
-    DETAILED_EXPLANATION(2);
+    //NO_EXPLANATION(0),
+    SHORT_EXPLANATION(0), // 1
+    DETAILED_EXPLANATION(1); // 2
 
     fun getString(context: Context): String {
         val explanationsArray = context.resources.getStringArray(R.array.explanations)

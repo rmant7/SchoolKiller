@@ -51,7 +51,8 @@
 
     // Drop Down Menu Entries
     <string-array name="explanations">
-        <item>בלי הסבר</item>
+        <!-- Unused
+        <item>בלי הסבר</item>-->
         <item>הסבר קצר</item>
         <item>הסבר מפורט</item>
     </string-array>
