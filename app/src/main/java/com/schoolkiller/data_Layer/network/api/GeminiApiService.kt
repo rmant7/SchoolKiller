@@ -101,15 +101,15 @@ class GeminiApiService @Inject constructor(
                 contentType(ContentType.Application.Json)
                 setBody(
                     """
-            {
-                "contents": [{
-                    "parts":[
-                        {"text": "$prompt"},
-                        {"file_data": {"mime_type": "image/jpeg", "file_uri": "$escapedFileUri"}}
-                    ]
-                }]
-            }
-        """.trimIndent()
+                        {
+                            "contents": [{
+                                "parts":[
+                                    {"text": "$prompt"},
+                                    {"file_data": {"mime_type": "image/jpeg", "file_uri": "$escapedFileUri"}}
+                                ]
+                            }]
+                        }
+                """.trimIndent()
                 )
             }
             GeminiResponse.Success(response.bodyAsText())
