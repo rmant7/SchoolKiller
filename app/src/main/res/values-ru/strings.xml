@@ -10,6 +10,8 @@
     // Prompt
     //changed (the original task language/ chosen language) to (language shown on this picture or text)
     <string name="prompt_text">решить эту задачу (как класс + th-grader). покажите решение и объясните (кратко), как туда добраться, объясняя только использование (язык, показанный на этом рисунке или тексте). используйте цепочку мыслей, прежде чем отвечать.</string>
+    <string name="check_solution_text">проверьте это решение и оцените его по шкале (1-100), объясните (язык показан на этом рисунке), используйте цепочку мыслей, прежде чем отвечать</string>
+
 
 	// Button Labels
     <string name="next_button_label">Дальше</string>

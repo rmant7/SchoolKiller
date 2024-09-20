@@ -29,6 +29,7 @@ runner = "1.6.2"
 googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
 common = "0.10.0"
 secretsGradlePlugin = "2.0.1"
+timber = "5.0.1"
 
 [libraries]
 langchain4j = { module = "dev.langchain4j:langchain4j", version.ref = "devLangchain4jOpenAi" }
@@ -77,6 +78,7 @@ androidx-runner = { group = "androidx.test", name = "runner", version.ref = "run
 #secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
 common = { group = "com.google.ai.client.generativeai", name = "common", version.ref = "common" }
 secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

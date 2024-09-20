@@ -72,6 +72,8 @@ android {
 }
 
 dependencies {
+    //Logging
+    implementation (libs.timber)
 
     //LangChain4j
     implementation (libs.dev.langchain4j.langchain4j.open.ai)

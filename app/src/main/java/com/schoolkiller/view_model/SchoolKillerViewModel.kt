@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.schoolkiller.data_Layer.entities.Picture
 import com.schoolkiller.data_Layer.network.api.GeminiApiService
+import com.schoolkiller.data_Layer.network.api.GeminiResponse
 import com.schoolkiller.data_Layer.repositories.PictureRepository
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
@@ -253,14 +254,18 @@ class SchoolKillerViewModel @Inject constructor(
 
                     if (actualFileUri != null) {
                         val content = geminiApiService.generateContent(actualFileUri, prompt)
-                        val textResponse = extractGeminiResponseUseCase.invoke(content)
+                        val textResponse = if(content is GeminiResponse.Success) {
+                            extractGeminiResponseUseCase.invoke(content.data ?: "{}")
+                        } else {
+                            content.message
+                        }
+
                         updateTextGenerationResult(textResponse)
                     } else {
                         // Handle the case where the URI couldn't be extracted
                         updateTextGenerationResult("Something went wrong!") // TODO { hardcode string }
                     }
                 }
-
             }
         }
     }
