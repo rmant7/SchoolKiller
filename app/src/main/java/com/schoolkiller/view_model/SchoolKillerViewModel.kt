@@ -1,7 +1,12 @@
 package com.schoolkiller.view_model
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
+import android.provider.MediaStore
+import android.util.Base64
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -21,6 +26,13 @@ import com.schoolkiller.utils.GradeOptions
 import com.schoolkiller.utils.SolutionLanguageOptions
 import com.schoolkiller.utils.UploadFileMethodOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.langchain4j.data.message.AiMessage
+import dev.langchain4j.data.message.ImageContent
+import dev.langchain4j.data.message.TextContent
+import dev.langchain4j.data.message.UserMessage
+import dev.langchain4j.model.openai.OpenAiChatModel
+import dev.langchain4j.model.output.Response
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,6 +41,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
 
@@ -65,6 +78,11 @@ class SchoolKillerViewModel @Inject constructor(
 //    val selectedAiModelOption: AiModelOptions
 //        get() = _selectedAiModelOption
 
+    //selected rating max
+    private var _selectedRateMax by mutableIntStateOf(100)
+    val selectedRateMax: Int
+        get() = _selectedRateMax
+
     private var _selectedGradeOption by mutableStateOf(GradeOptions.NONE)
     val selectedGradeOption: GradeOptions
         get() = _selectedGradeOption
@@ -84,6 +102,10 @@ class SchoolKillerViewModel @Inject constructor(
     private var _selectedUploadMethodOption by mutableStateOf(UploadFileMethodOptions.TAKE_A_PICTURE)
     val selectedUploadMethodOption: UploadFileMethodOptions
         get() = _selectedUploadMethodOption
+
+    fun updateSelectedRateMax(newRateMax: Int) {
+        _selectedRateMax = newRateMax
+    }
 
     fun updateSelectedUri(newUri: Uri?) {
         _selectedUri.value = newUri
@@ -139,7 +161,6 @@ class SchoolKillerViewModel @Inject constructor(
     }
 
 
-
     private val _textGenerationResult = MutableStateFlow<String?>("")
     val textGenerationResult = _textGenerationResult.asStateFlow()
 
@@ -147,54 +168,66 @@ class SchoolKillerViewModel @Inject constructor(
         _textGenerationResult.value = resultText
     }
 
+    //Don't remove, for future development
+    /*
+       fun fetchAIResponse(
+           imageUri: Uri,
+           fileName: String,
+           context: Context
+           aiModelOption: AiModelOptions
+       ) {
 
-//    fun fetchAIResponse(
-//        imageUri: Uri,
-//        fileName: String,
-//        aiModelOption: AiModelOptions
-//    ) {
-//        fetchGeminiResponse(imageUri, fileName, "")
-//
-//        //OpenAi solution crashes
-//
-//        /*when (aiModelOption) {
-//           AiModelOptions.MODEL_ONE -> fetchOpenAiResponse(imageUri)
-//            AiModelOptions.MODEL_TWO -> fetchGeminiResponse(
-//                imageUri, fileName, ""
-//            )
-//        }*/
-//    }
+           when (aiModelOption) {
+             AiModelOptions.MODEL_ONE -> fetchOpenAiResponse(imageUri)
+               AiModelOptions.MODEL_TWO -> fetchGeminiResponse(
+                   imageUri, fileName, ""
+               )
+           }
+       }
+   */
 
-//    private fun convertToBase64(selectedUri: Uri): String {
-//        val bitmap = MediaStore.Images.Media.getBitmap(
-//            getApplication<SchoolKillerApplication>().contentResolver,
-//            selectedUri)
-//        val outputStream = ByteArrayOutputStream()
-//        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-//        val byteArray = outputStream.toByteArray()
-//
-//        val encodedString: String = Base64.encodeToString(
-//            byteArray, Base64.DEFAULT)
-//        return encodedString
-//    }
+    //Don't remove, for future development
+ /*
+    private fun convertToBase64(selectedUri: Uri, context: Context): String {
+        val bitmap = MediaStore.Images.Media.getBitmap(
+            context.contentResolver,
+            selectedUri
+        )
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+        val byteArray = outputStream.toByteArray()
 
-//    private fun fetchOpenAiResponse(imageUri: Uri) {
-//        viewModelScope.launch (Dispatchers.IO){
-//           val model: OpenAiChatModel = OpenAiChatModel.builder()
-//                .apiKey("demo")
-//                .modelName("gpt-4o-mini")
-//                .build()
-//
-//            val userMessage: UserMessage = UserMessage.from(
-//                TextContent.from("What is in this picture?"),
-//                ImageContent.from(convertToBase64(imageUri), "image/png",
-//                    ImageContent.DetailLevel.LOW)
-//            )
-//            val response: Response<AiMessage> = model.generate(userMessage)
-//
-//            updateTextGenerationResult(response.content().text())
-//        }
-//    }
+        val encodedString: String = Base64.encodeToString(
+            byteArray, Base64.DEFAULT
+        )
+        return encodedString
+    }
+*/
+
+    //Don't remove, for future development
+    /*
+    fun fetchOpenAiResponse(imageUri: Uri, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val key = "API_KEY"
+
+            val model: OpenAiChatModel = OpenAiChatModel.builder()
+                .apiKey(key)
+                .modelName("gpt-4o")
+                .build()
+
+            val userMessage: UserMessage = UserMessage.from(
+                TextContent.from("What is in this picture?"),
+                ImageContent.from(
+                    convertToBase64(imageUri, context), "image/png",
+                    ImageContent.DetailLevel.LOW
+                )
+            )
+            val response: Response<AiMessage> = model.generate(userMessage)
+
+            updateTextGenerationResult(response.content().text())
+        }
+    }
+*/
 
     fun fetchGeminiResponse(
         imageUri: Uri,

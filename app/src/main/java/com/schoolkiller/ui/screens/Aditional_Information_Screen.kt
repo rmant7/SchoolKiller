@@ -9,10 +9,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -48,6 +44,8 @@ fun AdditionalInformationScreen(
     var additionalInformationText = viewModel.additionalInfoText.collectAsState()
 
 
+
+
     // remove
 //    val classOptions = remember { context.resources.getStringArray(R.array.grades).toList() }
 //    val languageOptions = remember { context.resources.getStringArray(R.array.languages).toList() }
@@ -68,17 +66,18 @@ fun AdditionalInformationScreen(
             contentDescription = R.string.ai_school_assistant_image_content_description
         )
 
-//        ExposedDropBox(
-//            maxHeightIn = 200.dp,
-//            context = context,
-//            label = R.string.grade_label,
-//            selectedOption = selectedAiModel,
-//            options = AiModelOptions.entries.toList(),
-//            onOptionSelected = { viewModel.updateSelectedAiModelOption(it) },
-//            optionToString = { option, context -> option.getString(context) }
-//        )
-
-
+        //Don't remove, for feature development
+/*        ExposedDropBox(
+            maxHeightIn = 200.dp,
+            context = context,
+            label = R.string.grade_label,
+            selectedOption = selectedAiModel,
+            options = AiModelOptions.entries.toList(),
+            onOptionSelected = { viewModel.updateSelectedAiModelOption(it) },
+            optionToString = { option, context -> option.getString(context) }
+        )
+*/
+        //Reused Component
         ExposedDropBox(
             maxHeightIn = 200.dp,
             context = context,
@@ -135,13 +134,15 @@ fun AdditionalInformationScreen(
             }
         )
 
+        //Reused Component
         UniversalButton(
             modifier = modifier.fillMaxWidth(),
             label = R.string.next_button_label,
         ) {
-//            viewModel.selectedUri?.let {
-//                viewModel.fetchAIResponse(it, "", viewModel.selectedAiModelOption)
-//            }
+            /*
+            viewModel.selectedUri?.let {
+                viewModel.fetchAIResponse(it, "", viewModel.selectedAiModelOption)
+            }*/
             viewModel.updateTextGenerationResult("")
             viewModel.importAdditionalInfoToOriginalPrompt()
             onNavigateToResultScreen()
@@ -149,5 +150,9 @@ fun AdditionalInformationScreen(
 
     }
 }
+
+
+
+
 
 
