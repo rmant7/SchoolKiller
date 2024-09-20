@@ -24,7 +24,7 @@ class GeminiApiService @Inject constructor(
     ): Result<UploadModel> {
 
         val response: HttpResponse = client.post(
-            "https://generativelanguage.googleapis.com/upload/v1beta/files?key=${BuildConfig.gemini_api_key}"
+            "${HttpRoutes.UPLOAD}/v1beta/files?key=${BuildConfig.gemini_api_key}"
         ) {
             header("X-Goog-Upload-Protocol", "resumable")
             header("X-Goog-Upload-Command", "start")
@@ -62,7 +62,7 @@ class GeminiApiService @Inject constructor(
         val escapedFileUri = fileUri.replace("\"", "\\\"")
 
         val response: HttpResponse = client.post(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${BuildConfig.gemini_api_key}") {
+            "${HttpRoutes.MODELS}/gemini-1.5-flash:generateContent?key=${BuildConfig.gemini_api_key}") {
             contentType(ContentType.Application.Json)
             setBody("""
             {

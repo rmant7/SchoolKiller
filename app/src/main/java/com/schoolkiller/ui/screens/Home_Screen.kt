@@ -16,7 +16,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+
 import androidx.compose.runtime.State
+import androidx.compose.runtime.LaunchedEffect
+
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -55,7 +58,11 @@ fun HomeScreen(
     val state = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
-
+    LaunchedEffect(true) {
+        viewModel.updatePrompt(
+            context.getString(R.string.prompt_text)
+        )
+    }
 
     ApplicationScaffold(
     ) {
