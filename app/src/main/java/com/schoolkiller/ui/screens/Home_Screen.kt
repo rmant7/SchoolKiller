@@ -48,8 +48,6 @@ fun HomeScreen(
     onNavigateToAdditionalInformationScreen: () -> Unit,
     onNavigateToCheckSolutionOptionsScreen: () -> Unit
 ) {
-
-
     val pictures by viewModel.allPictures.collectAsState(initial = emptyList())
     val selectedUploadFileMethod = viewModel.selectedUploadMethodOption
     val images = viewModel.selectedImages.collectAsState()
