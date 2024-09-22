@@ -37,8 +37,8 @@ class GeminiApiService @Inject constructor(
                 setBody("{'file': {'display_name': '$fileName'}}")
             }
 
-            val uploadUrl =
-                response.headers["X-Goog-Upload-URL"] ?: throw Exception("Upload URL not found")
+            val uploadUrl = response.headers["X-Goog-Upload-URL"]
+                ?: throw Exception("Upload URL not found")
             Result.success(UploadModel(uploadUrl))
         } catch (e: RedirectResponseException) {
             //3xx - responses
@@ -91,7 +91,6 @@ class GeminiApiService @Inject constructor(
     }
 
     suspend fun generateContent(fileUri: String, prompt: String): GeminiResponse<String> {
-
         val escapedFileUri = fileUri.replace("\"", "\\\"")
 
         return try {
@@ -131,7 +130,6 @@ class GeminiApiService @Inject constructor(
             GeminiResponse.Error("Unknown error", e.message)
         }
     }
-
 }
 
 @Serializable
