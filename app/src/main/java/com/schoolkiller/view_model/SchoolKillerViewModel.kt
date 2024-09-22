@@ -1,10 +1,6 @@
 package com.schoolkiller.view_model
 
-import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
-import android.provider.MediaStore
-import android.util.Base64
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -27,13 +23,6 @@ import com.schoolkiller.utils.GradeOptions
 import com.schoolkiller.utils.SolutionLanguageOptions
 import com.schoolkiller.utils.UploadFileMethodOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.langchain4j.data.message.AiMessage
-import dev.langchain4j.data.message.ImageContent
-import dev.langchain4j.data.message.TextContent
-import dev.langchain4j.data.message.UserMessage
-import dev.langchain4j.model.openai.OpenAiChatModel
-import dev.langchain4j.model.output.Response
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,7 +31,6 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
 
@@ -266,6 +254,9 @@ class SchoolKillerViewModel @Inject constructor(
                         updateTextGenerationResult("Something went wrong!") // TODO { hardcode string }
                     }
                 }
+            }
+            uploadResult.onFailure { _ ->
+                updateTextGenerationResult("Sorry, service is not available")
             }
         }
     }

@@ -12,11 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -32,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import com.schoolkiller.R
 import com.schoolkiller.ui.reusable_components.ApplicationScaffold
 import com.schoolkiller.ui.reusable_components.SolutionImage
-//import com.schoolkiller.ui.reusable_components.SolutionImage
 import com.schoolkiller.ui.reusable_components.UniversalButton
 import com.schoolkiller.view_model.SchoolKillerViewModel
 
@@ -51,9 +47,6 @@ fun ResultScreen(
     val state = rememberLazyListState()
     var tryAgain by remember { mutableStateOf(true) }
 
-
-
-
     LaunchedEffect(tryAgain) {
         image.value?.let {
             viewModel.fetchGeminiResponse(
@@ -64,7 +57,6 @@ fun ResultScreen(
         }
         tryAgain = false
     }
-
 
     ApplicationScaffold {
 
