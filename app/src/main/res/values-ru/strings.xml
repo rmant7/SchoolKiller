@@ -68,4 +68,6 @@
         <item>Загрузить изображение</item>
         <item>Загрузить файл</item>
         <item>Предоставить ссылку</item>
-    </string-array></resources>
+    </string-array>
+    <string name="rating_TextField_label">Оценка</string>
+</resources>

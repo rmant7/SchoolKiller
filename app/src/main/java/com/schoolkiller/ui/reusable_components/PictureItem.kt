@@ -1,14 +1,6 @@
 package com.schoolkiller.ui.reusable_components
 
 import android.net.Uri
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,10 +11,10 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -32,32 +24,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.schoolkiller.R
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.math.abs
 
 @Composable
 fun PictureItem(
     modifier: Modifier = Modifier,
     imageModifier: Modifier = Modifier,
-    imageUri : Uri,
+    imageUri: Uri,
     offsetValue: Float,
     onOffsetChange: (Float) -> Unit,
     scope: CoroutineScope,
     state: LazyListState,
 //    picture: Picture,
-    onRemove: () -> Unit
+    onRemove: () -> Unit,
+    onMaximize: () -> Unit
 ) {
     var offset by remember { mutableFloatStateOf(offsetValue) }
     var isDragging by remember { mutableStateOf(false) }
@@ -125,14 +112,22 @@ fun PictureItem(
 //            }
 
             Spacer(Modifier.weight(1f))
+            // Maximize Button
+            IconButton(onClick = onMaximize) {
+                Icon(imageVector = Icons.Default.Info, contentDescription = "Maximize")
+            }
 
             // Remove Button
             IconButton(onClick = onRemove) {
-                Icon(imageVector = Icons.Default.Delete, contentDescription = "Remove") // TODO { hardcoded string }
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Remove"
+                ) // TODO { hardcoded string }
             }
         }
     }
 }
+
 
 @Composable
 private fun formatDate(timestamp: Long): String {
