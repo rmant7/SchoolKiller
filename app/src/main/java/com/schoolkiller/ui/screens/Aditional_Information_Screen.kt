@@ -7,11 +7,18 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
@@ -43,9 +50,6 @@ fun AdditionalInformationScreen(
     val selectedExplanationLevel = viewModel.selectedExplanationLevelOption
     var additionalInformationText = viewModel.additionalInfoText.collectAsState()
 
-
-
-
     // remove
 //    val classOptions = remember { context.resources.getStringArray(R.array.grades).toList() }
 //    val languageOptions = remember { context.resources.getStringArray(R.array.languages).toList() }
@@ -56,9 +60,6 @@ fun AdditionalInformationScreen(
 //    var additionalInformationText by remember { mutableStateOf("") }
 
 
-
-
-
     ApplicationScaffold {
 
         ScreenImage(
@@ -67,16 +68,16 @@ fun AdditionalInformationScreen(
         )
 
         //Don't remove, for feature development
-/*        ExposedDropBox(
-            maxHeightIn = 200.dp,
-            context = context,
-            label = R.string.grade_label,
-            selectedOption = selectedAiModel,
-            options = AiModelOptions.entries.toList(),
-            onOptionSelected = { viewModel.updateSelectedAiModelOption(it) },
-            optionToString = { option, context -> option.getString(context) }
-        )
-*/
+        /*        ExposedDropBox(
+                    maxHeightIn = 200.dp,
+                    context = context,
+                    label = R.string.grade_label,
+                    selectedOption = selectedAiModel,
+                    options = AiModelOptions.entries.toList(),
+                    onOptionSelected = { viewModel.updateSelectedAiModelOption(it) },
+                    optionToString = { option, context -> option.getString(context) }
+                )
+        */
         //Reused Component
         ExposedDropBox(
             maxHeightIn = 200.dp,
@@ -117,27 +118,45 @@ fun AdditionalInformationScreen(
             optionToString = { option, context -> option.getString(context) }
         )
 
+        //gray color for placeholder
+        //black color for input text
+        val textColor = if (additionalInformationText.value.isEmpty())
+            Color.Gray
+        else Color.Black
+
+        val placeHolder = remember { mutableStateOf("solve just task 5") }
+
         OutlinedTextField(
             modifier = modifier
+                .onFocusChanged {
+                    if (it.isFocused){
+                        //placeholder isn't visible on user input focus
+                       placeHolder.value = ""
+                    }}
                 .fillMaxWidth()
-                .heightIn(max = 95.dp),
+                .heightIn(max = 200.dp),
             value = additionalInformationText.value,
             onValueChange = {
                 viewModel.updateAdditionalInfoText(it)
             },
             label = {
                 Text(
-                    modifier = modifier.fillMaxWidth(),
-                    text = stringResource(id = R.string.additional_information_TextField_label),
-                    textAlign = TextAlign.Start
+                    text = stringResource(
+                        id = R.string.additional_information_TextField_label
+                    )
                 )
-            }
+            },
+            //added for label always be visible
+            visualTransformation = if (additionalInformationText.value.isEmpty())
+                PlaceholderTransformation(placeholder = placeHolder.value)
+            else VisualTransformation.None,
+            textStyle = TextStyle(color = textColor)
         )
 
         //Reused Component
         UniversalButton(
             modifier = modifier.fillMaxWidth(),
-            label = R.string.next_button_label,
+            label = R.string.solve_button_label,
         ) {
             /*
             viewModel.selectedUri?.let {
@@ -149,6 +168,27 @@ fun AdditionalInformationScreen(
         }
 
     }
+}
+
+class PlaceholderTransformation(private val placeholder: String) : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        return placeholderFilter(placeholder)
+    }
+}
+
+fun placeholderFilter(placeholder: String): TransformedText {
+
+    val numberOffsetTranslator = object : OffsetMapping {
+        override fun originalToTransformed(offset: Int): Int {
+            return 0
+        }
+
+        override fun transformedToOriginal(offset: Int): Int {
+            return 0
+        }
+    }
+
+    return TransformedText(AnnotatedString(placeholder), numberOffsetTranslator)
 }
 
 

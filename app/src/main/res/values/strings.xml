@@ -24,6 +24,7 @@
     // Text Field Labels
     <string name="additional_information_TextField_label">Additional Information</string>
     <string name="What_to_solve_TextField_label">What do you want to solve?</string>
+    <string name="rating_TextField_label">Rating</string>
 
     // Drop Down Menu Labels
     <string name="solution_language_label">Solution language</string>
