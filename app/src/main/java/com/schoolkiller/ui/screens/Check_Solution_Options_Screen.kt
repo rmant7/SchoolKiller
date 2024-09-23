@@ -52,24 +52,26 @@ fun CheckSolutionOptionsScreen(
             optionToString = { option, context -> option.getString(context) }
         )
 
-        //Rating Slider for max selected rating value
-        RatingSlider(viewModel)
+        // Rating Slider for max selected rating value, don't remove.
+        // Spacer(Modifier.padding(0.dp,10.dp))
+        // Text(stringResource(R.string.rating_TextField_label))
+        // RatingSlider(viewModel)
 
         //Reused Component
         UniversalButton(
             modifier = Modifier.fillMaxWidth(),
-            label = R.string.next_button_label,
+            label = R.string.check_solution_button_label,
         ) {
             viewModel.updateTextGenerationResult("")
 
-            //updating rating scale in prompt
-            val originalPrompt = viewModel.originalPrompt.value
+            //Updating rating scale in prompt, don't remove.
+            /*val originalPrompt = viewModel.originalPrompt.value
             val selectedMaxRate = viewModel.selectedRateMax
             viewModel.updatePrompt(
                 originalPrompt.replace(
                     "(1–100)", selectedMaxRate.toString()
                 )
-            )
+            )*/
 
             onNavigateToResultScreen()
         }
@@ -99,9 +101,10 @@ fun RatingSlider(viewModel: SchoolKillerViewModel) {
                 inactiveTrackColor = MaterialTheme.colorScheme.secondaryContainer,
             ),
             steps = 9,
-            valueRange = 0f..100f
+            valueRange = 0f..100f,
         )
         Text(text = sliderPosition.toString())
     }
+
 
 }

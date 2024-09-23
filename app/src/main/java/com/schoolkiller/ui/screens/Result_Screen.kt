@@ -66,6 +66,8 @@ fun ResultScreen(
             state = state,
             content = {
 
+                //Don't remove, solution image needs fix.
+                /*
                 item {
                     image.value?.let {
                         SolutionImage(
@@ -75,6 +77,7 @@ fun ResultScreen(
                         )
                     }
                 }
+                */
 
                 item { Spacer(modifier.height(16.dp)) }
 
