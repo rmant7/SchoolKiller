@@ -66,7 +66,7 @@ fun ResultScreen(
             state = state,
             content = {
 
-                //Don't remove, needs fix.
+                //Don't remove, solution image needs fix.
                 /*
                 item {
                     image.value?.let {
