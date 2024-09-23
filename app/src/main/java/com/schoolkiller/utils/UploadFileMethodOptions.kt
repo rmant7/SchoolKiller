@@ -5,10 +5,11 @@ import com.schoolkiller.R
 
 enum class UploadFileMethodOptions(private val arrayIndex: Int) {
 
-    TAKE_A_PICTURE(0),
-    UPLOAD_AN_IMAGE(1),
-    UPLOAD_A_FILE(2),
-    PROVIDE_A_LINK(3);
+    NO_OPTION(0),
+    TAKE_A_PICTURE(1),
+    UPLOAD_AN_IMAGE(2),
+    UPLOAD_A_FILE(3),
+    PROVIDE_A_LINK(4);
 
     fun getString(context: Context): String {
         val uploadMethodsArray = context.resources.getStringArray(R.array.upload_file_methods)

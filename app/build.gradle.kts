@@ -1,4 +1,4 @@
-import java.util.Properties
+
 
 plugins {
     alias(libs.plugins.android.application)
@@ -13,7 +13,6 @@ plugins {
     // Serialization
     id("org.jetbrains.kotlin.plugin.serialization")
     // Secrets Gradle Plugin
-//    id("com.google.secrets_gradle_plugin") version "0.5"
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
@@ -25,8 +24,8 @@ android {
         applicationId = "com.schoolkiller"
         minSdk = 29
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -72,7 +71,11 @@ android {
 }
 
 dependencies {
-    //Logging
+
+    // Accompanist Permissions
+    implementation (libs.accompanist.permissions)
+
+    // Logging
     implementation (libs.timber)
 
     //LangChain4j
@@ -80,6 +83,7 @@ dependencies {
     implementation (libs.langchain4j)
 
     // CameraX
+    implementation (libs.androidx.camera.core)
     implementation (libs.androidx.camera.camera2)
     implementation (libs.androidx.camera.lifecycle)
     implementation (libs.androidx.camera.view)

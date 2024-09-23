@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -21,6 +22,7 @@ fun NavigationController(
 ) {
     val navController = rememberNavController()
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     NavHost(navController = navController, startDestination = Screens.HomeScreen.route) {
 
@@ -28,6 +30,7 @@ fun NavigationController(
             HomeScreen(
                 context = context,
                 viewModel = viewModel,
+                lifecycleOwner = lifecycleOwner,
                 onNavigateToAdditionalInformationScreen = {
                     navController.navigate(Screens.AdditionalInformationScreen.route)
                 },

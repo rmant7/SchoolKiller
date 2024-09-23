@@ -65,6 +65,7 @@
     </string-array>
 
     <string-array name="upload_file_methods">
+        <item> </item>
         <item>Сфотографировать</item>
         <item>Загрузить изображение</item>
         <item>Загрузить файл</item>

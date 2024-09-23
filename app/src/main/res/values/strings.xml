@@ -73,6 +73,7 @@
     </string-array>
 
     <string-array name="upload_file_methods">
+        <item> </item>
         <item>Take a picture</item>
         <item>Upload an image</item>
         <item>Upload a file</item>
