@@ -12,8 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -23,12 +24,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.schoolkiller.R
+import com.schoolkiller.ui.reusable_components.AlertDialog
 import com.schoolkiller.ui.reusable_components.ApplicationScaffold
-import com.schoolkiller.ui.reusable_components.SolutionImage
 import com.schoolkiller.ui.reusable_components.UniversalButton
 import com.schoolkiller.view_model.SchoolKillerViewModel
 
@@ -42,10 +42,13 @@ fun ResultScreen(
 ) {
 
     val resultText = viewModel.textGenerationResult.collectAsState()
+    val resultError = viewModel.error.collectAsState()
     val image = viewModel.selectedUri.collectAsState()
     val prompt = viewModel.originalPrompt.collectAsState()
     val state = rememberLazyListState()
     var tryAgain by remember { mutableStateOf(true) }
+
+    val openAlertDialog = remember { mutableStateOf(resultError.value != null) }
 
     LaunchedEffect(tryAgain) {
         image.value?.let {
@@ -59,6 +62,20 @@ fun ResultScreen(
     }
 
     ApplicationScaffold {
+        if (resultError.value != null) {
+            openAlertDialog.value = true
+            AlertDialog(
+                onDismissRequest = { openAlertDialog.value = false },
+                onConfirmation = {
+                    openAlertDialog.value = false
+                    viewModel.clearError()
+                    onNavigateToHomeScreen()
+                },
+                dialogTitle = stringResource(R.string.error_service_not_available_title),
+                dialogText = stringResource(R.string.error_service_not_available),
+                icon = Icons.Default.Info
+            )
+        }
 
         LazyColumn(
             modifier = modifier
@@ -83,7 +100,7 @@ fun ResultScreen(
 
 
                 item {
-                    if (resultText.value.isNullOrBlank()) {
+                    if (resultText.value.isBlank() && resultError.value == null) {
                         Box(
                             modifier = modifier
                                 .fillMaxWidth()
@@ -92,15 +109,6 @@ fun ResultScreen(
                             content = {
                                 CircularProgressIndicator(modifier = modifier.size(80.dp))
                             }
-                        )
-                    } else {
-                        OutlinedTextField(
-                            modifier = modifier
-                                .fillMaxWidth(),
-                            value = "${resultText.value}",
-                            onValueChange = {},
-                            textStyle = TextStyle(textAlign = TextAlign.Start),
-                            readOnly = true
                         )
                     }
                 }
@@ -135,8 +143,6 @@ fun ResultScreen(
                 }
             }
         )
-
-
     }
 
 }
