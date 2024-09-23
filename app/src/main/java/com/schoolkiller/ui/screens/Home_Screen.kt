@@ -69,10 +69,11 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
 
     var shouldMaximizeSelectedImage by remember { mutableStateOf(false) }
+    var imageToMaximize by remember { mutableStateOf(selectedImageUri) }
 
     if (shouldMaximizeSelectedImage)
         MaximizedImageDialog(
-            imageUri = selectedImageUri,
+            imageUri = imageToMaximize,
             onDismiss = {
                 shouldMaximizeSelectedImage = false
             })
@@ -145,6 +146,7 @@ fun HomeScreen(
                         },
                         onMaximize = {
                             shouldMaximizeSelectedImage = true
+                            imageToMaximize = imageUri
                         }
                     )
                 }

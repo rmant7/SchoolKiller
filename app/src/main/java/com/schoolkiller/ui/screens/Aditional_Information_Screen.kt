@@ -124,15 +124,20 @@ fun AdditionalInformationScreen(
             Color.Gray
         else Color.Black
 
-        val placeHolder = remember { mutableStateOf("solve just task 5") }
+        val defaultPlaceholderText =
+            stringResource(R.string.additional_info_TextField_placeholder_text)
+        val placeHolder = remember {
+            mutableStateOf(defaultPlaceholderText)
+        }
 
         OutlinedTextField(
             modifier = modifier
                 .onFocusChanged {
-                    if (it.isFocused){
+                    if (it.isFocused) {
                         //placeholder isn't visible on user input focus
-                       placeHolder.value = ""
-                    }}
+                        placeHolder.value = ""
+                    }
+                }
                 .fillMaxWidth()
                 .heightIn(max = 200.dp),
             value = additionalInformationText.value,

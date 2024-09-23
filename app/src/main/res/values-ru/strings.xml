@@ -70,4 +70,6 @@
         <item>Предоставить ссылку</item>
     </string-array>
     <string name="rating_TextField_label">Оценка</string>
+    <string name="additional_info_TextField_placeholder_text">Реши только задачу 5</string>
+    <string name="error_service_not_available">Извините, сервис не доступен. Пользователи из России и Белоруси, пожалуйста, пользуйтесь vpn.</string>
 </resources>
