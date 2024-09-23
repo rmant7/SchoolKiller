@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.schoolkiller.data_Layer.entities.Picture
 import com.schoolkiller.data_Layer.network.api.GeminiApiService
-import com.schoolkiller.data_Layer.network.api.GeminiResponse
+import com.schoolkiller.data_Layer.network.response.GeminiResponse
 import com.schoolkiller.data_Layer.repositories.PictureRepository
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
