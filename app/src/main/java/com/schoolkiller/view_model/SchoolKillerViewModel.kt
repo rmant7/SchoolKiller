@@ -50,7 +50,7 @@ class SchoolKillerViewModel @Inject constructor(
 
     val allPictures = pictureRepository.allPictures
 
-    //selected Uri
+    // selected Uri
     private var _selectedUri = MutableStateFlow<Uri?>(null)
     val selectedUri: StateFlow<Uri?> = _selectedUri
 
@@ -85,10 +85,10 @@ class SchoolKillerViewModel @Inject constructor(
         get() = _selectedExplanationLevelOption
 
 
-    private val _selectedImages = MutableStateFlow(mutableStateListOf<Uri>())
-    val selectedImages: StateFlow<SnapshotStateList<Uri>> = _selectedImages
+    private val _listOfImages = MutableStateFlow(mutableStateListOf<Uri>())
+    val listOfImages: StateFlow<SnapshotStateList<Uri>> = _listOfImages
 
-    private var _selectedUploadMethodOption by mutableStateOf(UploadFileMethodOptions.TAKE_A_PICTURE)
+    private var _selectedUploadMethodOption by mutableStateOf(UploadFileMethodOptions.NO_OPTION)
     val selectedUploadMethodOption: UploadFileMethodOptions
         get() = _selectedUploadMethodOption
 
@@ -128,12 +128,12 @@ class SchoolKillerViewModel @Inject constructor(
         _selectedUploadMethodOption = newUploadMethodSelection
     }
 
-    fun onImagesSelected(newImages: List<Uri>) {
-        _selectedImages.update { it.apply { addAll(newImages) } }
+    fun insertImagesOnTheList(newImages: List<Uri>) {
+        _listOfImages.update { it.apply { addAll(newImages) } }
     }
 
-    fun onImageDeleted(imageToDelete: Uri) {
-        _selectedImages.update { it.apply { remove(imageToDelete) } }
+    fun deleteImageFromTheList(imageToDelete: Uri) {
+        _listOfImages.update { it.apply { remove(imageToDelete) } }
     }
 
 
@@ -256,7 +256,7 @@ class SchoolKillerViewModel @Inject constructor(
                 }
             }
             uploadResult.onFailure { _ ->
-                updateTextGenerationResult("Sorry, service is not available")
+                updateTextGenerationResult("Sorry, service is not available") // TODO { hardcode string }
             }
         }
     }
