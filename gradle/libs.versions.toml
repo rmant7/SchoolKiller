@@ -1,4 +1,5 @@
 [versions]
+accompanistPermissions = "0.36.0"
 agp = "8.6.0"
 devLangchain4jOpenAi = "0.34.0"
 cameraCamera2 = "1.3.4"
@@ -32,6 +33,8 @@ secretsGradlePlugin = "2.0.1"
 timber = "5.0.1"
 
 [libraries]
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
+androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraCamera2" }
 langchain4j = { module = "dev.langchain4j:langchain4j", version.ref = "devLangchain4jOpenAi" }
 dev-langchain4j-langchain4j-open-ai = { module = "dev.langchain4j:langchain4j-open-ai", version.ref = "devLangchain4jOpenAi" }
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }

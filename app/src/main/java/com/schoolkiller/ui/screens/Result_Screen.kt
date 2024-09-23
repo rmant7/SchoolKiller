@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
@@ -26,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.schoolkiller.R
 import com.schoolkiller.ui.reusable_components.ApplicationScaffold
 import com.schoolkiller.ui.reusable_components.SolutionImage
@@ -44,7 +46,8 @@ fun ResultScreen(
     val resultText = viewModel.textGenerationResult.collectAsState()
     val image = viewModel.selectedUri.collectAsState()
     val prompt = viewModel.originalPrompt.collectAsState()
-    val state = rememberLazyListState()
+    val responseListState = rememberLazyListState()
+    val imageState = rememberLazyListState()
     var tryAgain by remember { mutableStateOf(true) }
 
     LaunchedEffect(tryAgain) {
@@ -62,12 +65,9 @@ fun ResultScreen(
 
         LazyColumn(
             modifier = modifier
-                .fillMaxHeight(0.75f),
-            state = state,
+                .fillMaxHeight(0.40f),
+            state = imageState,
             content = {
-
-                //Don't remove, solution image needs fix.
-                /*
                 item {
                     image.value?.let {
                         SolutionImage(
@@ -77,7 +77,15 @@ fun ResultScreen(
                         )
                     }
                 }
-                */
+            }
+        )
+
+        LazyColumn(
+            modifier = modifier
+                .fillMaxHeight(0.65f),
+            state = responseListState,
+            content = {
+
 
                 item { Spacer(modifier.height(16.dp)) }
 
@@ -94,14 +102,19 @@ fun ResultScreen(
                             }
                         )
                     } else {
-                        OutlinedTextField(
-                            modifier = modifier
-                                .fillMaxWidth(),
-                            value = "${resultText.value}",
-                            onValueChange = {},
-                            textStyle = TextStyle(textAlign = TextAlign.Start),
-                            readOnly = true
-                        )
+                        SelectionContainer {
+                            OutlinedTextField(
+                                modifier = modifier
+                                    .fillMaxWidth(),
+                                value = "${resultText.value}",
+                                onValueChange = {},
+                                textStyle = TextStyle(
+                                    fontSize = 20.sp,
+                                    textAlign = TextAlign.Start
+                                ),
+                                readOnly = true
+                            )
+                        }
                     }
                 }
             }
