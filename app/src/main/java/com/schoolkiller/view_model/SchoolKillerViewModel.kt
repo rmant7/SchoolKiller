@@ -1,5 +1,6 @@
 package com.schoolkiller.view_model
 
+import android.content.res.Resources
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -9,6 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.schoolkiller.R
 import com.schoolkiller.data_Layer.entities.Picture
 import com.schoolkiller.data_Layer.network.api.GeminiApiService
 import com.schoolkiller.data_Layer.network.api.GeminiResponse
@@ -176,22 +178,22 @@ class SchoolKillerViewModel @Inject constructor(
    */
 
     //Don't remove, for future development
- /*
-    private fun convertToBase64(selectedUri: Uri, context: Context): String {
-        val bitmap = MediaStore.Images.Media.getBitmap(
-            context.contentResolver,
-            selectedUri
-        )
-        val outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-        val byteArray = outputStream.toByteArray()
+    /*
+       private fun convertToBase64(selectedUri: Uri, context: Context): String {
+           val bitmap = MediaStore.Images.Media.getBitmap(
+               context.contentResolver,
+               selectedUri
+           )
+           val outputStream = ByteArrayOutputStream()
+           bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+           val byteArray = outputStream.toByteArray()
 
-        val encodedString: String = Base64.encodeToString(
-            byteArray, Base64.DEFAULT
-        )
-        return encodedString
-    }
-*/
+           val encodedString: String = Base64.encodeToString(
+               byteArray, Base64.DEFAULT
+           )
+           return encodedString
+       }
+   */
 
     //Don't remove, for future development
     /*
@@ -242,7 +244,7 @@ class SchoolKillerViewModel @Inject constructor(
 
                     if (actualFileUri != null) {
                         val content = geminiApiService.generateContent(actualFileUri, prompt)
-                        val textResponse = if(content is GeminiResponse.Success) {
+                        val textResponse = if (content is GeminiResponse.Success) {
                             extractGeminiResponseUseCase.invoke(content.data ?: "{}")
                         } else {
                             content.message

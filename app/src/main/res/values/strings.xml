@@ -24,6 +24,10 @@
     // Text Field Labels
     <string name="additional_information_TextField_label">Additional Information</string>
     <string name="What_to_solve_TextField_label">What do you want to solve?</string>
+    <string name="rating_TextField_label">Rating</string>
+
+    // Text Field PlaceHolders
+    <string name="additional_info_TextField_placeholder_text">Solve just task 5</string>
 
     // Drop Down Menu Labels
     <string name="solution_language_label">Solution language</string>
@@ -74,5 +78,7 @@
         <item>Upload a file</item>
         <item>Provide a link</item>
     </string-array>
+    
+    <string name="error_service_not_available">Sorry, service is not available. In Russia and Belarus, please, connect via vpn.</string>
 
 </resources>
