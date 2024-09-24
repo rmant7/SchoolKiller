@@ -258,6 +258,10 @@ class SchoolKillerViewModel @Inject constructor(
                         updateTextGenerationResult(null, RuntimeException(" URI couldn't be extracted"))
                     }
                 }
+
+                fileUriResult.onFailure { throwable ->
+                    _error.update { throwable }
+                }
             }
             uploadResult.onFailure { throwable ->
                 _error.update { throwable }
