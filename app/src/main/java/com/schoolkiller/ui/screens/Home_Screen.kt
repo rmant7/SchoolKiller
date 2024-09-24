@@ -41,7 +41,7 @@ import com.schoolkiller.R
 import com.schoolkiller.ui.reusable_components.ApplicationScaffold
 import com.schoolkiller.ui.reusable_components.EnlargedImage
 import com.schoolkiller.ui.reusable_components.ImageCapture
-import com.schoolkiller.ui.reusable_components.ImagePicker3
+import com.schoolkiller.ui.reusable_components.ImagePicker
 import com.schoolkiller.ui.reusable_components.PictureItem
 import com.schoolkiller.ui.reusable_components.ScreenImage
 import com.schoolkiller.ui.reusable_components.UniversalButton
@@ -115,7 +115,7 @@ fun HomeScreen(
             }
 
             UploadFileMethodOptions.UPLOAD_AN_IMAGE -> {
-                ImagePicker3(
+                ImagePicker(
                     selectedUploadMethodOption = selectedUploadFileMethod,
                     pickMultipleMediaLauncher = pickMultipleMediaLauncher,
                 )
