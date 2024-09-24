@@ -47,7 +47,6 @@ fun CheckSolutionOptionsScreen(
             options = GradeOptions.entries.toList(),
             onOptionSelected = {
                 viewModel.updateSelectedGradeOption(it)
-                viewModel.importGradeToOriginalPrompt()
             },
             optionToString = { option, context -> option.getString(context) }
         )
@@ -72,7 +71,7 @@ fun CheckSolutionOptionsScreen(
                     "(1–100)", selectedMaxRate.toString()
                 )
             )*/
-
+            viewModel.importGradeToOriginalPrompt()
             onNavigateToResultScreen()
         }
     }
