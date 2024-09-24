@@ -87,7 +87,6 @@ fun AdditionalInformationScreen(
             options = GradeOptions.entries.toList(),
             onOptionSelected = {
                 viewModel.updateSelectedGradeOption(it)
-                viewModel.importGradeToOriginalPrompt()
             },
             optionToString = { option, context -> option.getString(context) }
         )
@@ -100,7 +99,6 @@ fun AdditionalInformationScreen(
             options = SolutionLanguageOptions.entries.toList(),
             onOptionSelected = {
                 viewModel.updateSelectedLanguageOption(it)
-                viewModel.importLanguageToOriginalPrompt()
             },
             optionToString = { option, context -> option.getString(context) }
         )
@@ -113,7 +111,6 @@ fun AdditionalInformationScreen(
             options = ExplanationLevelOptions.entries.toList(),
             onOptionSelected = {
                 viewModel.updateSelectedExplanationLevelOption(it)
-                viewModel.importExplanationToOriginalPrompt()
             },
             optionToString = { option, context -> option.getString(context) }
         )
@@ -163,12 +160,25 @@ fun AdditionalInformationScreen(
             modifier = modifier.fillMaxWidth(),
             label = R.string.solve_button_label,
         ) {
-            /*
-            viewModel.selectedUri?.let {
-                viewModel.fetchAIResponse(it, "", viewModel.selectedAiModelOption)
-            }*/
             viewModel.updateTextGenerationResult("")
+
+            /**
+             * Imports for updated prompt are moved here
+             * as otherwise imports are included only by clicking on options
+             * on this screen and are overwritten by original prompt every time
+             * when user doesn't select options on this screen
+             * and return to the Home_Screen.
+             * Code line in Home_Screen which causes overwrite:
+             * viewModel.updatePrompt(
+             *             context.getString(R.string.prompt_text)
+             *         )
+             */
+
+            viewModel.importGradeToOriginalPrompt()
+            viewModel.importLanguageToOriginalPrompt()
+            viewModel.importExplanationToOriginalPrompt()
             viewModel.importAdditionalInfoToOriginalPrompt()
+
             onNavigateToResultScreen()
         }
 

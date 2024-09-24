@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -75,8 +74,8 @@ fun PictureItem(
                 contentDescription = "Picture",  // TODO { hardcoded string }
                 error = painterResource(id = R.drawable.upload_to_school_assistant), // TODO { import an error image }
                 placeholder = painterResource(id = R.drawable.ai_school_assistant), // TODO { import a placeholder image }
-                contentScale = ContentScale.FillBounds,
-
+                //contentScale = ContentScale.FillBounds,
+                contentScale = ContentScale.FillHeight
                 )
             Row(
                 modifier = imageModifier

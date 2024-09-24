@@ -85,8 +85,8 @@ fun ResultScreen(
         }
 
         LazyColumn(
-            modifier = modifier
-                .fillMaxHeight(0.40f),
+            modifier = modifier,
+                //.fillMaxHeight(0.40f),
             state = imageState,
             content = {
                 item {
