@@ -21,6 +21,7 @@
     <string name="start_again">Начать заново</string>
     <string name="try_again">Попробуйте снова</string>
     <string name="pick_images">Выберите изобраажения</string>
+    <string name="Ok">Ок</string>
 
     // Text Field Labels
     <string name="additional_information_TextField_label">Дополнительная информация</string>
@@ -72,5 +73,7 @@
     </string-array>
     <string name="rating_TextField_label">Оценка</string>
     <string name="additional_info_TextField_placeholder_text">Реши только задачу 5</string>
-    <string name="error_service_not_available">Извините, сервис не доступен. Пользователи из России и Белоруси, пожалуйста, пользуйтесь vpn.</string>
+
+    <string name="error_service_not_available">Извините, сервис не доступен на территории РФ и Белорусии</string>
+    <string name="error_service_not_available_title">Сервис недоступен</string>
 </resources>

@@ -20,6 +20,7 @@
     <string name="start_again">Start again</string>
     <string name="try_again">Try again</string>
     <string name="pick_images">Pick Images</string>
+    <string name="Ok">Ok</string>
 
     // Text Field Labels
     <string name="additional_information_TextField_label">Additional Information</string>
@@ -78,7 +79,8 @@
         <item>Upload a file</item>
         <item>Provide a link</item>
     </string-array>
-    
-    <string name="error_service_not_available">Sorry, service is not available. In Russia and Belarus, please, connect via vpn.</string>
+
+    <string name="error_service_not_available">Sorry, service is not available in Russia and Belarus</string>
+    <string name="error_service_not_available_title">Service is not available</string>
 
 </resources>

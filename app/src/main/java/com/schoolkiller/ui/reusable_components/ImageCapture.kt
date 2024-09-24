@@ -40,6 +40,7 @@ import com.schoolkiller.utils.UploadFileMethodOptions
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ImageCapture(

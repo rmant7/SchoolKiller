@@ -20,11 +20,17 @@
     <string name="start_again">התחל מחדש</string>
     <string name="try_again">נסה שוב</string>
     <string name="pick_images">בחר תמונות</string>
+    <string name="Ok">בסדר.</string>
 
     // Text Field Labels
     <string name="additional_information_TextField_label">מידע נוסף</string>
     <string name="What_to_solve_TextField_label">מה לפתור?</string>
 <!--    <string name="What_to_solve_TextField_label">מה לפתור?</string>-->
+    <string name="rating_TextField_label">דירוג</string>
+
+    // Text Field PlaceHolders
+    <string name="additional_info_TextField_placeholder_text">דירוגלפתור רק משימה 5</string>
+
 
     // Drop Down Menu Labels
     <string name="solution_language_label">שפת הפתרון</string>
@@ -72,5 +78,8 @@
         <item>העלה קובץ</item>
         <item>ספק קישור</item>
     </string-array>
+
+    <string name="error_service_not_available">מצטער, השירות אינו זמין ברוסיה ובבלרוס.</string>
+    <string name="error_service_not_available_title">השירות אינו זמין</string>
 
 </resources>

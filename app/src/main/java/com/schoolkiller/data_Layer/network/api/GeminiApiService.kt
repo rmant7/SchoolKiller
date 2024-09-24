@@ -1,6 +1,8 @@
 package com.schoolkiller.data_Layer.network.api
 
 import com.schoolkiller.BuildConfig
+import com.schoolkiller.data_Layer.network.HttpRoutes
+import com.schoolkiller.data_Layer.network.response.GeminiResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.RedirectResponseException
@@ -38,8 +40,13 @@ class GeminiApiService @Inject constructor(
             }
 
             val uploadUrl = response.headers["X-Goog-Upload-URL"]
-                ?: throw Exception("Upload URL not found")
-            Result.success(UploadModel(uploadUrl))
+
+            return if (uploadUrl != null) {
+                Result.success(UploadModel(uploadUrl))
+            } else {
+                Result.failure(ServerResponseException(response, "Upload url is $uploadUrl"))
+            }
+
         } catch (e: RedirectResponseException) {
             //3xx - responses
             Timber.d(e.message)
@@ -133,4 +140,7 @@ class GeminiApiService @Inject constructor(
 }
 
 @Serializable
-data class UploadModel(val uploadUrl: String)
+data class UploadModel(
+    val uploadUrl: String,
+    val errorCode: Int? = null
+)

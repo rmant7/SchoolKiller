@@ -1,6 +1,5 @@
 package com.schoolkiller.view_model
 
-import android.content.res.Resources
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -10,10 +9,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.schoolkiller.R
 import com.schoolkiller.data_Layer.entities.Picture
 import com.schoolkiller.data_Layer.network.api.GeminiApiService
-import com.schoolkiller.data_Layer.network.api.GeminiResponse
+import com.schoolkiller.data_Layer.network.response.GeminiResponse
 import com.schoolkiller.data_Layer.repositories.PictureRepository
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
@@ -94,6 +92,10 @@ class SchoolKillerViewModel @Inject constructor(
     val selectedUploadMethodOption: UploadFileMethodOptions
         get() = _selectedUploadMethodOption
 
+    private var _error = MutableStateFlow<Throwable?>(null)
+    val error: StateFlow<Throwable?>
+        get() = _error.asStateFlow()
+
     fun updateSelectedRateMax(newRateMax: Int) {
         _selectedRateMax = newRateMax
     }
@@ -152,11 +154,12 @@ class SchoolKillerViewModel @Inject constructor(
     }
 
 
-    private val _textGenerationResult = MutableStateFlow<String?>("")
+    private val _textGenerationResult = MutableStateFlow<String>("")
     val textGenerationResult = _textGenerationResult.asStateFlow()
 
-    fun updateTextGenerationResult(resultText: String?) {
-        _textGenerationResult.value = resultText
+    fun updateTextGenerationResult(resultText: String?, error: Throwable? = null) {
+        resultText?.let { text -> _textGenerationResult.update { text } }
+        error?.let { err -> _error.update { err } }
     }
 
     //Don't remove, for future development
@@ -249,16 +252,15 @@ class SchoolKillerViewModel @Inject constructor(
                         } else {
                             content.message
                         }
-
                         updateTextGenerationResult(textResponse)
                     } else {
                         // Handle the case where the URI couldn't be extracted
-                        updateTextGenerationResult("Something went wrong!") // TODO { hardcode string }
+                        updateTextGenerationResult(null, RuntimeException(" URI couldn't be extracted"))
                     }
                 }
             }
-            uploadResult.onFailure { _ ->
-                updateTextGenerationResult("Sorry, service is not available") // TODO { hardcode string }
+            uploadResult.onFailure { throwable ->
+                _error.update { throwable }
             }
         }
     }
@@ -297,6 +299,10 @@ class SchoolKillerViewModel @Inject constructor(
                 additionalInformationText = additionalInfoText.value
             )
         )
+    }
+
+    fun clearError() {
+        _error.value = null;
     }
 
 }
