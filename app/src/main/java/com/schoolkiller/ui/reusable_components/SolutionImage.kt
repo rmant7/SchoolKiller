@@ -9,9 +9,12 @@ import android.os.Build
 import android.provider.MediaStore
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,7 +39,7 @@ fun SolutionImage(
     if (orientation != Configuration.ORIENTATION_LANDSCAPE) {
         Box(
             modifier = modifier
-                .fillMaxWidth()
+                //.fillMaxWidth()
                 .padding(top = 16.dp),
             contentAlignment = Alignment.Center,
         ) {
@@ -44,11 +47,12 @@ fun SolutionImage(
             if (bitmap != null) {
                 Image(
                     modifier = modifier
-                        .height(250.dp)
-                        .clip(RoundedCornerShape(16.dp)),
+                        .size(400.dp),
+                        //.height(250.dp),
+                        //.clip(RoundedCornerShape(16.dp)),
                     bitmap = bitmap.asImageBitmap(),
                     contentDescription = contentDescription,
-                    contentScale = ContentScale.Crop
+                    //contentScale = ContentScale.Crop
                 )
             }
         }

@@ -6,26 +6,18 @@ import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BasicAlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -38,15 +30,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
-import coil.compose.AsyncImage
 import com.schoolkiller.R
 import com.schoolkiller.ui.reusable_components.ApplicationScaffold
 import com.schoolkiller.ui.reusable_components.EnlargedImage
@@ -242,45 +228,6 @@ fun HomeScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MaximizedImageDialog(
-    imageUri: Uri?,
-    onDismiss: () -> Unit
-) {
-    BasicAlertDialog(
-        onDismissRequest = onDismiss,
-        content = {
-            Column(
-                Modifier
-                    .background(Color.White)
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                AsyncImage(
-                    modifier = Modifier
-                        .defaultMinSize(400.dp, 400.dp)
-                        .clipToBounds(),
-                    model = imageUri,
-                    contentDescription = "Picture",
-                    error = painterResource(id = R.drawable.upload_to_school_assistant),
-                    placeholder = painterResource(id = R.drawable.ai_school_assistant)
-                )
-                Button(
-                    onDismiss,
-                    modifier = Modifier
-                        .fillMaxWidth(0.5f)
-                        .padding(0.dp, 10.dp)
-                ) { Text("Ok", fontSize = 20.sp) }
-            }
-        },
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false
-        )
-    )
-}
-
 private fun onNext(
     images: State<SnapshotStateList<Uri>>,
     context: Context,
@@ -288,11 +235,12 @@ private fun onNext(
     viewModel: SchoolKillerViewModel,
     onNavigateToNextScreen: () -> Unit
 ) {
+    val resources = context.resources
     when {
         images.value.isEmpty() -> {
             Toast.makeText(
                 context,
-                "Please upload an image from the device", // TODO { hardcode string }
+                resources.getString(R.string.upload_image_warning),
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -305,9 +253,11 @@ private fun onNext(
         else -> {
             Toast.makeText(
                 context,
-                "Please select an image from the list", // TODO { hardcode string }
+                resources.getString(R.string.select_image_warning),
                 Toast.LENGTH_SHORT
             ).show()
         }
     }
 }
+
+
