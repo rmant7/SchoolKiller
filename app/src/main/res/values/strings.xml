@@ -85,7 +85,7 @@
     <string name="error_service_not_available_title">Service is not available</string>
 
     // Toast
-    <string name="upload_image_warning">"Please upload an image from the device"</string>
-    <string name="select_image_warning">"Please select an image from the list"</string>
+    <string name="upload_image_warning">Please upload an image from the device</string>
+    <string name="select_image_warning">Please select an image from the list</string>
 
 </resources>
