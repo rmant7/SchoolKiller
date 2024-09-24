@@ -81,9 +81,7 @@ fun HomeScreen(
     }
 
 
-    ApplicationScaffold(
-    ) {
-
+    ApplicationScaffold {
         when (selectedUploadFileMethod) {
             UploadFileMethodOptions.TAKE_A_PICTURE -> {
                 ImageCapture(
