@@ -88,5 +88,7 @@
     // Toast
     <string name="upload_image_warning">אנא העלה את התמונה מהמכשיר.</string>
     <string name="select_image_warning">אנא בחר תמונה מהמכשיר</string>
+    <string name="upload_picture">להעלות תמונה</string>
+    <string name="take_a_picture">לצלם תמונה</string>
 
 </resources>
