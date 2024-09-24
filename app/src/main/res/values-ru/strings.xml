@@ -73,9 +73,15 @@
     </string-array>
     <string name="rating_TextField_label">Оценка</string>
     <string name="additional_info_TextField_placeholder_text">Реши только задачу 5</string>
-
+    //Error
     <string name="error_service_not_available">Извините, сервис не доступен на территории РФ и Белорусии</string>
     <string name="error_service_not_available_title">Сервис недоступен</string>
+    <string name="error_common_title">Ошибка</string>
+    <string name="error_common_message">Во вреремя работы приложения произошла ошибка. Попробуйте обновить приложение или повторить попытку позднее</string>
+    // Toast
     <string name="upload_image_warning">Пожалуйста, загрузите изображение с устройства.</string>
     <string name="select_image_warning">Пожалуйста, выберите изображение с устройства</string>
+    <string name="upload_picture">Загрузить картинку</string>
+    <string name="take_a_picture">Сфотографировать</string>
+
 </resources>

@@ -154,7 +154,7 @@ class SchoolKillerViewModel @Inject constructor(
     }
 
 
-    private val _textGenerationResult = MutableStateFlow<String>("")
+    private val _textGenerationResult = MutableStateFlow("")
     val textGenerationResult = _textGenerationResult.asStateFlow()
 
     fun updateTextGenerationResult(resultText: String?, error: Throwable? = null) {
@@ -257,6 +257,10 @@ class SchoolKillerViewModel @Inject constructor(
                         // Handle the case where the URI couldn't be extracted
                         updateTextGenerationResult(null, RuntimeException(" URI couldn't be extracted"))
                     }
+                }
+
+                fileUriResult.onFailure { throwable ->
+                    _error.update { throwable }
                 }
             }
             uploadResult.onFailure { throwable ->

@@ -22,7 +22,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -100,9 +102,7 @@ fun HomeScreen(
     }
 
 
-    ApplicationScaffold(
-    ) {
-
+    ApplicationScaffold {
         when (selectedUploadFileMethod) {
             UploadFileMethodOptions.TAKE_A_PICTURE -> {
                 ImageCapture(
@@ -145,6 +145,44 @@ fun HomeScreen(
                     contentDescription = R.string.upload_to_ai_school_image_assistant_content_description
                 )
 
+                /**
+                 * Image upload selection buttons
+                 */
+                Row(
+                    modifier = modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    UniversalButton(
+                        modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp)
+                            .weight(1f),
+                        R.string.upload_picture
+                    ) {
+                        viewModel.updateSelectedUploadMethodOption(
+                            UploadFileMethodOptions.UPLOAD_AN_IMAGE
+                        )
+                    }
+
+                    UniversalButton(
+                        modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp)
+                            .weight(1f),
+                        R.string.take_a_picture
+                    ) {
+                        viewModel.updateSelectedUploadMethodOption(
+                            UploadFileMethodOptions.TAKE_A_PICTURE
+                        )
+                    }
+                }
+
+                /**
+                 * Changed to Image upload selection buttons
+                 */
+                /*
                 ExposedDropBox(
                     context = context,
                     maxHeightIn = 200.dp,
@@ -156,7 +194,7 @@ fun HomeScreen(
                     onOptionSelected = { viewModel.updateSelectedUploadMethodOption(it) },
                     optionToString = { option, context -> option.getString(context) }
                 )
-
+                */
 
                 LazyColumn(
                     modifier = modifier
