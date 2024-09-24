@@ -21,6 +21,8 @@
     <string name="try_again">Try again</string>
     <string name="pick_images">Pick Images</string>
     <string name="Ok">Ok</string>
+    <string name="upload_picture">Upload Picture</string>
+    <string name="take_a_picture">Take a Picture</string>
 
     // Text Field Labels
     <string name="additional_information_TextField_label">Additional Information</string>

@@ -79,5 +79,7 @@
     // Toast
     <string name="upload_image_warning">Пожалуйста, загрузите изображение с устройства.</string>
     <string name="select_image_warning">Пожалуйста, выберите изображение с устройства</string>
+    <string name="upload_picture">Загрузить картинку</string>
+    <string name="take_a_picture">Сфотографировать</string>
 
 </resources>
