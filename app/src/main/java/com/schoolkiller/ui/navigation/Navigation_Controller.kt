@@ -1,5 +1,7 @@
 package com.schoolkiller.ui.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -15,6 +17,7 @@ import com.schoolkiller.ui.screens.ResultScreen
 import com.schoolkiller.utils.Constants
 import com.schoolkiller.view_model.SchoolKillerViewModel
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun NavigationController(
     modifier: Modifier = Modifier,
