@@ -82,6 +82,9 @@
     //Errors
     <string name="error_service_not_available">מצטער, השירות אינו זמין ברוסיה ובבלרוס.</string>
     <string name="error_service_not_available_title">השירות אינו זמין</string>
+    <string name="error_common_title">שְׁגִיאָה</string>
+    <string name="error_common_message">אירעה שגיאה בזמן שהאפליקציה פעלה. נסה לעדכן את האפליקציה או נסה שוב מאוחר יותר</string>
+
     // Toast
     <string name="upload_image_warning">אנא העלה את התמונה מהמכשיר.</string>
     <string name="select_image_warning">אנא בחר תמונה מהמכשיר</string>

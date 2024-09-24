@@ -154,7 +154,7 @@ class SchoolKillerViewModel @Inject constructor(
     }
 
 
-    private val _textGenerationResult = MutableStateFlow<String>("")
+    private val _textGenerationResult = MutableStateFlow("")
     val textGenerationResult = _textGenerationResult.asStateFlow()
 
     fun updateTextGenerationResult(resultText: String?, error: Throwable? = null) {

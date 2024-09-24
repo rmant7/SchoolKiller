@@ -1,6 +1,7 @@
 package com.schoolkiller.ui.screens
 
 import android.content.Context
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import com.schoolkiller.ui.reusable_components.ApplicationScaffold
 import com.schoolkiller.ui.reusable_components.SolutionImage
 import com.schoolkiller.ui.reusable_components.UniversalButton
 import com.schoolkiller.view_model.SchoolKillerViewModel
+import io.ktor.client.plugins.ServerResponseException
 
 
 @Composable
@@ -46,31 +48,33 @@ fun ResultScreen(
     viewModel: SchoolKillerViewModel,
     onNavigateToHomeScreen: () -> Unit,
 ) {
+    val resultText: String by viewModel.textGenerationResult.collectAsState()
+    val resultError: Throwable? by viewModel.error.collectAsState()
+    val image: Uri? by viewModel.selectedUri.collectAsState()
+    val prompt: String by viewModel.originalPrompt.collectAsState()
 
-    val resultText = viewModel.textGenerationResult.collectAsState()
-    val resultError = viewModel.error.collectAsState()
-    val image = viewModel.selectedUri.collectAsState()
-    val prompt = viewModel.originalPrompt.collectAsState()
     val responseListState = rememberLazyListState()
     val imageState = rememberLazyListState()
     var tryAgain by remember { mutableStateOf(true) }
-
-    val openAlertDialog = remember { mutableStateOf(resultError.value != null) }
+    val openAlertDialog = remember { mutableStateOf(resultError != null) }
 
     LaunchedEffect(tryAgain) {
-        image.value?.let {
+        image?.let {
             viewModel.fetchGeminiResponse(
                 imageUri = it,
-                fileName = "${image.value}",
-                prompt = prompt.value
+                fileName = "$image",
+                prompt = prompt
             )
         }
         tryAgain = false
     }
 
     ApplicationScaffold {
-        if (resultError.value != null) {
+        if (resultError != null) {
             openAlertDialog.value = true
+
+            val dialogData = getAlertWindowData(resultError)
+
             AlertDialog(
                 onDismissRequest = { openAlertDialog.value = false },
                 onConfirmation = {
@@ -78,8 +82,8 @@ fun ResultScreen(
                     viewModel.clearError()
                     onNavigateToHomeScreen()
                 },
-                dialogTitle = stringResource(R.string.error_service_not_available_title),
-                dialogText = stringResource(R.string.error_service_not_available),
+                dialogTitle = stringResource(dialogData.first),
+                dialogText = stringResource(dialogData.second),
                 icon = Icons.Default.Info
             )
         }
@@ -90,11 +94,11 @@ fun ResultScreen(
             state = imageState,
             content = {
                 item {
-                    image.value?.let {
+                    image?.let {
                         SolutionImage(
                             image = it,
                             context = context,
-                            contentDescription = resultText.value
+                            contentDescription = resultText
                         )
                     }
                 }
@@ -112,7 +116,7 @@ fun ResultScreen(
 
 
                 item {
-                    if (resultText.value.isBlank() && resultError.value == null) {
+                    if (resultText.isBlank() && resultError == null) {
                         Box(
                             modifier = modifier
                                 .fillMaxWidth()
@@ -127,7 +131,7 @@ fun ResultScreen(
                             OutlinedTextField(
                                 modifier = modifier
                                     .fillMaxWidth(),
-                                value = resultText.value,
+                                value = resultText,
                                 onValueChange = {},
                                 textStyle = TextStyle(
                                     fontSize = 20.sp,
@@ -170,6 +174,14 @@ fun ResultScreen(
             }
         )
     }
-
 }
+
+
+private fun getAlertWindowData(t: Throwable?): Pair<Int, Int> {
+    return when (t) {
+        is ServerResponseException -> R.string.error_service_not_available_title to R.string.error_service_not_available
+        else -> R.string.error_common_title to R.string.error_common_message
+    }
+}
+
 
