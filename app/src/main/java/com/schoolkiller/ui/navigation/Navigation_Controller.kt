@@ -1,10 +1,11 @@
 package com.schoolkiller.ui.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -15,6 +16,7 @@ import com.schoolkiller.ui.screens.ResultScreen
 import com.schoolkiller.utils.Constants
 import com.schoolkiller.view_model.SchoolKillerViewModel
 
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun NavigationController(
     modifier: Modifier = Modifier,
@@ -22,7 +24,6 @@ fun NavigationController(
 ) {
     val navController = rememberNavController()
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
 
     NavHost(navController = navController, startDestination = Screens.HomeScreen.route) {
 
@@ -30,7 +31,6 @@ fun NavigationController(
             HomeScreen(
                 context = context,
                 viewModel = viewModel,
-                lifecycleOwner = lifecycleOwner,
                 onNavigateToAdditionalInformationScreen = {
                     navController.navigate(Screens.AdditionalInformationScreen.route)
                 },
@@ -77,5 +77,4 @@ sealed class Screens(val route: String) {
     data object AdditionalInformationScreen : Screens(Constants.ADDITIONAL_INFORMATION_SCREEN)
     data object ResultScreen : Screens(Constants.RESULT_SCREEN)
     data object CheckSolutionInformationScreen : Screens(Constants.CHECK_SOLUTION_INFORMATION_SCREEN)
-    //    data object AnswerScreen : Screens(Constants.ANSWER_SCREEN)
 }
