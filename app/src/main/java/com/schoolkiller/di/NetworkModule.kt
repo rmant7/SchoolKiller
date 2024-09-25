@@ -1,7 +1,7 @@
 package com.schoolkiller.di
 
 
-import com.schoolkiller.data_Layer.network.api.GeminiApiService
+import com.schoolkiller.data.network.api.GeminiApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

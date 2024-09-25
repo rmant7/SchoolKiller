@@ -1,7 +1,7 @@
 package com.schoolkiller.domain.usecases.database
 
-import com.schoolkiller.data_Layer.entities.Picture
-import com.schoolkiller.data_Layer.repositories.PictureRepository
+import com.schoolkiller.data.entities.Picture
+import com.schoolkiller.data.repositories.PictureRepository
 import javax.inject.Inject
 
 class AddPictureUseCase @Inject constructor(
