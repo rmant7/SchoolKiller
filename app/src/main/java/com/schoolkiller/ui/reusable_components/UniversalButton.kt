@@ -1,8 +1,8 @@
 package com.schoolkiller.ui.reusable_components
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,16 +20,16 @@ fun UniversalButton(
 ){
     Button(
         modifier = modifier
-            .height(70.dp)
+            .wrapContentHeight()
+            //.height(70.dp)
             .padding(vertical = 8.dp),
         onClick = {
             onButtonClicked()
-        },
-        contentPadding = PaddingValues(0.dp)
+        }
     ) {
         Text(
-            /*modifier = modifier
-                .fillMaxWidth(),*/
+            modifier = modifier
+                .fillMaxWidth(),
             text = stringResource(id = label),
             textAlign = TextAlign.Center,
             softWrap = true,

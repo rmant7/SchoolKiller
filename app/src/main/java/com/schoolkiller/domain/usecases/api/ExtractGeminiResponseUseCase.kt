@@ -22,9 +22,13 @@ data class GeminiResponse(
     val candidates: List<Candidate>
 )
 
+/**
+ * Default value of content was assigned to null
+ * to prevent missing field error
+ */
 @Serializable
 data class Candidate(
-    val content: Content
+    val content: Content? = null
 )
 
 @Serializable

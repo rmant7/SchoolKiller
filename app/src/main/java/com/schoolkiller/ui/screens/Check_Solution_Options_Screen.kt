@@ -2,8 +2,12 @@ package com.schoolkiller.ui.screens
 
 import ExposedDropBox
 import android.content.Context
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -14,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -38,45 +43,49 @@ fun CheckSolutionOptionsScreen(
     }
 
     ApplicationScaffold {
-        //Reused Component
-        ExposedDropBox(
-            maxHeightIn = 200.dp,
-            context = context,
-            label = R.string.grade_label,
-            selectedOption = selectedGrade,
-            options = GradeOptions.entries.toList(),
-            onOptionSelected = {
-                viewModel.updateSelectedGradeOption(it)
-            },
-            optionToString = { option, context -> option.getString(context) }
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize()
         )
+        {
+            ExposedDropBox(
+                maxHeightIn = 200.dp,
+                context = context,
+                label = R.string.grade_label,
+                selectedOption = selectedGrade,
+                options = GradeOptions.entries.toList(),
+                onOptionSelected = {
+                    viewModel.updateSelectedGradeOption(it)
+                },
+                optionToString = { option, context -> option.getString(context) }
+            )
 
-        // Rating Slider for max selected rating value, don't remove.
-        // Spacer(Modifier.padding(0.dp,10.dp))
-        // Text(stringResource(R.string.rating_TextField_label))
-        // RatingSlider(viewModel)
+            Spacer(Modifier.padding(0.dp, 20.dp))
+            // Rating Slider for max selected rating value, don't remove.
+            // Text(stringResource(R.string.rating_TextField_label))
+            // RatingSlider(viewModel)
 
-        //Reused Component
-        UniversalButton(
-            modifier = Modifier.fillMaxWidth(),
-            label = R.string.check_solution_button_label,
-        ) {
-            viewModel.updateTextGenerationResult("")
+            //Reused Component
+            UniversalButton(
+                modifier = Modifier.fillMaxWidth(),
+                label = R.string.check_solution_button_label,
+            ) {
+                viewModel.updateTextGenerationResult("")
 
-            //Updating rating scale in prompt, don't remove.
-            /*val originalPrompt = viewModel.originalPrompt.value
-            val selectedMaxRate = viewModel.selectedRateMax
-            viewModel.updatePrompt(
-                originalPrompt.replace(
-                    "(1–100)", selectedMaxRate.toString()
-                )
-            )*/
-            viewModel.importGradeToOriginalPrompt()
-            onNavigateToResultScreen()
+                //Updating rating scale in prompt, don't remove.
+                /*val originalPrompt = viewModel.originalPrompt.value
+                val selectedMaxRate = viewModel.selectedRateMax
+                viewModel.updatePrompt(
+                    originalPrompt.replace(
+                        "(1–100)", selectedMaxRate.toString()
+                    )
+                )*/
+                viewModel.importGradeToOriginalPrompt()
+                onNavigateToResultScreen()
+            }
         }
     }
-
-
 }
 
 @Composable

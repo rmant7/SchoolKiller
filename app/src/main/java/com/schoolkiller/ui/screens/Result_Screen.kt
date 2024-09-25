@@ -66,7 +66,6 @@ fun ResultScreen(
                 prompt = prompt
             )
         }
-        tryAgain = false
     }
 
     ApplicationScaffold {
@@ -159,7 +158,7 @@ fun ResultScreen(
                     label = R.string.try_again
                 ) {
                     viewModel.updateTextGenerationResult("")
-                    tryAgain = true
+                    tryAgain = !tryAgain
                 }
 
                 UniversalButton(
