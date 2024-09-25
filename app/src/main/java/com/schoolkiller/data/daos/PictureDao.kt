@@ -1,10 +1,10 @@
-package com.schoolkiller.data_Layer.daos
+package com.schoolkiller.data.daos
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import com.schoolkiller.data_Layer.entities.Picture
+import com.schoolkiller.data.entities.Picture
 import com.schoolkiller.utils.Constants
 import kotlinx.coroutines.flow.Flow
 

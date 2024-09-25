@@ -1,4 +1,4 @@
-package com.schoolkiller.data_Layer.network
+package com.schoolkiller.data.network
 
 object HttpRoutes {
     private const val BASE_URL = "https://generativelanguage.googleapis.com"

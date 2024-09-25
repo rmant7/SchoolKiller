@@ -1,4 +1,4 @@
-package com.schoolkiller.data_Layer.network.response
+package com.schoolkiller.data.network.response
 
 sealed class GeminiResponse<T>(val data: T? = null, val message: String? = null) {
     class Success<T>(data: T) : GeminiResponse<T>(data)

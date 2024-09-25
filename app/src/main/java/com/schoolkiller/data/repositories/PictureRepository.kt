@@ -1,7 +1,7 @@
-package com.schoolkiller.data_Layer.repositories
+package com.schoolkiller.data.repositories
 
-import com.schoolkiller.data_Layer.daos.PictureDao
-import com.schoolkiller.data_Layer.entities.Picture
+import com.schoolkiller.data.daos.PictureDao
+import com.schoolkiller.data.entities.Picture
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

@@ -1,11 +1,11 @@
-package com.schoolkiller.data_Layer.database
+package com.schoolkiller.data.database
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.schoolkiller.data_Layer.daos.PictureDao
-import com.schoolkiller.data_Layer.entities.Picture
+import com.schoolkiller.data.daos.PictureDao
+import com.schoolkiller.data.entities.Picture
 import com.schoolkiller.utils.Constants
 
 @Database(entities = [Picture::class], version = 1)

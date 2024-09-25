@@ -2,9 +2,9 @@ package com.schoolkiller.di
 
 import android.content.Context
 import androidx.room.Room
-import com.schoolkiller.data_Layer.daos.PictureDao
-import com.schoolkiller.data_Layer.database.SchoolKillerDatabase
-import com.schoolkiller.data_Layer.repositories.PictureRepository
+import com.schoolkiller.data.daos.PictureDao
+import com.schoolkiller.data.database.SchoolKillerDatabase
+import com.schoolkiller.data.repositories.PictureRepository
 import com.schoolkiller.utils.Constants
 import dagger.Module
 import dagger.Provides

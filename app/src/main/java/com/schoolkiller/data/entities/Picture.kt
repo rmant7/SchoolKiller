@@ -1,4 +1,4 @@
-package com.schoolkiller.data_Layer.entities
+package com.schoolkiller.data.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -1,8 +1,8 @@
-package com.schoolkiller.data_Layer.network.api
+package com.schoolkiller.data.network.api
 
 import com.schoolkiller.BuildConfig
-import com.schoolkiller.data_Layer.network.HttpRoutes
-import com.schoolkiller.data_Layer.network.response.GeminiResponse
+import com.schoolkiller.data.network.HttpRoutes
+import com.schoolkiller.data.network.response.GeminiResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.RedirectResponseException
