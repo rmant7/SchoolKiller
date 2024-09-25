@@ -85,7 +85,7 @@ dependencies {
     // Logging
     implementation (libs.timber)
 
-    //LangChain4j
+    // LangChain4j
     implementation (libs.dev.langchain4j.langchain4j.open.ai)
     implementation (libs.langchain4j)
 
@@ -108,6 +108,7 @@ dependencies {
     implementation(libs.androidx.runner)
     implementation(libs.androidx.espresso.core)
     implementation(libs.common)
+    implementation(libs.play.services.ads.lite)
     ksp(libs.androidx.room.compiler)
 
     // DataStore Preferences
@@ -127,7 +128,7 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
 
-    // Gemini
+    // Gemini SDK Library, not needed cause we used Http fetch with Ktor
     implementation(libs.generativeai)
 
     // ViewModel

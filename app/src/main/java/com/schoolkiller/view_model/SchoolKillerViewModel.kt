@@ -1,5 +1,6 @@
 package com.schoolkiller.view_model
 
+import android.app.Activity
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -13,6 +14,7 @@ import com.schoolkiller.data_Layer.entities.Picture
 import com.schoolkiller.data_Layer.network.api.GeminiApiService
 import com.schoolkiller.data_Layer.network.response.GeminiResponse
 import com.schoolkiller.data_Layer.repositories.PictureRepository
+import com.schoolkiller.domain.usecases.adds.InterstitialAdUseCase
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
 import com.schoolkiller.domain.usecases.database.AddPictureUseCase
@@ -42,7 +44,8 @@ class SchoolKillerViewModel @Inject constructor(
     private val geminiApiService: GeminiApiService,
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
-    private val convertPromptUseCases: ConvertPromptUseCases
+    private val convertPromptUseCases: ConvertPromptUseCases,
+    private val interstitialAdUseCase: InterstitialAdUseCase
 ) : ViewModel() {
 
     // removed Application context from viewModel because it can bring memory leaks
@@ -101,6 +104,7 @@ class SchoolKillerViewModel @Inject constructor(
     val requestGeminiResponse: StateFlow<Boolean> = _requestGeminiResponse
 
 
+
     fun updateSelectedRateMax(newRateMax: Int) {
         _selectedRateMax = newRateMax
     }
@@ -148,6 +152,18 @@ class SchoolKillerViewModel @Inject constructor(
     fun updateRequestGeminiResponse(requestResponse: Boolean) {
         _requestGeminiResponse.update { requestResponse }
     }
+
+
+    fun loadInterstitialAd(adUnitId: String) {
+        viewModelScope.launch {
+            interstitialAdUseCase.loadAd(adUnitId, this@SchoolKillerViewModel)
+        }
+    }
+
+    fun showInterstitialAd(activity: Activity) {
+        interstitialAdUseCase.showAd(activity)
+    }
+
 
 
     fun addPicture(picture: Picture) {

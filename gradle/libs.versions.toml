@@ -31,6 +31,7 @@ googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
 common = "0.10.0"
 secretsGradlePlugin = "2.0.1"
 timber = "5.0.1"
+playServicesAdsLite = "23.3.0"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -82,6 +83,7 @@ androidx-runner = { group = "androidx.test", name = "runner", version.ref = "run
 common = { group = "com.google.ai.client.generativeai", name = "common", version.ref = "common" }
 secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+play-services-ads-lite = { group = "com.google.android.gms", name = "play-services-ads-lite", version.ref = "playServicesAdsLite" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
