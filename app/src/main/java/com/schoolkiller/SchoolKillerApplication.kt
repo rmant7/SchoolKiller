@@ -17,12 +17,10 @@ class SchoolKillerApplication : Application() {
         }
         appOpenAdManager = AppOpenAdManager(this)
 
-        // Remove comment block to test
-        /*
         ProcessLifecycleOwner.get().lifecycle.addObserver(
             appOpenAdManager.defaultLifecycleObserver
         )
-         */
+
     }
 
 }
