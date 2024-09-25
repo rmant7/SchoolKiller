@@ -96,6 +96,11 @@ class SchoolKillerViewModel @Inject constructor(
     val error: StateFlow<Throwable?>
         get() = _error.asStateFlow()
 
+    // For requesting Gemini response again
+    private var _requestGeminiResponse = MutableStateFlow<Boolean>(true)
+    val requestGeminiResponse: StateFlow<Boolean> = _requestGeminiResponse
+
+
     fun updateSelectedRateMax(newRateMax: Int) {
         _selectedRateMax = newRateMax
     }
@@ -138,6 +143,10 @@ class SchoolKillerViewModel @Inject constructor(
 
     fun deleteImageFromTheList(imageToDelete: Uri) {
         _listOfImages.update { it.apply { remove(imageToDelete) } }
+    }
+
+    fun updateRequestGeminiResponse(requestResponse: Boolean) {
+        _requestGeminiResponse.update { requestResponse }
     }
 
 
