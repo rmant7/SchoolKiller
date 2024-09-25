@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.ui.screens
+package com.schoolkiller.presentation.screens
 
 import android.content.Context
 import android.net.Uri
@@ -31,10 +31,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.schoolkiller.R
-import com.schoolkiller.presentation.ui.reusable_components.AlertDialog
-import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
-import com.schoolkiller.presentation.ui.reusable_components.UniversalButton
-import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
+import com.schoolkiller.presentation.SchoolKillerViewModel
+import com.schoolkiller.presentation.common.AlertDialog
+import com.schoolkiller.presentation.common.ApplicationScaffold
+import com.schoolkiller.presentation.common.UniversalButton
 import io.ktor.client.plugins.ServerResponseException
 
 

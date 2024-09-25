@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.ui.reusable_components
+package com.schoolkiller.presentation.common
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

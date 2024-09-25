@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.ui.screens
+package com.schoolkiller.presentation.screens
 
 import ExposedDropBox
 import android.content.Context
@@ -23,10 +23,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
-import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
-import com.schoolkiller.presentation.ui.reusable_components.UniversalButton
 import com.schoolkiller.domain.GradeOptions
-import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
+import com.schoolkiller.presentation.SchoolKillerViewModel
+import com.schoolkiller.presentation.common.ApplicationScaffold
+import com.schoolkiller.presentation.common.UniversalButton
 
 @Composable
 fun CheckSolutionOptionsScreen(

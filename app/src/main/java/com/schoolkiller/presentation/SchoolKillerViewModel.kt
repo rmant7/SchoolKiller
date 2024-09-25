@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.view_model
+package com.schoolkiller.presentation
 
 import android.net.Uri
 import androidx.compose.runtime.getValue
@@ -13,15 +13,15 @@ import com.schoolkiller.data.entities.Picture
 import com.schoolkiller.data.network.api.GeminiApiService
 import com.schoolkiller.data.network.response.GeminiResponse
 import com.schoolkiller.data.repositories.PictureRepository
+import com.schoolkiller.domain.ExplanationLevelOptions
+import com.schoolkiller.domain.GradeOptions
+import com.schoolkiller.domain.SolutionLanguageOptions
+import com.schoolkiller.domain.UploadFileMethodOptions
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
 import com.schoolkiller.domain.usecases.database.AddPictureUseCase
 import com.schoolkiller.domain.usecases.database.DeletePictureUseCase
 import com.schoolkiller.domain.usecases.prompt.ConvertPromptUseCases
-import com.schoolkiller.domain.ExplanationLevelOptions
-import com.schoolkiller.domain.GradeOptions
-import com.schoolkiller.domain.SolutionLanguageOptions
-import com.schoolkiller.domain.UploadFileMethodOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

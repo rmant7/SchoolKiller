@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.ui.reusable_components
+package com.schoolkiller.presentation.common
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
