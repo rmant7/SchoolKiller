@@ -2,7 +2,7 @@ package com.schoolkiller.domain.usecases.prompt
 
 import android.content.Context
 import com.schoolkiller.R
-import com.schoolkiller.utils.SolutionLanguageOptions
+import com.schoolkiller.domain.SolutionLanguageOptions
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
