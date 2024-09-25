@@ -65,6 +65,7 @@ fun ResultScreen(
                 fileName = "$image",
                 prompt = prompt
             )
+            //tryAgain = false
         }
     }
 
@@ -87,6 +88,8 @@ fun ResultScreen(
             )
         }
 
+        //Don't remove, solution images
+        /*
         LazyColumn(
             modifier = modifier,
                 //.fillMaxHeight(0.40f),
@@ -103,6 +106,7 @@ fun ResultScreen(
                 }
             }
         )
+        */
 
         LazyColumn(
             modifier = modifier
@@ -158,6 +162,7 @@ fun ResultScreen(
                     label = R.string.try_again
                 ) {
                     viewModel.updateTextGenerationResult("")
+                    // tryAgain = true
                     tryAgain = !tryAgain
                 }
 
