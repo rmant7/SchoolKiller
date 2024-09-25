@@ -32,82 +32,111 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.schoolkiller.utils.UploadFileMethodOptions
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ImageCapture(
     modifier: Modifier = Modifier,
     context: Context,
-    lifecycleOwner: LifecycleOwner,
     selectedUploadMethodOption: UploadFileMethodOptions,
     onPictureCapture: (Uri) -> Unit,
     returnToNoOption: (UploadFileMethodOptions) -> Unit,
     onBackPress: (UploadFileMethodOptions) -> Unit
 ) {
 
-    val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
-    val writeStoragePermissionState =
-        rememberPermissionState(permission = Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    val permissionsState =
+        /* Even thought camera will save the image to the device storage,
+        extra permissions don`t needed and also they caused troubles showing an empty screen */
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> {
+                rememberMultiplePermissionsState(
+                    listOf(
+                        Manifest.permission.CAMERA,
+//                        Manifest.permission.READ_MEDIA_IMAGES,
+//                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
+                    )
+                )
+            }
+
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                rememberMultiplePermissionsState(
+                    listOf(
+                        Manifest.permission.CAMERA,
+//                        Manifest.permission.READ_MEDIA_IMAGES
+                    )
+                )
+            }
+
+            else -> {
+                rememberMultiplePermissionsState(
+                    listOf(
+                        Manifest.permission.CAMERA,
+//                        Manifest.permission.READ_EXTERNAL_STORAGE,
+//                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    )
+                )
+            }
+        }
+
     val lensFacing = CameraSelector.LENS_FACING_BACK
+    val lifecycleOwner = LocalLifecycleOwner.current
     val preview = Preview.Builder().build()
     val previewView = remember { PreviewView(context) }
     val cameraxSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
     val imageCapture = remember { ImageCapture.Builder().build() }
-    var requestWriteStoragePermission by remember { mutableStateOf(false) }
+    var requestPermissionsState by remember { mutableStateOf(false) }
 
 
     BackHandler(enabled = selectedUploadMethodOption == UploadFileMethodOptions.TAKE_A_PICTURE) {
         onBackPress(UploadFileMethodOptions.NO_OPTION)
     }
 
-    LaunchedEffect(requestWriteStoragePermission) {
-        writeStoragePermissionState.launchPermissionRequest()
-        requestWriteStoragePermission = false
+    LaunchedEffect(requestPermissionsState) {
+        permissionsState.launchMultiplePermissionRequest()
+        requestPermissionsState = false
     }
 
-    if (cameraPermissionState.status.isGranted) {
-        LaunchedEffect(lensFacing) {
-            val cameraProvider = context.getCameraProvider()
-            cameraProvider.unbindAll()
-            cameraProvider.bindToLifecycle(lifecycleOwner, cameraxSelector, preview, imageCapture)
-            preview.setSurfaceProvider(previewView.surfaceProvider)
-        }
+    LaunchedEffect(lensFacing) {
+        val cameraProvider = context.getCameraProvider()
+        cameraProvider.unbindAll()
+        cameraProvider.bindToLifecycle(lifecycleOwner, cameraxSelector, preview, imageCapture)
+        preview.setSurfaceProvider(previewView.surfaceProvider)
+    }
+
+    if (permissionsState.allPermissionsGranted) {
         Box(
-            modifier.fillMaxSize(),
+            modifier
+                .fillMaxSize(),
             contentAlignment = Alignment.BottomCenter,
             content = {
                 AndroidView(factory = { previewView }, modifier = modifier.fillMaxSize())
                 IconButton(
-                    modifier = modifier.size(90.dp),
+                    modifier = modifier
+                        .size(90.dp),
                     onClick = { }
                 ) {
                     Box(
                         modifier = modifier
                             .size(120.dp)
                             .clickable {
-                                if (writeStoragePermissionState.status.isGranted) {
-                                    captureImage(
-                                        imageCapture,
-                                        context,
-                                        onPictureCapture,
-                                        returnToNoOption
-                                    )
-                                } else {
-                                    requestWriteStoragePermission = true
-                                }
+                                captureImage(
+                                    imageCapture,
+                                    context,
+                                    onPictureCapture,
+                                    returnToNoOption
+                                )
                             },
                         contentAlignment = Alignment.Center,
                         content = {
                             Canvas(
-                                modifier = modifier.size(120.dp)
+                                modifier = modifier
+                                    .size(120.dp)
                             ) {
                                 drawCircle(
                                     color = Color.White,
@@ -116,7 +145,8 @@ fun ImageCapture(
                                 )
                             }
                             Canvas(
-                                modifier = modifier.size(83.dp)
+                                modifier = modifier
+                                    .size(83.dp)
                             ) {
                                 drawCircle(
                                     color = Color.Black,
@@ -126,7 +156,8 @@ fun ImageCapture(
                             }
 
                             Canvas(
-                                modifier = modifier.size(70.dp)
+                                modifier = modifier
+                                    .size(70.dp)
                             ) {
                                 drawCircle(
                                     color = Color.White,
@@ -140,9 +171,7 @@ fun ImageCapture(
             }
         )
     } else {
-        LaunchedEffect(Unit) {
-            cameraPermissionState.launchPermissionRequest()
-        }
+        requestPermissionsState = true
     }
 
 
