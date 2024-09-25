@@ -4,7 +4,7 @@ object Constants {
 
     // Screens
     const val HOME_SCREEN = "Home_Screen"
-    const val ADDITIONAL_INFORMATION_SCREEN = "Additional_Information_Screen"
+    const val PARAMETERS_SCREEN = "Additional_Information_Screen"
     const val RESULT_SCREEN = "Result_Screen"
     const val CHECK_SOLUTION_INFORMATION_SCREEN = "Check_Solution_Information_Screen"
 

@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.screens
+package com.schoolkiller.presentation.screens.info
 
 import ExposedDropBox
 import android.content.Context
@@ -25,17 +25,14 @@ import com.schoolkiller.R
 import com.schoolkiller.domain.ExplanationLevelOptions
 import com.schoolkiller.domain.GradeOptions
 import com.schoolkiller.domain.SolutionLanguageOptions
-import com.schoolkiller.presentation.SchoolKillerViewModel
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
 
 @Composable
-fun AdditionalInformationScreen(
-    // moved modifier as first parameter as it should be always
+fun ParametersScreen(
     modifier: Modifier = Modifier,
     context: Context,
-    viewModel: SchoolKillerViewModel = hiltViewModel(),
     onNavigateToResultScreen: () -> Unit
 ) {
 
@@ -46,20 +43,11 @@ fun AdditionalInformationScreen(
 //    var selectedLanguage by remember { mutableStateOf(languageOptions[0]) }
 //    var selectedExplanation by remember { mutableStateOf(explanationOptions[0]) }
 //    val selectedAiModel = viewModel.selectedAiModelOption
+    val viewModel: ParametersViewModel = hiltViewModel()
     val selectedGrade = viewModel.selectedGradeOption
     val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption
     val selectedExplanationLevel = viewModel.selectedExplanationLevelOption
     val additionalInformationText = viewModel.additionalInfoText.collectAsState() // changed to Val from Var
-
-    // remove
-//    val classOptions = remember { context.resources.getStringArray(R.array.grades).toList() }
-//    val languageOptions = remember { context.resources.getStringArray(R.array.languages).toList() }
-//    val explanationOptions = remember { context.resources.getStringArray(R.array.explanations).toList() }
-//    var selectedGrade by remember { mutableStateOf(classOptions[0]) }
-//    var selectedLanguage by remember { mutableStateOf(languageOptions[0]) }
-//    var selectedExplanation by remember { mutableStateOf(explanationOptions[0]) }
-//    var additionalInformationText by remember { mutableStateOf("") }
-
 
     ApplicationScaffold {
 
@@ -116,6 +104,7 @@ fun AdditionalInformationScreen(
             optionToString = { option, context -> option.getString(context) }
         )
 
+        //todo: need to fix. Use color from theme. This color doesn't feet for dark theme
         //gray color for placeholder
         //black color for input text
         val textColor = if (additionalInformationText.value.isEmpty())
@@ -156,7 +145,6 @@ fun AdditionalInformationScreen(
             textStyle = TextStyle(color = textColor)
         )
 
-        //Reused Component
         UniversalButton(
             modifier = modifier.fillMaxWidth(),
             label = R.string.solve_button_label,

@@ -35,7 +35,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class SchoolKillerViewModel @Inject constructor(
+class MainViewModel @Inject constructor(
     private val pictureRepository: PictureRepository,
     private val addPictureUseCase: AddPictureUseCase,
     private val deletePictureUseCase: DeletePictureUseCase,

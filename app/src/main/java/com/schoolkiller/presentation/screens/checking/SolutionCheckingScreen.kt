@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.screens
+package com.schoolkiller.presentation.screens.checking
 
 import ExposedDropBox
 import android.content.Context
@@ -24,16 +24,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
 import com.schoolkiller.domain.GradeOptions
-import com.schoolkiller.presentation.SchoolKillerViewModel
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.UniversalButton
 
 @Composable
-fun CheckSolutionOptionsScreen(
+fun CheckSolutionScreen(
     context: Context,
-    viewModel: SchoolKillerViewModel = hiltViewModel(),
     onNavigateToResultScreen: () -> Unit
 ) {
+    val viewModel: SolutionCheckingViewModel = hiltViewModel()
     val selectedGrade = viewModel.selectedGradeOption
 
     LaunchedEffect(true) {
@@ -89,8 +88,7 @@ fun CheckSolutionOptionsScreen(
 }
 
 @Composable
-fun RatingSlider(viewModel: SchoolKillerViewModel) {
-
+fun RatingSlider(viewModel: SolutionCheckingViewModel) {
     var sliderPosition by remember {
         mutableIntStateOf(100)
     }

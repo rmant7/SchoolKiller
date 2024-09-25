@@ -1,24 +1,18 @@
 package com.schoolkiller.presentation.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.schoolkiller.data.Constants
-import com.schoolkiller.presentation.SchoolKillerViewModel
-import com.schoolkiller.presentation.screens.AdditionalInformationScreen
-import com.schoolkiller.presentation.screens.CheckSolutionOptionsScreen
-import com.schoolkiller.presentation.screens.ResultScreen
+import com.schoolkiller.presentation.screens.checking.CheckSolutionScreen
 import com.schoolkiller.presentation.screens.home.HomeScreen
+import com.schoolkiller.presentation.screens.info.ParametersScreen
+import com.schoolkiller.presentation.screens.result.ResultScreen
 
 @Composable
-fun NavigationController(
-    modifier: Modifier = Modifier,
-    viewModel: SchoolKillerViewModel = hiltViewModel(),
-) {
+fun NavigationController() {
     val navController = rememberNavController()
     val context = LocalContext.current
 
@@ -28,7 +22,7 @@ fun NavigationController(
             HomeScreen(
                 context = context,
                 onNavigateToAdditionalInformationScreen = {
-                    navController.navigate(Screens.AdditionalInformationScreen.route)
+                    navController.navigate(Screens.ParametersScreen.route)
                 },
                 onNavigateToCheckSolutionOptionsScreen = {
                     navController.navigate(Screens.CheckSolutionInformationScreen.route)
@@ -36,10 +30,9 @@ fun NavigationController(
             )
         }
 
-        composable(Screens.AdditionalInformationScreen.route) {
-            AdditionalInformationScreen(
+        composable(Screens.ParametersScreen.route) {
+            ParametersScreen(
                 context = context,
-                viewModel = viewModel,
                 onNavigateToResultScreen = {
                     navController.navigate(Screens.ResultScreen.route)
                 }
@@ -47,9 +40,9 @@ fun NavigationController(
         }
 
         composable(Screens.CheckSolutionInformationScreen.route) {
-            CheckSolutionOptionsScreen(
+            CheckSolutionScreen(
                 context = context,
-                viewModel = viewModel, onNavigateToResultScreen = {
+                onNavigateToResultScreen = {
                     navController.navigate(Screens.ResultScreen.route)
                 }
             )
@@ -57,20 +50,17 @@ fun NavigationController(
 
         composable(Screens.ResultScreen.route) {
             ResultScreen(
-                context = context,
-                viewModel = viewModel,
                 onNavigateToHomeScreen = {
                     navController.navigate(Screens.HomeScreen.route)
                 }
             )
         }
-
     }
 }
 
 sealed class Screens(val route: String) {
     data object HomeScreen : Screens(Constants.HOME_SCREEN)
-    data object AdditionalInformationScreen : Screens(Constants.ADDITIONAL_INFORMATION_SCREEN)
+    data object ParametersScreen : Screens(Constants.PARAMETERS_SCREEN)
     data object ResultScreen : Screens(Constants.RESULT_SCREEN)
     data object CheckSolutionInformationScreen : Screens(Constants.CHECK_SOLUTION_INFORMATION_SCREEN)
 }
