@@ -1,4 +1,4 @@
-package com.schoolkiller.ui.reusable_components
+package com.schoolkiller.presentation.ui.reusable_components
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon

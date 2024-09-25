@@ -1,6 +1,4 @@
-package com.schoolkiller.utils
-
-import java.util.Properties
+package com.schoolkiller.data
 
 object Constants {
 

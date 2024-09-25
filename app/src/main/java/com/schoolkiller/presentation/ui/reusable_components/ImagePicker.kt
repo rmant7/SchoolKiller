@@ -1,4 +1,4 @@
-package com.schoolkiller.ui.reusable_components
+package com.schoolkiller.presentation.ui.reusable_components
 
 import android.Manifest
 import android.net.Uri
@@ -16,7 +16,7 @@ import androidx.compose.runtime.setValue
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import com.schoolkiller.utils.UploadFileMethodOptions
+import com.schoolkiller.domain.UploadFileMethodOptions
 
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)

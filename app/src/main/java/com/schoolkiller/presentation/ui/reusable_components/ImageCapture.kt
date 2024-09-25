@@ -1,4 +1,4 @@
-package com.schoolkiller.ui.reusable_components
+package com.schoolkiller.presentation.ui.reusable_components
 
 import android.Manifest
 import android.content.ContentValues
@@ -35,7 +35,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.schoolkiller.utils.UploadFileMethodOptions
+import com.schoolkiller.domain.UploadFileMethodOptions
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 

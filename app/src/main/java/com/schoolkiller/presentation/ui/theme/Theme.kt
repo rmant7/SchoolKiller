@@ -1,4 +1,4 @@
-package com.schoolkiller.ui.theme
+package com.schoolkiller.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build

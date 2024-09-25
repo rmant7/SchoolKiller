@@ -5,7 +5,7 @@ import androidx.room.Room
 import com.schoolkiller.data.daos.PictureDao
 import com.schoolkiller.data.database.SchoolKillerDatabase
 import com.schoolkiller.data.repositories.PictureRepository
-import com.schoolkiller.utils.Constants
+import com.schoolkiller.data.Constants
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

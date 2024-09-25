@@ -1,4 +1,4 @@
-package com.schoolkiller
+package com.schoolkiller.presentation
 
 import android.os.Build
 import android.os.Bundle
@@ -10,8 +10,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.ui.unit.dp
-import com.schoolkiller.ui.navigation.NavigationController
-import com.schoolkiller.ui.theme.SchoolKillerTheme
+import com.schoolkiller.presentation.ui.navigation.NavigationController
+import com.schoolkiller.presentation.ui.theme.SchoolKillerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 

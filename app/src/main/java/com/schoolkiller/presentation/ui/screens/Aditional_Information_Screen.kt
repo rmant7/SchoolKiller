@@ -1,4 +1,4 @@
-package com.schoolkiller.ui.screens
+package com.schoolkiller.presentation.ui.screens
 
 import ExposedDropBox
 import android.content.Context
@@ -22,13 +22,13 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
-import com.schoolkiller.ui.reusable_components.ApplicationScaffold
-import com.schoolkiller.ui.reusable_components.ScreenImage
-import com.schoolkiller.ui.reusable_components.UniversalButton
-import com.schoolkiller.utils.ExplanationLevelOptions
-import com.schoolkiller.utils.GradeOptions
-import com.schoolkiller.utils.SolutionLanguageOptions
-import com.schoolkiller.view_model.SchoolKillerViewModel
+import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
+import com.schoolkiller.presentation.ui.reusable_components.ScreenImage
+import com.schoolkiller.presentation.ui.reusable_components.UniversalButton
+import com.schoolkiller.domain.ExplanationLevelOptions
+import com.schoolkiller.domain.GradeOptions
+import com.schoolkiller.domain.SolutionLanguageOptions
+import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
 
 @Composable
 fun AdditionalInformationScreen(

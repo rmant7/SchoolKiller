@@ -5,7 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.schoolkiller.data.entities.Picture
-import com.schoolkiller.utils.Constants
+import com.schoolkiller.data.Constants
 import kotlinx.coroutines.flow.Flow
 
 @Dao

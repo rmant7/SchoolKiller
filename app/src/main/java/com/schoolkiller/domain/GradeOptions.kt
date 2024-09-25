@@ -1,4 +1,4 @@
-package com.schoolkiller.utils
+package com.schoolkiller.domain
 
 import android.content.Context
 import com.schoolkiller.R

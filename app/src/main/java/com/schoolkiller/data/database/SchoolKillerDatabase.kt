@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.schoolkiller.data.daos.PictureDao
 import com.schoolkiller.data.entities.Picture
-import com.schoolkiller.utils.Constants
+import com.schoolkiller.data.Constants
 
 @Database(entities = [Picture::class], version = 1)
 abstract class SchoolKillerDatabase : RoomDatabase() {

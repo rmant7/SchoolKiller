@@ -1,4 +1,4 @@
-package com.schoolkiller.ui.screens
+package com.schoolkiller.presentation.ui.screens
 
 import android.content.Context
 import android.net.Uri
@@ -34,15 +34,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
-import com.schoolkiller.ui.reusable_components.ApplicationScaffold
-import com.schoolkiller.ui.reusable_components.EnlargedImage
-import com.schoolkiller.ui.reusable_components.ImageCapture
-import com.schoolkiller.ui.reusable_components.ImagePicker
-import com.schoolkiller.ui.reusable_components.PictureItem
-import com.schoolkiller.ui.reusable_components.ScreenImage
-import com.schoolkiller.ui.reusable_components.UniversalButton
-import com.schoolkiller.utils.UploadFileMethodOptions
-import com.schoolkiller.view_model.SchoolKillerViewModel
+import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
+import com.schoolkiller.presentation.ui.reusable_components.EnlargedImage
+import com.schoolkiller.presentation.ui.reusable_components.ImageCapture
+import com.schoolkiller.presentation.ui.reusable_components.ImagePicker
+import com.schoolkiller.presentation.ui.reusable_components.PictureItem
+import com.schoolkiller.presentation.ui.reusable_components.ScreenImage
+import com.schoolkiller.presentation.ui.reusable_components.UniversalButton
+import com.schoolkiller.domain.UploadFileMethodOptions
+import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
 
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)

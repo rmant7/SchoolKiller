@@ -9,12 +9,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.schoolkiller.ui.screens.AdditionalInformationScreen
-import com.schoolkiller.ui.screens.CheckSolutionOptionsScreen
-import com.schoolkiller.ui.screens.HomeScreen
-import com.schoolkiller.ui.screens.ResultScreen
-import com.schoolkiller.utils.Constants
-import com.schoolkiller.view_model.SchoolKillerViewModel
+import com.schoolkiller.presentation.ui.screens.AdditionalInformationScreen
+import com.schoolkiller.presentation.ui.screens.CheckSolutionOptionsScreen
+import com.schoolkiller.presentation.ui.screens.HomeScreen
+import com.schoolkiller.presentation.ui.screens.ResultScreen
+import com.schoolkiller.data.Constants
+import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
