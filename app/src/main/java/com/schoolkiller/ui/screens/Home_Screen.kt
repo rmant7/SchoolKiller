@@ -1,14 +1,10 @@
 package com.schoolkiller.ui.screens
 
-import ExposedDropBox
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
@@ -22,9 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -319,27 +313,6 @@ private fun onNext(
 }
 
 
-private fun handleActivityResult(
-    result: ActivityResult,
-    loadImages: (List<Uri>) -> Unit,
-    returnToNoOption: (UploadFileMethodOptions) -> Unit
-) {
-    if (result.resultCode == Activity.RESULT_OK) {
-        val data: Intent? = result.data
-        val clipData = data?.clipData
-        val uriList = mutableListOf<Uri>()
 
-        if (clipData != null) {
-            for (i in 0 until clipData.itemCount) {
-                val uri = clipData.getItemAt(i).uri
-                uriList.add(uri)
-            }
-        } else {
-            data?.data?.let { uriList.add(it) }
-        }
-        loadImages(uriList)
-    }
-    returnToNoOption(UploadFileMethodOptions.NO_OPTION)
-}
 
 
