@@ -1,10 +1,11 @@
 package com.schoolkiller.ui.screens
 
-import ExposedDropBox
 import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,9 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -34,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.LifecycleOwner
 import com.schoolkiller.R
 import com.schoolkiller.ui.reusable_components.ApplicationScaffold
 import com.schoolkiller.ui.reusable_components.EnlargedImage
@@ -46,13 +44,13 @@ import com.schoolkiller.ui.reusable_components.UniversalButton
 import com.schoolkiller.utils.UploadFileMethodOptions
 import com.schoolkiller.view_model.SchoolKillerViewModel
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     context: Context,
     viewModel: SchoolKillerViewModel = hiltViewModel(),
-    lifecycleOwner: LifecycleOwner,
     onNavigateToAdditionalInformationScreen: () -> Unit,
     onNavigateToCheckSolutionOptionsScreen: () -> Unit
 ) {
@@ -63,6 +61,21 @@ fun HomeScreen(
     val selectedImageUri = selectedImageIndex.value?.let { images.value[it] }
     var isImageEnlarged by remember { mutableStateOf(false) }
     val state = rememberLazyListState()
+
+
+    // Launcher for the ImagePicker
+    val pickMultipleMediaLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(),
+        onResult = { uris ->
+            if (uris.isNotEmpty()) {
+                viewModel.insertImagesOnTheList(uris)
+                viewModel.updateSelectedUploadMethodOption(UploadFileMethodOptions.NO_OPTION)
+
+            } else {
+                viewModel.updateSelectedUploadMethodOption(UploadFileMethodOptions.NO_OPTION)
+            }
+        }
+    )
 
 
     LaunchedEffect(Unit) {
@@ -88,7 +101,6 @@ fun HomeScreen(
             UploadFileMethodOptions.TAKE_A_PICTURE -> {
                 ImageCapture(
                     context = context,
-                    lifecycleOwner = lifecycleOwner,
                     selectedUploadMethodOption = selectedUploadFileMethod,
                     onPictureCapture = { viewModel.insertImagesOnTheList(listOf(it)) },
                     onBackPress = { viewModel.updateSelectedUploadMethodOption(it) },
@@ -98,8 +110,8 @@ fun HomeScreen(
 
             UploadFileMethodOptions.UPLOAD_AN_IMAGE -> {
                 ImagePicker(
-                    loadImages = { viewModel.insertImagesOnTheList(it) },
-                    returnToNoOption = { viewModel.updateSelectedUploadMethodOption(it) }
+                    selectedUploadMethodOption = selectedUploadFileMethod,
+                    pickMultipleMediaLauncher = pickMultipleMediaLauncher,
                 )
             }
 
@@ -170,7 +182,9 @@ fun HomeScreen(
                     maxHeightIn = 200.dp,
                     label = R.string.upload_a_file_label,
                     selectedOption = selectedUploadFileMethod,
-                    options = UploadFileMethodOptions.entries.toList().drop(1),
+                    options = UploadFileMethodOptions.entries.toList().filter {
+                        it == UploadFileMethodOptions.TAKE_A_PICTURE || it == UploadFileMethodOptions.UPLOAD_AN_IMAGE
+                    },
                     onOptionSelected = { viewModel.updateSelectedUploadMethodOption(it) },
                     optionToString = { option, context -> option.getString(context) }
                 )
@@ -297,5 +311,8 @@ private fun onNext(
         }
     }
 }
+
+
+
 
 
