@@ -1,4 +1,4 @@
-package com.schoolkiller.ui.navigation
+package com.schoolkiller.presentation.ui.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -16,7 +16,6 @@ import com.schoolkiller.presentation.ui.screens.ResultScreen
 import com.schoolkiller.data.Constants
 import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
 
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun NavigationController(
     modifier: Modifier = Modifier,

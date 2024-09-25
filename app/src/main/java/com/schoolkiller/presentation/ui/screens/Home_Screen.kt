@@ -45,7 +45,6 @@ import com.schoolkiller.domain.UploadFileMethodOptions
 import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
 
 
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
