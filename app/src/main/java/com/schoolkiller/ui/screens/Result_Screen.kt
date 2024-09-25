@@ -19,12 +19,10 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -35,7 +33,6 @@ import androidx.compose.ui.unit.sp
 import com.schoolkiller.R
 import com.schoolkiller.ui.reusable_components.AlertDialog
 import com.schoolkiller.ui.reusable_components.ApplicationScaffold
-import com.schoolkiller.ui.reusable_components.SolutionImage
 import com.schoolkiller.ui.reusable_components.UniversalButton
 import com.schoolkiller.view_model.SchoolKillerViewModel
 import io.ktor.client.plugins.ServerResponseException
@@ -55,19 +52,22 @@ fun ResultScreen(
 
     val responseListState = rememberLazyListState()
     val imageState = rememberLazyListState()
-    var tryAgain by remember { mutableStateOf(true) }
+    val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState()
     val openAlertDialog = remember { mutableStateOf(resultError != null) }
 
-    LaunchedEffect(tryAgain) {
+
+    if (requestGeminiResponse.value) {
         image?.let {
             viewModel.fetchGeminiResponse(
                 imageUri = it,
                 fileName = "$image",
                 prompt = prompt
             )
-            //tryAgain = false
         }
+        // after fetching the response, request for another fetch is closing
+        viewModel.updateRequestGeminiResponse(false)
     }
+
 
     ApplicationScaffold {
         if (resultError != null) {
@@ -162,8 +162,7 @@ fun ResultScreen(
                     label = R.string.try_again
                 ) {
                     viewModel.updateTextGenerationResult("")
-                    // tryAgain = true
-                    tryAgain = !tryAgain
+                    viewModel.updateRequestGeminiResponse(true)
                 }
 
                 UniversalButton(

@@ -32,9 +32,10 @@ import com.schoolkiller.view_model.SchoolKillerViewModel
 
 @Composable
 fun AdditionalInformationScreen(
+    // moved modifier as first parameter as it should be always
+    modifier: Modifier = Modifier,
     context: Context,
     viewModel: SchoolKillerViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier,
     onNavigateToResultScreen: () -> Unit
 ) {
 
@@ -48,7 +49,7 @@ fun AdditionalInformationScreen(
     val selectedGrade = viewModel.selectedGradeOption
     val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption
     val selectedExplanationLevel = viewModel.selectedExplanationLevelOption
-    var additionalInformationText = viewModel.additionalInfoText.collectAsState()
+    val additionalInformationText = viewModel.additionalInfoText.collectAsState() // changed to Val from Var
 
     // remove
 //    val classOptions = remember { context.resources.getStringArray(R.array.grades).toList() }
@@ -179,6 +180,8 @@ fun AdditionalInformationScreen(
             viewModel.importExplanationToOriginalPrompt()
             viewModel.importAdditionalInfoToOriginalPrompt()
 
+            // on back press from ResultScreen we have to restore requestGeminiResponse back to true
+            viewModel.updateRequestGeminiResponse(true)
             onNavigateToResultScreen()
         }
 
