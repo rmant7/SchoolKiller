@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.LifecycleOwner
 import com.schoolkiller.R
 import com.schoolkiller.domain.UploadFileMethodOptions
 import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
@@ -47,10 +48,15 @@ import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
 fun HomeScreen(
     modifier: Modifier = Modifier,
     context: Context,
+    lifecycleOwner: LifecycleOwner,
     viewModel: SchoolKillerViewModel = hiltViewModel(),
     onNavigateToAdditionalInformationScreen: () -> Unit,
     onNavigateToCheckSolutionOptionsScreen: () -> Unit
 ) {
+
+
+
+
 //    val pictures by viewModel.allPictures.collectAsState(initial = emptyList())
     val selectedUploadFileMethod = viewModel.selectedUploadMethodOption
     val images = viewModel.listOfImages.collectAsState()
@@ -58,7 +64,6 @@ fun HomeScreen(
     val selectedImageUri = selectedImageIndex.value?.let { images.value[it] }
     var isImageEnlarged by remember { mutableStateOf(false) }
     val state = rememberLazyListState()
-
 
     // Launcher for the ImagePicker
     val pickMultipleMediaLauncher = rememberLauncherForActivityResult(
@@ -99,6 +104,7 @@ fun HomeScreen(
             UploadFileMethodOptions.TAKE_A_PICTURE -> {
                 ImageCapture(
                     context = context,
+                    lifecycleOwner = lifecycleOwner,
                     selectedUploadMethodOption = selectedUploadFileMethod,
                     onPictureCapture = { viewModel.insertImagesOnTheList(listOf(it)) },
                     onBackPress = { viewModel.updateSelectedUploadMethodOption(it) },

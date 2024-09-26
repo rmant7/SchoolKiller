@@ -45,7 +45,6 @@ fun AdditionalInformationScreen(
     val additionalInformationText = viewModel.additionalInfoText.collectAsState()
 
 
-
     ApplicationScaffold {
 
         ScreenImage(

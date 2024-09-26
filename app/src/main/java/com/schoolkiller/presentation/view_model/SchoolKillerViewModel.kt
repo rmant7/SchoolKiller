@@ -1,6 +1,5 @@
 package com.schoolkiller.presentation.view_model
 
-import android.app.Activity
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -12,6 +11,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.appopen.AppOpenAd
+import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.schoolkiller.data.Constants
 import com.schoolkiller.data.entities.Picture
 import com.schoolkiller.data.network.api.GeminiApiService
@@ -21,8 +22,7 @@ import com.schoolkiller.domain.ExplanationLevelOptions
 import com.schoolkiller.domain.GradeOptions
 import com.schoolkiller.domain.SolutionLanguageOptions
 import com.schoolkiller.domain.UploadFileMethodOptions
-import com.schoolkiller.domain.usecases.adds.BannerAdUseCase
-import com.schoolkiller.domain.usecases.adds.InterstitialAdUseCase
+import com.schoolkiller.domain.usecases.adds.AdUseCases
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
 import com.schoolkiller.domain.usecases.database.AddPictureUseCase
@@ -49,8 +49,7 @@ class SchoolKillerViewModel @Inject constructor(
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
     private val convertPromptUseCases: ConvertPromptUseCases,
-    private val interstitialAdUseCase: InterstitialAdUseCase,
-    private val bannerAdUseCase: BannerAdUseCase
+    private val adUseCases: AdUseCases,
 ) : ViewModel() {
 
 
@@ -106,6 +105,59 @@ class SchoolKillerViewModel @Inject constructor(
     private var _requestGeminiResponse = MutableStateFlow<Boolean>(true)
     val requestGeminiResponse: StateFlow<Boolean> = _requestGeminiResponse
 
+    // OpenAd State
+    private var _appOpenAd = MutableStateFlow<AppOpenAd?>(null)
+    val appOpenAd: StateFlow<AppOpenAd?> = _appOpenAd
+    private var _isOpenAdLoading = MutableStateFlow<Boolean>(false)
+    val isOpenAdLoading: StateFlow<Boolean> = _isOpenAdLoading
+    private var _openAdLoadTime = MutableStateFlow<Long>(0L)
+    val openAdLoadTime: StateFlow<Long> = _openAdLoadTime
+    private var _openAdLastAdShownTime = MutableStateFlow<Long>(0L)
+    val openAdLastAdShownTime: StateFlow<Long> = _openAdLastAdShownTime
+    private val _triggerAdLoadAfterCooldown = MutableStateFlow(false)
+    val triggerAdLoadAfterCooldown: StateFlow<Boolean> = _triggerAdLoadAfterCooldown.asStateFlow()
+    fun updateAppOpenAd(newAd: AppOpenAd?) { _appOpenAd.update { newAd } }
+    fun updateIsOpenAdLoading(isLoading: Boolean) { _isOpenAdLoading.update { isLoading } }
+    fun updateOpenAdLoadTime(newAdLoadTime: Long) { _openAdLoadTime.update { newAdLoadTime } }
+    fun updateOpenAdLastAdShownTime(newLastAdShowTime: Long) { _openAdLastAdShownTime.update { newLastAdShowTime } }
+    fun updateTriggerAdLoadAfterCooldown(isTriggered: Boolean) { _triggerAdLoadAfterCooldown.update { isTriggered } }
+
+
+    // BannerAd State
+    private var _adview = MutableStateFlow<AdView?>(null)
+    val adview: StateFlow<AdView?> = _adview
+    fun updateAdview(newAd: AdView?) { _adview.update { newAd } }
+
+    // InterstitialAd State
+    private var _interstitialAd = MutableStateFlow<InterstitialAd?>(null)
+    val interstitialAd: StateFlow<InterstitialAd?> = _interstitialAd
+    fun updateInterstitialAd(newAd: InterstitialAd?) { _interstitialAd.update { newAd } }
+
+    // Ads calling functions
+    fun loadOpenAd() = viewModelScope.launch {
+        adUseCases.openAdUseCase.loadOpenAd(
+            adUnitId = Constants.OPEN_AD_ID,
+            viewModel = this@SchoolKillerViewModel
+        )
+    }
+
+    fun loadBannerAd() {
+        viewModelScope.launch {
+            adUseCases.bannerAdUseCase.loadAd(
+                adUnitId = Constants.BANNER_AD_ID,
+                viewModel = this@SchoolKillerViewModel,
+                adSize = AdSize.BANNER)
+        }
+    }
+
+    fun loadInterstitialAd() {
+        adUseCases.interstitialAdUseCase.loadAd(
+            adUnitId = Constants.INTERSTITIAL_AD_ID,
+            viewModel = this@SchoolKillerViewModel
+        )
+    }
+
+
 
     fun updateSelectedRateMax(newRateMax: Int) {
         _selectedRateMax = newRateMax
@@ -153,14 +205,6 @@ class SchoolKillerViewModel @Inject constructor(
 
     fun updateRequestGeminiResponse(requestResponse: Boolean) {
         _requestGeminiResponse.update { requestResponse }
-    }
-
-    fun getBannerAd(): AdView? {
-        return bannerAdUseCase.getBannerAd()
-    }
-
-    fun showInterstitialAd(activity: Activity,adUnitId: String, viewModel: SchoolKillerViewModel) {
-        interstitialAdUseCase.showAd(activity, adUnitId = adUnitId, viewModel = viewModel)
     }
 
 
@@ -333,14 +377,11 @@ class SchoolKillerViewModel @Inject constructor(
         _error.value = null;
     }
 
-    // We can initialize our ads from here
+    // initialize ads as soon as the app starts
     init {
-            interstitialAdUseCase.loadAd(viewModel = this, adUnitId = Constants.INTERSTITIAL_AD_ID)
-            bannerAdUseCase.loadAd(
-                viewModel = this,
-                adSize = AdSize.BANNER,
-                adUnitId = Constants.BANNER_AD_ID
-            )
+            loadOpenAd()
+            loadBannerAd()
+            loadInterstitialAd()
     }
 
 }
