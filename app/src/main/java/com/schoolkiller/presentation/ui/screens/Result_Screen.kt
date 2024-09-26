@@ -49,12 +49,18 @@ fun ResultScreen(
     val resultError: Throwable? by viewModel.error.collectAsState()
     val image: Uri? by viewModel.selectedUri.collectAsState()
     val prompt: String by viewModel.originalPrompt.collectAsState()
+    val bannerAdRequest = viewModel.requestBannerAd.collectAsState()
+    val interstitialAdRequest = viewModel.requestInterstitialAd.collectAsState()
 
     val responseListState = rememberLazyListState()
     val imageState = rememberLazyListState()
     val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState()
     val openAlertDialog = remember { mutableStateOf(resultError != null) }
 
+
+//    BackHandler(enabled = interstitialAdRequest.value) {
+//        viewModel.updateInterstitialAdRequest(false)
+//    }
 
     if (requestGeminiResponse.value) {
         image?.let {

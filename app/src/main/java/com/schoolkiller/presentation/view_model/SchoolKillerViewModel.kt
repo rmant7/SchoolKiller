@@ -10,6 +10,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.schoolkiller.data.Constants
 import com.schoolkiller.data.entities.Picture
 import com.schoolkiller.data.network.api.GeminiApiService
 import com.schoolkiller.data.network.response.GeminiResponse
@@ -18,6 +21,7 @@ import com.schoolkiller.domain.ExplanationLevelOptions
 import com.schoolkiller.domain.GradeOptions
 import com.schoolkiller.domain.SolutionLanguageOptions
 import com.schoolkiller.domain.UploadFileMethodOptions
+import com.schoolkiller.domain.usecases.adds.BannerAdUseCase
 import com.schoolkiller.domain.usecases.adds.InterstitialAdUseCase
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
@@ -45,7 +49,8 @@ class SchoolKillerViewModel @Inject constructor(
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
     private val convertPromptUseCases: ConvertPromptUseCases,
-    private val interstitialAdUseCase: InterstitialAdUseCase
+    private val interstitialAdUseCase: InterstitialAdUseCase,
+    private val bannerAdUseCase: BannerAdUseCase
 ) : ViewModel() {
 
     // removed Application context from viewModel because it can bring memory leaks
@@ -103,6 +108,14 @@ class SchoolKillerViewModel @Inject constructor(
     private var _requestGeminiResponse = MutableStateFlow<Boolean>(true)
     val requestGeminiResponse: StateFlow<Boolean> = _requestGeminiResponse
 
+    // For requesting banner Ad
+    private var _requestBannerAd = MutableStateFlow<Boolean>(true)
+    val requestBannerAd: StateFlow<Boolean> = _requestBannerAd
+
+    // For requesting interstitial Ad
+    private var _requestInterstitialAd = MutableStateFlow<Boolean>(true)
+    val requestInterstitialAd: StateFlow<Boolean> = _requestInterstitialAd
+
 
     fun updateSelectedRateMax(newRateMax: Int) {
         _selectedRateMax = newRateMax
@@ -152,11 +165,29 @@ class SchoolKillerViewModel @Inject constructor(
         _requestGeminiResponse.update { requestResponse }
     }
 
+    fun updateBannerAdRequest(requestBannerAd: Boolean) {
+        _requestGeminiResponse.update { requestBannerAd }
+    }
+
+    fun updateInterstitialAdRequest(requestInterstitialAd: Boolean) {
+        _requestInterstitialAd.update { requestInterstitialAd }
+    }
+
 
     fun loadInterstitialAd(adUnitId: String) {
         viewModelScope.launch {
             interstitialAdUseCase.loadAd(adUnitId, this@SchoolKillerViewModel)
         }
+    }
+
+    fun loadBannerAd(adUnitId: String, adSize: AdSize) {
+        viewModelScope.launch {
+            bannerAdUseCase.loadAd(adUnitId, this@SchoolKillerViewModel, adSize)
+        }
+    }
+
+    fun getBannerAd(): AdView? {
+        return bannerAdUseCase.getBannerAd()
     }
 
     fun showInterstitialAd(activity: Activity) {
@@ -332,6 +363,25 @@ class SchoolKillerViewModel @Inject constructor(
     fun clearError() {
         _error.value = null;
     }
+
+    /* We can init our ads from here but this way makes them static,
+    on the other hand with LaunchEffect on HomeScreen every time we load HomeScreen we load a new ad
+     */
+    init {
+        if (requestInterstitialAd.value){
+            interstitialAdUseCase.loadAd(viewModel = this, adUnitId = Constants.INTERSTITIAL_AD_ID)
+//            updateInterstitialAdRequest(false)
+        }
+        if (requestBannerAd.value) {
+            bannerAdUseCase.loadAd(
+                viewModel = this,
+                adSize = AdSize.BANNER,
+                adUnitId = Constants.BANNER_AD_ID
+            )
+//            updateBannerAdRequest(false)
+        }
+    }
+
 
 }
 

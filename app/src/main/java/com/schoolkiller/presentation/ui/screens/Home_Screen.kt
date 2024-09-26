@@ -2,11 +2,9 @@ package com.schoolkiller.presentation.ui.screens
 
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
+import com.schoolkiller.domain.UploadFileMethodOptions
 import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
 import com.schoolkiller.presentation.ui.reusable_components.EnlargedImage
 import com.schoolkiller.presentation.ui.reusable_components.ImageCapture
@@ -41,7 +40,6 @@ import com.schoolkiller.presentation.ui.reusable_components.ImagePicker
 import com.schoolkiller.presentation.ui.reusable_components.PictureItem
 import com.schoolkiller.presentation.ui.reusable_components.ScreenImage
 import com.schoolkiller.presentation.ui.reusable_components.UniversalButton
-import com.schoolkiller.domain.UploadFileMethodOptions
 import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
 
 
@@ -59,6 +57,9 @@ fun HomeScreen(
     val selectedImageIndex = remember { mutableStateOf<Int?>(null) }
     val selectedImageUri = selectedImageIndex.value?.let { images.value[it] }
     var isImageEnlarged by remember { mutableStateOf(false) }
+    val bannerAdRequest = viewModel.requestBannerAd.collectAsState()
+    val interstitialAdRequest = viewModel.requestInterstitialAd.collectAsState()
+
     val state = rememberLazyListState()
 
 
@@ -76,8 +77,11 @@ fun HomeScreen(
         }
     )
 
+//    viewModel.updateBannerAdRequest(true)
+
 
     LaunchedEffect(Unit) {
+
         viewModel.updatePrompt(
             context.getString(R.string.prompt_text)
         )

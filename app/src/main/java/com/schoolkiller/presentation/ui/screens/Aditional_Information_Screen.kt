@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,7 +23,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
-import com.schoolkiller.data.Constants
 import com.schoolkiller.domain.ExplanationLevelOptions
 import com.schoolkiller.domain.GradeOptions
 import com.schoolkiller.domain.SolutionLanguageOptions
@@ -53,6 +51,8 @@ fun AdditionalInformationScreen(
     val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption
     val selectedExplanationLevel = viewModel.selectedExplanationLevelOption
     val additionalInformationText = viewModel.additionalInfoText.collectAsState() // changed to Val from Var
+    val bannerAdRequest = viewModel.requestBannerAd.collectAsState()
+    val interstitialAdRequest = viewModel.requestInterstitialAd.collectAsState()
 
     // remove
 //    val classOptions = remember { context.resources.getStringArray(R.array.grades).toList() }
@@ -64,11 +64,9 @@ fun AdditionalInformationScreen(
 //    var additionalInformationText by remember { mutableStateOf("") }
 
 
-    // loading the ad as documentation says to be ready for showing
-    LaunchedEffect(Unit) {
-        viewModel.loadInterstitialAd(Constants.INTERSTITIAL_AD_ID)
-    }
 
+
+//    viewModel.updateInterstitialAdRequest(true)
 
     ApplicationScaffold {
 
@@ -193,7 +191,7 @@ fun AdditionalInformationScreen(
             viewModel.showInterstitialAd(context as Activity)
 
             // on back press from ResultScreen we have to restore requestGeminiResponse back to true
-            viewModel.updateRequestGeminiResponse(true)
+//            viewModel.updateRequestGeminiResponse(true)
             onNavigateToResultScreen()
         }
 
