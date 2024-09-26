@@ -24,6 +24,8 @@ class ResultViewModel @Inject constructor(
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
 ) : ViewModel() {
+
+
     private val _textGenerationResult = MutableStateFlow("")
     val textGenerationResult = _textGenerationResult.asStateFlow()
 

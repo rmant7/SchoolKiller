@@ -5,8 +5,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.schoolkiller.domain.GradeOptions
-import com.schoolkiller.domain.usecases.prompt.ConvertPromptUseCases
+import com.schoolkiller.domain.GradeOption
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,16 +14,13 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
-class SolutionCheckingViewModel @Inject constructor(
-    private val convertPromptUseCases: ConvertPromptUseCases
-) : ViewModel() {
-    private var _selectedGradeOption by mutableStateOf(GradeOptions.NONE)
-    val selectedGradeOption: GradeOptions
-        get() = _selectedGradeOption
-
-    // converted prompt by Additional Information Screen
+class SolutionCheckingViewModel @Inject constructor() : ViewModel() {
     private var _originalPrompt = MutableStateFlow<String>("")
     val originalPrompt: StateFlow<String> = _originalPrompt
+
+    private var _selectedGradeOption by mutableStateOf(GradeOption.NONE)
+    val selectedGradeOption: GradeOption
+        get() = _selectedGradeOption
 
     private var _selectedRateMax by mutableIntStateOf(100)
     val selectedRateMax: Int
@@ -37,7 +33,7 @@ class SolutionCheckingViewModel @Inject constructor(
     val error: StateFlow<Throwable?>
         get() = _error.asStateFlow()
 
-    fun updateSelectedGradeOption(newClassSelection: GradeOptions) {
+    fun updateSelectedGradeOption(newClassSelection: GradeOption) {
         _selectedGradeOption = newClassSelection
     }
 
@@ -50,16 +46,29 @@ class SolutionCheckingViewModel @Inject constructor(
         error?.let { err -> _error.update { err } }
     }
 
-    fun importGradeToOriginalPrompt() {
+    fun importGradeToOriginalPrompt(gradeArray: Array<String>) {
         updatePrompt(
-            convertPromptUseCases.importGradeToPromptUseCase.invoke(
-                gradeOption = selectedGradeOption,
-                originalPrompt = originalPrompt.value
-            )
+            getGradePrompt(gradeArray)
         )
     }
 
     fun updateSelectedRateMax(newRateMax: Int) {
         _selectedRateMax = newRateMax
+    }
+
+    private fun getGradePrompt(
+        gradeArray: Array<String>
+    ): String {
+        return when (selectedGradeOption) {
+            GradeOption.NONE -> {
+                originalPrompt.value.replace("(as grade+th grader)", "")
+            }
+
+            else -> {
+                val gradeString = gradeArray.getOrNull(selectedGradeOption.arrayIndex)
+                    ?: "" // Handle potential out-of-bounds access
+                originalPrompt.value.replace("(as grade+th grader)", "as $gradeString th grader")
+            }
+        }
     }
 }

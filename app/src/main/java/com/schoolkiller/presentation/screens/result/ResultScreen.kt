@@ -39,7 +39,7 @@ import io.ktor.client.plugins.ServerResponseException
 @Composable
 fun ResultScreen(
     modifier: Modifier = Modifier,
-    onNavigateToHomeScreen: () -> Unit,
+    onNavigateToHomeScreen: () -> Unit
 ) {
     val viewModel: ResultViewModel = hiltViewModel()
     val resultText: String by viewModel.textGenerationResult.collectAsState()
@@ -63,6 +63,30 @@ fun ResultScreen(
         // after fetching the response, request for another fetch is closing
         viewModel.updateRequestGeminiResponse(false)
     }
+
+
+//    init {
+//        viewModel.updateTextGenerationResult("")
+//        /**
+//         * Imports for updated prompt are moved here
+//         * as otherwise imports are included only by clicking on options
+//         * on this screen and are overwritten by original prompt every time
+//         * when user doesn't select options on this screen
+//         * and return to the Home_Screen.
+//         * Code line in Home_Screen which causes overwrite:
+//         * viewModel.updatePrompt(
+//         *             context.getString(R.string.prompt_text)
+//         *         )
+//         */
+//        viewModel.importGradeToOriginalPrompt()
+//        viewModel.importLanguageToOriginalPrompt()
+//        viewModel.importExplanationToOriginalPrompt()
+//        viewModel.importAdditionalInfoToOriginalPrompt()
+//
+//        // on back press from ResultScreen we have to restore requestGeminiResponse back to true
+//        viewModel.updateRequestGeminiResponse(true)
+//    }
+
 
     ApplicationScaffold {
         if (resultError != null) {

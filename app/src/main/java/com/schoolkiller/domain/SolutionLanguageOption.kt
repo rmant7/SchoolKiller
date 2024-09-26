@@ -3,7 +3,7 @@ package com.schoolkiller.domain
 import android.content.Context
 import com.schoolkiller.R
 
-enum class SolutionLanguageOptions(val arrayIndex: Int) {
+enum class SolutionLanguageOption(val arrayIndex: Int) {
     ORIGINAL_TASK_LANGUAGE(0),
     ENGLISH(1),
     RUSSIAN(2),
@@ -17,10 +17,10 @@ enum class SolutionLanguageOptions(val arrayIndex: Int) {
     }
 
     companion object {
-        fun fromString(context: Context, string: String): SolutionLanguageOptions? {
+        fun fromString(context: Context, string: String): SolutionLanguageOption? {
             val solutionLanguageArray = context.resources.getStringArray(R.array.languages)
             val index = solutionLanguageArray.indexOf(string)
-            return if (index != -1) SolutionLanguageOptions.entries[index] else null
+            return if (index != -1) SolutionLanguageOption.entries[index] else null
         }
     }
 }

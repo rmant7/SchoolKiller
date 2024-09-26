@@ -60,7 +60,6 @@ fun HomeScreen(
     var isImageEnlarged by remember { mutableStateOf(false) }
     val state = rememberLazyListState()
 
-
     // Launcher for the ImagePicker
     val pickMultipleMediaLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(),
@@ -266,7 +265,7 @@ fun HomeScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 8.dp)
                             .weight(1f),
-                        label = R.string.solve_button_label
+                        label = R.string.next_button_label
                     ) {
                         onNext(
                             images, context, selectedImageUri, viewModel

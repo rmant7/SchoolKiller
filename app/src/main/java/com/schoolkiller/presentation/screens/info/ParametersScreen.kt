@@ -2,17 +2,24 @@ package com.schoolkiller.presentation.screens.info
 
 import ExposedDropBox
 import android.content.Context
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -22,9 +29,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
-import com.schoolkiller.domain.ExplanationLevelOptions
-import com.schoolkiller.domain.GradeOptions
-import com.schoolkiller.domain.SolutionLanguageOptions
+import com.schoolkiller.domain.ExplanationLevelOption
+import com.schoolkiller.domain.GradeOption
+import com.schoolkiller.domain.SolutionLanguageOption
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
@@ -35,19 +42,11 @@ fun ParametersScreen(
     context: Context,
     onNavigateToResultScreen: () -> Unit
 ) {
-
-    //    val classOptions = remember { context.resources.getStringArray(R.array.classes).toList() }
-//    val languageOptions = remember { context.resources.getStringArray(R.array.languages).toList() }
-//    val explanationOptions = remember { context.resources.getStringArray(R.array.explanations).toList() }
-//    var selectedGrade by remember { mutableStateOf(classOptions[0]) }
-//    var selectedLanguage by remember { mutableStateOf(languageOptions[0]) }
-//    var selectedExplanation by remember { mutableStateOf(explanationOptions[0]) }
-//    val selectedAiModel = viewModel.selectedAiModelOption
     val viewModel: ParametersViewModel = hiltViewModel()
     val selectedGrade = viewModel.selectedGradeOption
     val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption
     val selectedExplanationLevel = viewModel.selectedExplanationLevelOption
-    val additionalInformationText = viewModel.additionalInfoText.collectAsState() // changed to Val from Var
+    val descriptionText: String by viewModel.descriptionText.collectAsState() // changed to Val from Var
 
     ApplicationScaffold {
 
@@ -73,7 +72,7 @@ fun ParametersScreen(
             context = context,
             label = R.string.grade_label,
             selectedOption = selectedGrade,
-            options = GradeOptions.entries.toList(),
+            options = GradeOption.entries.toList(),
             onOptionSelected = {
                 viewModel.updateSelectedGradeOption(it)
             },
@@ -85,7 +84,7 @@ fun ParametersScreen(
             context = context,
             label = R.string.solution_language_label,
             selectedOption = selectedSolutionLanguage,
-            options = SolutionLanguageOptions.entries.toList(),
+            options = SolutionLanguageOption.entries.toList(),
             onOptionSelected = {
                 viewModel.updateSelectedLanguageOption(it)
             },
@@ -97,7 +96,7 @@ fun ParametersScreen(
             context = context,
             label = R.string.explanations_label,
             selectedOption = selectedExplanationLevel,
-            options = ExplanationLevelOptions.entries.toList(),
+            options = ExplanationLevelOption.entries.toList(),
             onOptionSelected = {
                 viewModel.updateSelectedExplanationLevelOption(it)
             },
@@ -107,7 +106,7 @@ fun ParametersScreen(
         //todo: need to fix. Use color from theme. This color doesn't feet for dark theme
         //gray color for placeholder
         //black color for input text
-        val textColor = if (additionalInformationText.value.isEmpty())
+        val textColor = if (descriptionText.isEmpty())
             Color.Gray
         else Color.Black
 
@@ -126,10 +125,11 @@ fun ParametersScreen(
                     }
                 }
                 .fillMaxWidth()
+                .height(60.dp)
                 .heightIn(max = 200.dp),
-            value = additionalInformationText.value,
+            value = descriptionText,
             onValueChange = {
-                viewModel.updateAdditionalInfoText(it)
+                viewModel.updateDescriptionText(it)
             },
             label = {
                 Text(
@@ -139,40 +139,32 @@ fun ParametersScreen(
                 )
             },
             //added for label always be visible
-            visualTransformation = if (additionalInformationText.value.isEmpty())
+            visualTransformation = if (descriptionText.isEmpty())
                 PlaceholderTransformation(placeholder = placeHolder.value)
             else VisualTransformation.None,
             textStyle = TextStyle(color = textColor)
         )
-
-        UniversalButton(
-            modifier = modifier.fillMaxWidth(),
-            label = R.string.solve_button_label,
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            viewModel.updateTextGenerationResult("")
+            val gradeArray: Array<String> = stringArrayResource(R.array.grades)
+            val languageArray: Array<String> = stringArrayResource(R.array.languages)
+            val explanationArray: Array<String> = stringArrayResource(R.array.explanations)
 
-            /**
-             * Imports for updated prompt are moved here
-             * as otherwise imports are included only by clicking on options
-             * on this screen and are overwritten by original prompt every time
-             * when user doesn't select options on this screen
-             * and return to the Home_Screen.
-             * Code line in Home_Screen which causes overwrite:
-             * viewModel.updatePrompt(
-             *             context.getString(R.string.prompt_text)
-             *         )
-             */
-
-            viewModel.importGradeToOriginalPrompt()
-            viewModel.importLanguageToOriginalPrompt()
-            viewModel.importExplanationToOriginalPrompt()
-            viewModel.importAdditionalInfoToOriginalPrompt()
-
-            // on back press from ResultScreen we have to restore requestGeminiResponse back to true
-            viewModel.updateRequestGeminiResponse(true)
-            onNavigateToResultScreen()
+            UniversalButton(
+                modifier = modifier.fillMaxWidth(),
+                label = R.string.solve_button_label,
+            ) {
+                viewModel.updatePropertiesPrompt(
+                    gradeArray = gradeArray,
+                    languageArray = languageArray,
+                    explanationArray = explanationArray
+                )
+                onNavigateToResultScreen()
+            }
         }
-
     }
 }
 

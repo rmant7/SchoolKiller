@@ -13,15 +13,14 @@ import com.schoolkiller.data.entities.Picture
 import com.schoolkiller.data.network.api.GeminiApiService
 import com.schoolkiller.data.network.response.GeminiResponse
 import com.schoolkiller.data.repositories.PictureRepository
-import com.schoolkiller.domain.ExplanationLevelOptions
-import com.schoolkiller.domain.GradeOptions
-import com.schoolkiller.domain.SolutionLanguageOptions
+import com.schoolkiller.domain.ExplanationLevelOption
+import com.schoolkiller.domain.GradeOption
+import com.schoolkiller.domain.SolutionLanguageOption
 import com.schoolkiller.domain.UploadFileMethodOptions
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
 import com.schoolkiller.domain.usecases.database.AddPictureUseCase
 import com.schoolkiller.domain.usecases.database.DeletePictureUseCase
-import com.schoolkiller.domain.usecases.prompt.ConvertPromptUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +33,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import javax.inject.Inject
 
 
+@Deprecated(message = "Will be remove or refactor in the future")
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val pictureRepository: PictureRepository,
@@ -42,11 +42,8 @@ class MainViewModel @Inject constructor(
     private val geminiApiService: GeminiApiService,
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
-    private val convertPromptUseCases: ConvertPromptUseCases
+//    private val convertPromptUseCases: ConvertPromptUseCases
 ) : ViewModel() {
-
-    // removed Application context from viewModel because it can bring memory leaks
-    // we can inject context through use cases with hilt or use parameters here in the functions
 
     val allPictures = pictureRepository.allPictures
 
@@ -72,16 +69,16 @@ class MainViewModel @Inject constructor(
     val selectedRateMax: Int
         get() = _selectedRateMax
 
-    private var _selectedGradeOption by mutableStateOf(GradeOptions.NONE)
-    val selectedGradeOption: GradeOptions
+    private var _selectedGradeOption by mutableStateOf(GradeOption.NONE)
+    val selectedGradeOption: GradeOption
         get() = _selectedGradeOption
 
-    private var _selectedLanguageOption by mutableStateOf(SolutionLanguageOptions.ORIGINAL_TASK_LANGUAGE)
-    val selectedSolutionLanguageOption: SolutionLanguageOptions
+    private var _selectedLanguageOption by mutableStateOf(SolutionLanguageOption.ORIGINAL_TASK_LANGUAGE)
+    val selectedSolutionLanguageOption: SolutionLanguageOption
         get() = _selectedLanguageOption
 
-    private var _selectedExplanationLevelOption by mutableStateOf(ExplanationLevelOptions.SHORT_EXPLANATION)
-    val selectedExplanationLevelOption: ExplanationLevelOptions
+    private var _selectedExplanationLevelOption by mutableStateOf(ExplanationLevelOption.SHORT_EXPLANATION)
+    val selectedExplanationLevelOption: ExplanationLevelOption
         get() = _selectedExplanationLevelOption
 
 
@@ -121,15 +118,15 @@ class MainViewModel @Inject constructor(
 //        _selectedAiModelOption = newAiModelSelection
 //    }
 
-    fun updateSelectedGradeOption(newClassSelection: GradeOptions) {
+    fun updateSelectedGradeOption(newClassSelection: GradeOption) {
         _selectedGradeOption = newClassSelection
     }
 
-    fun updateSelectedLanguageOption(newLanguageSelection: SolutionLanguageOptions) {
+    fun updateSelectedLanguageOption(newLanguageSelection: SolutionLanguageOption) {
         _selectedLanguageOption = newLanguageSelection
     }
 
-    fun updateSelectedExplanationLevelOption(newExplanationLevelSelection: ExplanationLevelOptions) {
+    fun updateSelectedExplanationLevelOption(newExplanationLevelSelection: ExplanationLevelOption) {
         _selectedExplanationLevelOption = newExplanationLevelSelection
     }
 
@@ -276,42 +273,6 @@ class MainViewModel @Inject constructor(
                 _error.update { throwable }
             }
         }
-    }
-
-    fun importGradeToOriginalPrompt() {
-        updatePrompt(
-            convertPromptUseCases.importGradeToPromptUseCase.invoke(
-                gradeOption = selectedGradeOption,
-                originalPrompt = originalPrompt.value
-            )
-        )
-    }
-
-    fun importLanguageToOriginalPrompt() {
-        updatePrompt(
-            convertPromptUseCases.importLanguageToPromptUseCase.invoke(
-                languageOption = selectedSolutionLanguageOption,
-                originalPrompt = originalPrompt.value
-            )
-        )
-    }
-
-    fun importExplanationToOriginalPrompt() {
-        updatePrompt(
-            convertPromptUseCases.importExplanationToPromptUseCase.invoke(
-                explanationOption = selectedExplanationLevelOption,
-                originalPrompt = originalPrompt.value
-            )
-        )
-    }
-
-    fun importAdditionalInfoToOriginalPrompt() {
-        updatePrompt(
-            convertPromptUseCases.importAdditionalInfoToPromptUseCase.invoke(
-                originalPrompt = originalPrompt.value,
-                additionalInformationText = additionalInfoText.value
-            )
-        )
     }
 
     fun clearError() {

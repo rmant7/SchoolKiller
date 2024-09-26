@@ -20,10 +20,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
-import com.schoolkiller.domain.GradeOptions
+import com.schoolkiller.domain.GradeOption
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.UniversalButton
 
@@ -53,7 +54,7 @@ fun CheckSolutionScreen(
                 context = context,
                 label = R.string.grade_label,
                 selectedOption = selectedGrade,
-                options = GradeOptions.entries.toList(),
+                options = GradeOption.entries.toList(),
                 onOptionSelected = {
                     viewModel.updateSelectedGradeOption(it)
                 },
@@ -64,7 +65,7 @@ fun CheckSolutionScreen(
             // Rating Slider for max selected rating value, don't remove.
             // Text(stringResource(R.string.rating_TextField_label))
             // RatingSlider(viewModel)
-
+            val gradeArray: Array<String> = stringArrayResource(R.array.grades)
             //Reused Component
             UniversalButton(
                 modifier = Modifier.fillMaxWidth(),
@@ -80,7 +81,7 @@ fun CheckSolutionScreen(
                         "(1–100)", selectedMaxRate.toString()
                     )
                 )*/
-                viewModel.importGradeToOriginalPrompt()
+                viewModel.importGradeToOriginalPrompt(gradeArray)
                 onNavigateToResultScreen()
             }
         }
@@ -111,6 +112,4 @@ fun RatingSlider(viewModel: SolutionCheckingViewModel) {
         )
         Text(text = sliderPosition.toString())
     }
-
-
 }
