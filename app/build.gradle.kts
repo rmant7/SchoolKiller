@@ -72,6 +72,7 @@ android {
 
 dependencies {
 
+
     // AdMob advertisement
     implementation("com.google.android.gms:play-services-ads:23.3.0")
     // Added dependency on Guava to avoid conflicts with CameraX and AdMob

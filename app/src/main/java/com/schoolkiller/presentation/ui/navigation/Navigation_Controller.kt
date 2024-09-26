@@ -1,7 +1,5 @@
 package com.schoolkiller.presentation.ui.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -9,11 +7,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.schoolkiller.data.Constants
 import com.schoolkiller.presentation.ui.screens.AdditionalInformationScreen
 import com.schoolkiller.presentation.ui.screens.CheckSolutionOptionsScreen
 import com.schoolkiller.presentation.ui.screens.HomeScreen
 import com.schoolkiller.presentation.ui.screens.ResultScreen
-import com.schoolkiller.data.Constants
 import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
 
 @Composable
@@ -52,7 +50,8 @@ fun NavigationController(
         composable(Screens.CheckSolutionInformationScreen.route) {
             CheckSolutionOptionsScreen(
                 context = context,
-                viewModel = viewModel, onNavigateToResultScreen = {
+                viewModel = viewModel,
+                onNavigateToResultScreen = {
                     navController.navigate(Screens.ResultScreen.route)
                 }
             )

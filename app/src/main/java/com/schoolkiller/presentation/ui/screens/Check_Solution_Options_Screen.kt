@@ -1,19 +1,23 @@
 package com.schoolkiller.presentation.ui.screens
 
 import ExposedDropBox
+import android.app.Activity
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -21,70 +25,96 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.viewinterop.AndroidView
+import com.google.android.gms.ads.AdView
 import com.schoolkiller.R
+import com.schoolkiller.domain.GradeOptions
 import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
 import com.schoolkiller.presentation.ui.reusable_components.UniversalButton
-import com.schoolkiller.domain.GradeOptions
 import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
 
 @Composable
 fun CheckSolutionOptionsScreen(
+    modifier: Modifier = Modifier,
     context: Context,
-    viewModel: SchoolKillerViewModel = hiltViewModel(),
+    viewModel: SchoolKillerViewModel,
     onNavigateToResultScreen: () -> Unit
 ) {
     val selectedGrade = viewModel.selectedGradeOption
+    val adView = viewModel.getBannerAd()
+    val bannerAdRequest = viewModel.requestBannerAd.collectAsState()
+    val interstitialAdRequest = viewModel.requestInterstitialAd.collectAsState()
 
-    LaunchedEffect(true) {
+    LaunchedEffect(Unit) {
         viewModel.updatePrompt(
             context.getString(R.string.check_solution_text)
         )
     }
 
-    ApplicationScaffold {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize()
-        )
-        {
-            ExposedDropBox(
-                maxHeightIn = 200.dp,
-                context = context,
-                label = R.string.grade_label,
-                selectedOption = selectedGrade,
-                options = GradeOptions.entries.toList(),
-                onOptionSelected = {
-                    viewModel.updateSelectedGradeOption(it)
-                },
-                optionToString = { option, context -> option.getString(context) }
-            )
+//    viewModel.updateBannerAdRequest(true)
 
-            Spacer(Modifier.padding(0.dp, 20.dp))
-            // Rating Slider for max selected rating value, don't remove.
-            // Text(stringResource(R.string.rating_TextField_label))
-            // RatingSlider(viewModel)
 
-            //Reused Component
-            UniversalButton(
-                modifier = Modifier.fillMaxWidth(),
-                label = R.string.check_solution_button_label,
-            ) {
-                viewModel.updateTextGenerationResult("")
 
-                //Updating rating scale in prompt, don't remove.
-                /*val originalPrompt = viewModel.originalPrompt.value
-                val selectedMaxRate = viewModel.selectedRateMax
-                viewModel.updatePrompt(
-                    originalPrompt.replace(
-                        "(1–100)", selectedMaxRate.toString()
-                    )
-                )*/
-                viewModel.importGradeToOriginalPrompt()
-                onNavigateToResultScreen()
+    ApplicationScaffold(
+        columnVerticalArrangement = Arrangement.Center,
+        columnHorizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        Box(
+            modifier = modifier
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center,
+            content = {
+                ShowAd(adView)
             }
+        )
+
+        Spacer(modifier.height(24.dp))
+
+
+        ExposedDropBox(
+            maxHeightIn = 200.dp,
+            context = context,
+            label = R.string.grade_label,
+            selectedOption = selectedGrade,
+            options = GradeOptions.entries.toList(),
+            onOptionSelected = {
+                viewModel.updateSelectedGradeOption(it)
+            },
+            optionToString = { option, context -> option.getString(context) }
+        )
+
+        Spacer(Modifier.padding(0.dp, 20.dp))
+        // Rating Slider for max selected rating value, don't remove.
+        // Text(stringResource(R.string.rating_TextField_label))
+        // RatingSlider(viewModel)
+
+        //Reused Component
+        UniversalButton(
+            modifier = Modifier.fillMaxWidth(),
+            label = R.string.check_solution_button_label,
+        ) {
+            viewModel.updateTextGenerationResult("")
+
+            //Updating rating scale in prompt, don't remove.
+            /*val originalPrompt = viewModel.originalPrompt.value
+            val selectedMaxRate = viewModel.selectedRateMax
+            viewModel.updatePrompt(
+                originalPrompt.replace(
+                    "(1–100)", selectedMaxRate.toString()
+                )
+            )*/
+
+            // showing ad before going to result screen
+            viewModel.showInterstitialAd(context as Activity)
+
+            // on back press from ResultScreen we have to restore requestGeminiResponse back to true
+            viewModel.updateRequestGeminiResponse(true)
+
+            viewModel.importGradeToOriginalPrompt()
+            onNavigateToResultScreen()
         }
+//        }
     }
 }
 
@@ -115,4 +145,18 @@ fun RatingSlider(viewModel: SchoolKillerViewModel) {
     }
 
 
+}
+
+@Composable
+fun ShowAd(adView: AdView?) {
+    if (adView != null) {
+        AndroidView(
+            modifier = Modifier.fillMaxWidth(),
+            factory = { adView }
+        )
+    } else {
+        CircularProgressIndicator(
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
 }

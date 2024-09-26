@@ -58,27 +58,4 @@ class InterstitialAdUseCase @Inject constructor(
         }
     }
 
-//    fun invoke(
-//        adUnitId: String,
-//        interstitialAd: InterstitialAd?
-//    ){
-//        val adRequest = AdRequest.Builder().build()
-//        InterstitialAd.load(
-//            context,
-//            "ca-app-pub-3940256099942544/1033173712",
-//            adRequest,
-//            object : InterstitialAdLoadCallback() {
-//                override fun onAdFailedToLoad(adError: LoadAdError) {
-//                    Timber.tag("InterstitialAd").d(adError.toString())
-//                    interstitialAd = null
-//                }
-//
-//                override fun onAdLoaded(ad: InterstitialAd) {
-//                    Timber.tag("InterstitialAd").d("Ad was loaded.")
-//                    interstitialAd = ad
-//                }
-//            }
-//        )
 
-
-//    }
