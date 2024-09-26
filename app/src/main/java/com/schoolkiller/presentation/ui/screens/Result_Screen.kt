@@ -1,6 +1,5 @@
 package com.schoolkiller.presentation.ui.screens
 
-import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
@@ -32,7 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.schoolkiller.R
-import com.schoolkiller.data.Constants
+import com.schoolkiller.presentation.ui.ads.InterstitialAdPresenter
 import com.schoolkiller.presentation.ui.reusable_components.AlertDialog
 import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
 import com.schoolkiller.presentation.ui.reusable_components.UniversalButton
@@ -56,14 +55,19 @@ fun ResultScreen(
     val imageState = rememberLazyListState()
     val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState()
     val openAlertDialog = remember { mutableStateOf(resultError != null) }
+    val interstitialAd = viewModel.interstitialAd.collectAsState()
 
 
     if (requestGeminiResponse.value) {
 
-        viewModel.showInterstitialAd(
-            activity = context as Activity,
-            adUnitId = Constants.INTERSTITIAL_AD_ID,
-            viewModel = viewModel)
+        interstitialAd.value?.let {
+            InterstitialAdPresenter(
+                context = context,
+                interstitialAd = it,
+                viewModel = viewModel,
+                showAd = requestGeminiResponse.value
+            )
+        }
 
         image?.let {
             viewModel.fetchGeminiResponse(

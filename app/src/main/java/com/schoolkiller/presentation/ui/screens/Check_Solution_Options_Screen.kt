@@ -3,19 +3,18 @@ package com.schoolkiller.presentation.ui.screens
 import ExposedDropBox
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -23,10 +22,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import com.google.android.gms.ads.AdView
 import com.schoolkiller.R
 import com.schoolkiller.domain.GradeOptions
+import com.schoolkiller.presentation.ui.ads.BannerAdContainer
 import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
 import com.schoolkiller.presentation.ui.reusable_components.UniversalButton
 import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
@@ -38,8 +36,9 @@ fun CheckSolutionOptionsScreen(
     viewModel: SchoolKillerViewModel,
     onNavigateToResultScreen: () -> Unit
 ) {
+
     val selectedGrade = viewModel.selectedGradeOption
-    val adView = viewModel.getBannerAd()
+    val adView = viewModel.adview.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.updatePrompt(
@@ -53,14 +52,7 @@ fun CheckSolutionOptionsScreen(
         columnHorizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Box(
-            modifier = modifier
-                .fillMaxWidth(),
-            contentAlignment = Alignment.Center,
-            content = {
-                ShowAd(adView)
-            }
-        )
+        BannerAdContainer(adView = adView.value, viewModel = viewModel)
 
         Spacer(modifier.height(24.dp))
 
@@ -138,16 +130,4 @@ fun RatingSlider(viewModel: SchoolKillerViewModel) {
 
 }
 
-@Composable
-fun ShowAd(adView: AdView?) {
-    if (adView != null) {
-        AndroidView(
-            modifier = Modifier.fillMaxWidth(),
-            factory = { adView }
-        )
-    } else {
-        CircularProgressIndicator(
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-}
+

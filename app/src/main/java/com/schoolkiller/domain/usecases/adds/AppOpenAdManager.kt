@@ -9,7 +9,7 @@ import com.google.android.gms.ads.appopen.AppOpenAd
 import com.schoolkiller.data.Constants
 import timber.log.Timber
 
-
+/* Not needed you can delete this
 class AppOpenAdManager {
     private var appOpenAd: AppOpenAd? = null
     private var loadCallback: AppOpenAd.AppOpenAdLoadCallback? = null
@@ -87,3 +87,5 @@ class AppOpenAdManager {
         }
     }
 }
+
+ */
