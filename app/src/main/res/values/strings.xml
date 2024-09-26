@@ -83,7 +83,7 @@
     </string-array>
 
     // Errors
-    <string name="error_service_not_available">Sorry, service is not available in Russia and Belarus</string>
+    <string name="error_service_not_available">Sorry, service is not available in Russia and Belarus, please use vpn</string>
     <string name="error_service_not_available_title">Service is not available</string>
     <string name="error_common_title">Error</string>
     <string name="error_common_message">An error occurred while the application was running. Try updating the app or try again later</string>
