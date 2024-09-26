@@ -1,12 +1,14 @@
 package com.schoolkiller.presentation.ui.screens
 
 import ExposedDropBox
+import android.app.Activity
 import android.content.Context
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,12 +24,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
-import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
-import com.schoolkiller.presentation.ui.reusable_components.ScreenImage
-import com.schoolkiller.presentation.ui.reusable_components.UniversalButton
 import com.schoolkiller.domain.ExplanationLevelOptions
 import com.schoolkiller.domain.GradeOptions
 import com.schoolkiller.domain.SolutionLanguageOptions
+import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
+import com.schoolkiller.presentation.ui.reusable_components.ScreenImage
+import com.schoolkiller.presentation.ui.reusable_components.UniversalButton
 import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
 
 @Composable
@@ -59,6 +61,12 @@ fun AdditionalInformationScreen(
 //    var selectedLanguage by remember { mutableStateOf(languageOptions[0]) }
 //    var selectedExplanation by remember { mutableStateOf(explanationOptions[0]) }
 //    var additionalInformationText by remember { mutableStateOf("") }
+
+
+    // loading the ad as documentation says to be ready for showing
+    LaunchedEffect(Unit) {
+        viewModel.loadInterstitialAd(Constants.INTERSTITIAL_AD_ID)
+    }
 
 
     ApplicationScaffold {
@@ -179,6 +187,9 @@ fun AdditionalInformationScreen(
             viewModel.importLanguageToOriginalPrompt()
             viewModel.importExplanationToOriginalPrompt()
             viewModel.importAdditionalInfoToOriginalPrompt()
+
+            // showing ad before going to result screen
+            viewModel.showInterstitialAd(context as Activity)
 
             // on back press from ResultScreen we have to restore requestGeminiResponse back to true
             viewModel.updateRequestGeminiResponse(true)

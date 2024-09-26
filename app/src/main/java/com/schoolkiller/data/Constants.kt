@@ -14,5 +14,8 @@ object Constants {
     // Entities
     const val PICTURE_TABLE_NAME = "Picture"
 
+    // Adds IDs
+    const val INTERSTITIAL_AD_ID = "ca-app-pub-3940256099942544/1033173712"
+
 
 }
