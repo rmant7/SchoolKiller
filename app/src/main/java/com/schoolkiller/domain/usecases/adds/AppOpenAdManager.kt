@@ -6,6 +6,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
+import com.schoolkiller.data.Constants
 import timber.log.Timber
 
 
@@ -19,9 +20,6 @@ class AppOpenAdManager {
     private val isAdAvailable: Boolean
         get() = appOpenAd != null
 
-    companion object {
-        private const val AD_UNIT_ID = "ca-app-pub-3940256099942544/9257395921" //test id
-    }
 
     fun fetchAd(currentActivity: Activity) {
         if (isAdAvailable) return
@@ -45,7 +43,7 @@ class AppOpenAdManager {
         val request = adRequest
         AppOpenAd.load(
             currentActivity,
-            AD_UNIT_ID,
+            Constants.OPEN_AD_ID,
             request,
             AppOpenAd.APP_OPEN_AD_ORIENTATION_PORTRAIT,
             loadCallback!!
