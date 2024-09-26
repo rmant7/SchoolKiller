@@ -20,10 +20,6 @@ class AppOpenAdManager {
     private val isAdAvailable: Boolean
         get() = appOpenAd != null
 
-    // Used
-    companion object {
-        private const val AD_UNIT_ID = "ca-app-pub-3940256099942544/9257395921" //test id
-    }
 
     fun fetchAd(currentActivity: Activity) {
         if (isAdAvailable) return
