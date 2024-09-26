@@ -39,13 +39,13 @@ import io.ktor.client.plugins.ServerResponseException
 @Composable
 fun ResultScreen(
     modifier: Modifier = Modifier,
-    onNavigateToHomeScreen: () -> Unit
+    onNavigateToHomeScreen: () -> Unit,
+    originalPrompt: String
 ) {
     val viewModel: ResultViewModel = hiltViewModel()
     val resultText: String by viewModel.textGenerationResult.collectAsState()
     val resultError: Throwable? by viewModel.error.collectAsState()
     val image: Uri? by viewModel.selectedUri.collectAsState()
-    val prompt: String by viewModel.originalPrompt.collectAsState()
 
     val responseListState = rememberLazyListState()
 //    val imageState = rememberLazyListState()
@@ -57,7 +57,7 @@ fun ResultScreen(
             viewModel.fetchGeminiResponse(
                 imageUri = it,
                 fileName = "$image",
-                prompt = prompt
+                prompt = originalPrompt
             )
         }
         // after fetching the response, request for another fetch is closing

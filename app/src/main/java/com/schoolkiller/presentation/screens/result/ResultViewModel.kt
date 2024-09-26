@@ -36,9 +36,6 @@ class ResultViewModel @Inject constructor(
     private var _selectedUri = MutableStateFlow<Uri?>(null)
     val selectedUri: StateFlow<Uri?> = _selectedUri
 
-    private var _originalPrompt = MutableStateFlow<String>("")
-    val originalPrompt: StateFlow<String> = _originalPrompt
-
     private var _requestGeminiResponse = MutableStateFlow<Boolean>(true)
     val requestGeminiResponse: StateFlow<Boolean> = _requestGeminiResponse
 

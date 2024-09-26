@@ -40,7 +40,7 @@ import com.schoolkiller.presentation.common.UniversalButton
 fun ParametersScreen(
     modifier: Modifier = Modifier,
     context: Context,
-    onNavigateToResultScreen: () -> Unit
+    onNavigateToResultScreen: (String) -> Unit
 ) {
     val viewModel: ParametersViewModel = hiltViewModel()
     val selectedGrade = viewModel.selectedGradeOption
@@ -162,7 +162,7 @@ fun ParametersScreen(
                     languageArray = languageArray,
                     explanationArray = explanationArray
                 )
-                onNavigateToResultScreen()
+                onNavigateToResultScreen(viewModel.originalPrompt.value)
             }
         }
     }

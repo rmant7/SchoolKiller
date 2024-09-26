@@ -33,8 +33,12 @@ fun NavigationController() {
         composable<Screens.ParametersScreen> {
             ParametersScreen(
                 context = context,
-                onNavigateToResultScreen = {
-                    navController.navigate(Screens.ResultScreen)
+                onNavigateToResultScreen = { originalPrompt ->
+                    navController.navigate(
+                        Screens.ResultScreen(
+                            originalPrompt = originalPrompt
+                        )
+                    )
                 }
             )
         }
@@ -54,7 +58,8 @@ fun NavigationController() {
             ResultScreen(
                 onNavigateToHomeScreen = {
                     navController.navigate(Screens.HomeScreen)
-                }
+                },
+                originalPrompt = args.originalPrompt
             )
         }
     }
@@ -69,7 +74,9 @@ sealed class Screens {
     data object ParametersScreen : Screens()
 
     @Serializable
-    data object ResultScreen : Screens()
+    data class ResultScreen(
+        val originalPrompt: String
+    ) : Screens()
 
     @Serializable
     data object CheckSolutionInformationScreen : Screens()
