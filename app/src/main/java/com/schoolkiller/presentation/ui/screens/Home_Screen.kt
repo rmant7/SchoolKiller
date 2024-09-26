@@ -57,9 +57,6 @@ fun HomeScreen(
     val selectedImageIndex = remember { mutableStateOf<Int?>(null) }
     val selectedImageUri = selectedImageIndex.value?.let { images.value[it] }
     var isImageEnlarged by remember { mutableStateOf(false) }
-    val bannerAdRequest = viewModel.requestBannerAd.collectAsState()
-    val interstitialAdRequest = viewModel.requestInterstitialAd.collectAsState()
-
     val state = rememberLazyListState()
 
 
@@ -76,8 +73,6 @@ fun HomeScreen(
             }
         }
     )
-
-//    viewModel.updateBannerAdRequest(true)
 
 
     LaunchedEffect(Unit) {
