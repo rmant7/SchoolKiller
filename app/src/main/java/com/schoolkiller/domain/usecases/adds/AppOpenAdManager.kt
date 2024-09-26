@@ -1,4 +1,4 @@
-package com.schoolkiller
+package com.schoolkiller.domain.usecases.adds
 
 import android.app.Activity
 import com.google.android.gms.ads.AdError

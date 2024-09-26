@@ -1,4 +1,4 @@
-package com.schoolkiller.view_model
+package com.schoolkiller.presentation.view_model
 
 import android.app.Activity
 import android.net.Uri
