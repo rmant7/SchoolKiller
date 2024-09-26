@@ -48,10 +48,14 @@ class InterstitialAdUseCase @Inject constructor(
 
 
 
-    fun showAd(activity: Activity) {
+    fun showAd(activity: Activity, adUnitId: String, viewModel: SchoolKillerViewModel) {
             if (interstitialAd != null) {
                 interstitialAd?.show(activity)
-                interstitialAd = null // Reset after showing
+                interstitialAd = null
+                // Reload the ad after showing it
+                viewModel.viewModelScope.launch {
+                    loadAd(adUnitId, viewModel)
+                }
             } else {
                 Timber.tag("InterstitialAd").d("The interstitial ad wasn't ready yet.")
             }

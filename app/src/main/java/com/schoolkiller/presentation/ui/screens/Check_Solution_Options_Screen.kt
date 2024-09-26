@@ -1,7 +1,6 @@
 package com.schoolkiller.presentation.ui.screens
 
 import ExposedDropBox
-import android.app.Activity
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,7 +16,6 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -42,17 +40,12 @@ fun CheckSolutionOptionsScreen(
 ) {
     val selectedGrade = viewModel.selectedGradeOption
     val adView = viewModel.getBannerAd()
-    val bannerAdRequest = viewModel.requestBannerAd.collectAsState()
-    val interstitialAdRequest = viewModel.requestInterstitialAd.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.updatePrompt(
             context.getString(R.string.check_solution_text)
         )
     }
-
-//    viewModel.updateBannerAdRequest(true)
-
 
 
     ApplicationScaffold(
@@ -105,8 +98,6 @@ fun CheckSolutionOptionsScreen(
                 )
             )*/
 
-            // showing ad before going to result screen
-            viewModel.showInterstitialAd(context as Activity)
 
             // on back press from ResultScreen we have to restore requestGeminiResponse back to true
             viewModel.updateRequestGeminiResponse(true)

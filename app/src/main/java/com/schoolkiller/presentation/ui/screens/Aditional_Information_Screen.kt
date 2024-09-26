@@ -1,7 +1,6 @@
 package com.schoolkiller.presentation.ui.screens
 
 import ExposedDropBox
-import android.app.Activity
 import android.content.Context
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -33,40 +32,19 @@ import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
 
 @Composable
 fun AdditionalInformationScreen(
-    // moved modifier as first parameter as it should be always
     modifier: Modifier = Modifier,
     context: Context,
     viewModel: SchoolKillerViewModel = hiltViewModel(),
     onNavigateToResultScreen: () -> Unit
 ) {
 
-    //    val classOptions = remember { context.resources.getStringArray(R.array.classes).toList() }
-//    val languageOptions = remember { context.resources.getStringArray(R.array.languages).toList() }
-//    val explanationOptions = remember { context.resources.getStringArray(R.array.explanations).toList() }
-//    var selectedGrade by remember { mutableStateOf(classOptions[0]) }
-//    var selectedLanguage by remember { mutableStateOf(languageOptions[0]) }
-//    var selectedExplanation by remember { mutableStateOf(explanationOptions[0]) }
-//    val selectedAiModel = viewModel.selectedAiModelOption
+
     val selectedGrade = viewModel.selectedGradeOption
     val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption
     val selectedExplanationLevel = viewModel.selectedExplanationLevelOption
-    val additionalInformationText = viewModel.additionalInfoText.collectAsState() // changed to Val from Var
-    val bannerAdRequest = viewModel.requestBannerAd.collectAsState()
-    val interstitialAdRequest = viewModel.requestInterstitialAd.collectAsState()
-
-    // remove
-//    val classOptions = remember { context.resources.getStringArray(R.array.grades).toList() }
-//    val languageOptions = remember { context.resources.getStringArray(R.array.languages).toList() }
-//    val explanationOptions = remember { context.resources.getStringArray(R.array.explanations).toList() }
-//    var selectedGrade by remember { mutableStateOf(classOptions[0]) }
-//    var selectedLanguage by remember { mutableStateOf(languageOptions[0]) }
-//    var selectedExplanation by remember { mutableStateOf(explanationOptions[0]) }
-//    var additionalInformationText by remember { mutableStateOf("") }
+    val additionalInformationText = viewModel.additionalInfoText.collectAsState()
 
 
-
-
-//    viewModel.updateInterstitialAdRequest(true)
 
     ApplicationScaffold {
 
@@ -187,11 +165,9 @@ fun AdditionalInformationScreen(
             viewModel.importExplanationToOriginalPrompt()
             viewModel.importAdditionalInfoToOriginalPrompt()
 
-            // showing ad before going to result screen
-            viewModel.showInterstitialAd(context as Activity)
 
             // on back press from ResultScreen we have to restore requestGeminiResponse back to true
-//            viewModel.updateRequestGeminiResponse(true)
+            viewModel.updateRequestGeminiResponse(true)
             onNavigateToResultScreen()
         }
 
