@@ -155,7 +155,8 @@ fun HomeScreen(
                     ) {
                         Text(
                             modifier = Modifier.padding(bottom = 10.dp),
-                            text = stringResource(R.string.add_image)
+                            text = stringResource(R.string.add_image),
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
 
