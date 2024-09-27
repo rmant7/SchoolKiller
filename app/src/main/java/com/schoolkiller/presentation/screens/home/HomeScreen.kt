@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -44,12 +45,15 @@ import com.schoolkiller.presentation.common.UniversalButton
 fun HomeScreen(
     modifier: Modifier = Modifier,
     context: Context,
+    listOfImages: SnapshotStateList<Uri>,
     onNavigateToParametersScreen: (Uri) -> Unit,
-    onNavigateToCheckSolutionOptionsScreen: () -> Unit
+    onNavigateToCheckSolutionOptionsScreen: (Uri) -> Unit
 ) {
 //    val pictures by viewModel.allPictures.collectAsState(initial = emptyList())
 
     val viewModel: HomeViewModel = hiltViewModel()
+    // updating viewmodel with previous uploaded pictures
+    viewModel.updateListOfImages(listOfImages)
     val selectedUploadFileMethod = viewModel.selectedUploadMethodOption
     val images = viewModel.listOfImages.collectAsState()
     val selectedImageIndex = remember { mutableStateOf<Int?>(null) }
@@ -271,7 +275,7 @@ fun HomeScreen(
 
                             else -> {
                                 viewModel.updateSelectedUri(selectedImageUri)
-                                onNavigateToCheckSolutionOptionsScreen()
+                                onNavigateToCheckSolutionOptionsScreen(selectedImageUri)
                             }
                         }
                     }

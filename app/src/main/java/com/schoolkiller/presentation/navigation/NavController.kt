@@ -1,6 +1,9 @@
 package com.schoolkiller.presentation.navigation
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,11 +19,13 @@ import kotlinx.serialization.Serializable
 fun NavigationController() {
     val navController = rememberNavController()
     val context = LocalContext.current
+    val listOfImages = remember { mutableStateListOf<Uri>() }
 
     NavHost(navController = navController, startDestination = Screens.HomeScreen) {
         composable<Screens.HomeScreen> {
             HomeScreen(
                 context = context,
+                listOfImages = listOfImages,
                 onNavigateToParametersScreen = { selectedImageUri ->
                     navController.navigate(
                         Screens.ParametersScreen(
@@ -28,8 +33,12 @@ fun NavigationController() {
                         )
                     )
                 },
-                onNavigateToCheckSolutionOptionsScreen = {
-                    navController.navigate(Screens.CheckSolutionInformationScreen)
+                onNavigateToCheckSolutionOptionsScreen = { selectedImageUri ->
+                    navController.navigate(
+                        Screens.CheckSolutionInformationScreen(
+                            selectedImageUri = selectedImageUri.toString()
+                        )
+                    )
                 }
             )
         }
@@ -50,10 +59,16 @@ fun NavigationController() {
         }
 
         composable<Screens.CheckSolutionInformationScreen> {
+            val args = it.toRoute<Screens.CheckSolutionInformationScreen>()
             CheckSolutionScreen(
                 context = context,
-                onNavigateToResultScreen = {
-                    navController.navigate(Screens.ResultScreen)
+                onNavigateToResultScreen = { originalPrompt ->
+                    navController.navigate(
+                        Screens.ResultScreen(
+                            originalPrompt = originalPrompt,
+                            selectedImageUri = args.selectedImageUri
+                        )
+                    )
                 }
             )
         }
@@ -89,5 +104,7 @@ sealed class Screens {
     ) : Screens()
 
     @Serializable
-    data object CheckSolutionInformationScreen : Screens()
+    data class CheckSolutionInformationScreen(
+        val selectedImageUri: String
+    ) : Screens()
 }

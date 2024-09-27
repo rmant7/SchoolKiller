@@ -31,7 +31,7 @@ import com.schoolkiller.presentation.common.UniversalButton
 @Composable
 fun CheckSolutionScreen(
     context: Context,
-    onNavigateToResultScreen: () -> Unit
+    onNavigateToResultScreen: (String) -> Unit
 ) {
     val viewModel: SolutionCheckingViewModel = hiltViewModel()
     val selectedGrade = viewModel.selectedGradeOption
@@ -81,8 +81,8 @@ fun CheckSolutionScreen(
                         "(1–100)", selectedMaxRate.toString()
                     )
                 )*/
-                viewModel.importGradeToOriginalPrompt(gradeArray)
-                onNavigateToResultScreen()
+                viewModel.buildPropertiesPrompt()
+                onNavigateToResultScreen(viewModel.originalPrompt.value)
             }
         }
     }

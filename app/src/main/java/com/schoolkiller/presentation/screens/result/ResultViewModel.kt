@@ -34,7 +34,7 @@ class ResultViewModel @Inject constructor(
     val error: StateFlow<Throwable?>
         get() = _error.asStateFlow()
 
-    private var _requestGeminiResponse = MutableStateFlow<Boolean>(true)
+    private var _requestGeminiResponse = MutableStateFlow(true)
     val requestGeminiResponse: StateFlow<Boolean> = _requestGeminiResponse
 
     fun updateTextGenerationResult(resultText: String?, error: Throwable? = null) {
@@ -93,6 +93,6 @@ class ResultViewModel @Inject constructor(
     }
 
     fun clearError() {
-        _error.value = null;
+        _error.value = null
     }
 }

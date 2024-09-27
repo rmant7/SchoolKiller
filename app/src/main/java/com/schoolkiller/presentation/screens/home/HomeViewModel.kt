@@ -19,8 +19,8 @@ class HomeViewModel @Inject constructor(
 
 ) : ViewModel() {
 
-    private val _listOfImages = MutableStateFlow(mutableStateListOf<Uri>())
-    val listOfImages: StateFlow<SnapshotStateList<Uri>> = _listOfImages
+    private var _listOfImages = MutableStateFlow(mutableStateListOf<Uri>())
+    var listOfImages: StateFlow<SnapshotStateList<Uri>> = _listOfImages
 
     private var _selectedUploadMethodOption by mutableStateOf(UploadFileMethodOptions.NO_OPTION)
     val selectedUploadMethodOption: UploadFileMethodOptions
@@ -44,6 +44,10 @@ class HomeViewModel @Inject constructor(
 
     fun updateSelectedUri(newUri: Uri?) {
         _selectedImageUri.value = newUri
+    }
+
+    fun updateListOfImages(listOfImages: SnapshotStateList<Uri>){
+        _listOfImages.value = listOfImages
     }
 
 }

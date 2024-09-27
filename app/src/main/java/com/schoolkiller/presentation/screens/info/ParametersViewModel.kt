@@ -3,6 +3,7 @@ package com.schoolkiller.presentation.screens.info
 import androidx.lifecycle.ViewModel
 import com.schoolkiller.domain.ExplanationLevelOption
 import com.schoolkiller.domain.GradeOption
+import com.schoolkiller.domain.PromptText
 import com.schoolkiller.domain.SolutionLanguageOption
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ParametersViewModel @Inject constructor() : ViewModel() {
-    private var _originalPrompt = MutableStateFlow("")
+    private var _originalPrompt = MutableStateFlow(PromptText.SOLVE_PROMPT.promptText)
     val originalPrompt: StateFlow<String> = _originalPrompt.asStateFlow()
 
     private var _selectedGrade = MutableStateFlow(GradeOption.NONE)
@@ -24,7 +25,8 @@ class ParametersViewModel @Inject constructor() : ViewModel() {
     val selectedSolutionLanguageOption: StateFlow<SolutionLanguageOption>
         get() = _selectedLanguage.asStateFlow()
 
-    private var _selectedExplanationLevel = MutableStateFlow(ExplanationLevelOption.SHORT_EXPLANATION)
+    private var _selectedExplanationLevel =
+        MutableStateFlow(ExplanationLevelOption.SHORT_EXPLANATION)
     val selectedExplanationLevelOption: StateFlow<ExplanationLevelOption>
         get() = _selectedExplanationLevel.asStateFlow()
 
@@ -51,77 +53,69 @@ class ParametersViewModel @Inject constructor() : ViewModel() {
         _descriptionText.update { addedText }
     }
 
-    fun buildPropertiesPrompt(
-        gradeArray: Array<String>,
-        languageArray: Array<String>,
-        explanationArray: Array<String>
-    ) {
-        _originalPrompt.update { "" }
-        updatePromptState(gradeArray = gradeArray)
+    fun buildPropertiesPrompt() {
+        // reset
+        _originalPrompt.update { PromptText.SOLVE_PROMPT.promptText }
+
+        updateGradePrompt()
         updateLanguagePrompt()
-        updateExplanationPrompt(explanationArray = explanationArray)
+        updateExplanationPrompt()
         _originalPrompt.update {
             "${_originalPrompt.value} ${descriptionText.value}"
         }
     }
 
-    private fun updatePromptState(gradeArray: Array<String>) {
-        when (_selectedGrade.value) {
-            GradeOption.NONE -> {
-                if (_originalPrompt.value.contains("(as grade+th grader)")) {
-                    _originalPrompt.update {
-                        _originalPrompt
-                            .value
-                            .replace("(as grade+th grader)", "")
-                    }
-                }
-            }
+    private fun updateGradePrompt() {
 
-            else -> {
-                val gradeString = gradeArray.getOrNull(selectedGradeOption.value.arrayIndex)
-                    ?: "" // Handle potential out-of-bounds access
-                _originalPrompt.update {
-                    return@update if (_originalPrompt.value.contains("(as grade+th grader)")) {
-                        _originalPrompt
-                            .value
-                            .replace("(as grade+th grader)", "as $gradeString th grader")
-                    } else {
-                        _originalPrompt
-                            .value
-                            .plus("as $gradeString th grader")
-                    }
-                }
+        _originalPrompt.update {
+            val selectedGradeStr = " ${_selectedGrade.value.arrayIndex}"
+            return@update if (_originalPrompt.value.contains("(as grade+th grader)")) {
+                _originalPrompt
+                    .value
+                    .replace(
+                        "(as grade+th grader)",
+                        "as ${selectedGradeStr}th grader"
+                    )
+            } else {
+                _originalPrompt
+                    .value
+                    .plus(" Explain as ${selectedGradeStr}th grader.")
             }
         }
     }
 
     private fun updateLanguagePrompt() {
-        val defaultLanguagePrompt = "(language shown on this picture)" //"(the original task language/ chosen language)"
-
-        if (selectedSolutionLanguageOption.value != SolutionLanguageOption.ORIGINAL_TASK_LANGUAGE) {
-            _originalPrompt.update {
-                return@update if (_originalPrompt.value.contains(defaultLanguagePrompt)) {
-                    _originalPrompt
-                        .value
-                        .replace(defaultLanguagePrompt, _selectedLanguage.value.languageName)
-                } else {
-                    _originalPrompt
-                        .value
-                        .plus(_selectedLanguage.value.languageName)
-                }
-            }
-        }
-    }
-
-    private fun updateExplanationPrompt(explanationArray: Array<String>) {
-        val explanationString = explanationArray.getOrNull(selectedExplanationLevelOption.value.arrayIndex)
-            ?: "" // Handle potential out-of-bounds access
+        val defaultLanguagePrompt = "(language shown on this picture)"
 
         _originalPrompt.update {
-            if (_originalPrompt.value.contains("(briefly)")) {
-                _originalPrompt.value.replace("(briefly)", " in $explanationString")
+            val selectedLanguageStr = " ${_selectedLanguage.value.languageName}"
+            return@update if (_originalPrompt.value.contains(defaultLanguagePrompt)) {
+                _originalPrompt
+                    .value
+                    .replace(defaultLanguagePrompt, selectedLanguageStr)
             } else {
-                _originalPrompt.value.plus(" in $explanationString")
+                _originalPrompt
+                    .value
+                    .plus(
+                        " Explain only using ${selectedLanguageStr}."
+                    )
+            }
+        }
+
+    }
+
+    private fun updateExplanationPrompt() {
+
+        _originalPrompt.update {
+            val selectedExplanationStr = " ${_selectedExplanationLevel.value.code}"
+            if (_originalPrompt.value.contains("(briefly)")) {
+                println("CONTAINS")
+                _originalPrompt.value.replace(
+                    "(briefly)",
+                    selectedExplanationStr
+                )
+            } else {
+                _originalPrompt.value.plus(" Explain ${selectedExplanationStr}.")
             }
         }
     }

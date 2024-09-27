@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.schoolkiller.domain.GradeOption
+import com.schoolkiller.domain.PromptText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,8 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SolutionCheckingViewModel @Inject constructor() : ViewModel() {
-    private var _originalPrompt = MutableStateFlow<String>("")
-    val originalPrompt: StateFlow<String> = _originalPrompt
+    private var _originalPromptText = MutableStateFlow("")
+    val originalPrompt: StateFlow<String> = _originalPromptText
 
     private var _selectedGradeOption by mutableStateOf(GradeOption.NONE)
     val selectedGradeOption: GradeOption
@@ -38,7 +39,7 @@ class SolutionCheckingViewModel @Inject constructor() : ViewModel() {
     }
 
     fun updatePrompt(convertedPrompt: String) {
-        _originalPrompt.value = convertedPrompt
+        _originalPromptText.value = convertedPrompt
     }
 
     fun updateTextGenerationResult(resultText: String?, error: Throwable? = null) {
@@ -46,9 +47,11 @@ class SolutionCheckingViewModel @Inject constructor() : ViewModel() {
         error?.let { err -> _error.update { err } }
     }
 
-    fun importGradeToOriginalPrompt(gradeArray: Array<String>) {
+    fun buildPropertiesPrompt() {
+        // reset
+        updatePrompt( PromptText.CHECK_SOLUTION_PROMPT.promptText)
         updatePrompt(
-            getGradePrompt(gradeArray)
+            getGradePrompt()
         )
     }
 
@@ -56,19 +59,21 @@ class SolutionCheckingViewModel @Inject constructor() : ViewModel() {
         _selectedRateMax = newRateMax
     }
 
-    private fun getGradePrompt(
-        gradeArray: Array<String>
-    ): String {
-        return when (selectedGradeOption) {
-            GradeOption.NONE -> {
-                originalPrompt.value.replace("(as grade+th grader)", "")
-            }
+    private fun getGradePrompt(): String {
+        val selectedGradeStr = " ${_selectedGradeOption.arrayIndex}"
 
-            else -> {
-                val gradeString = gradeArray.getOrNull(selectedGradeOption.arrayIndex)
-                    ?: "" // Handle potential out-of-bounds access
-                originalPrompt.value.replace("(as grade+th grader)", "as $gradeString th grader")
-            }
+        return if (_originalPromptText.value.contains("(as grade+th grader)")) {
+            _originalPromptText
+                .value
+                .replace(
+                    "(as grade+th grader)",
+                    "as ${selectedGradeStr}th grader"
+                )
+        } else {
+            return _originalPromptText
+                .value
+                .plus(" Explain as ${selectedGradeStr}th grader.")
         }
+
     }
 }

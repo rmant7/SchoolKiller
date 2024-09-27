@@ -19,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -146,19 +145,12 @@ fun ParametersScreen(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val gradeArray: Array<String> = stringArrayResource(R.array.grades)
-            val languageArray: Array<String> = stringArrayResource(R.array.languages)
-            val explanationArray: Array<String> = stringArrayResource(R.array.explanations)
 
             UniversalButton(
                 modifier = modifier.fillMaxWidth(),
                 label = R.string.solve_button_label,
             ) {
-                viewModel.buildPropertiesPrompt(
-                    gradeArray = gradeArray,
-                    languageArray = languageArray,
-                    explanationArray = explanationArray
-                )
+                viewModel.buildPropertiesPrompt()
                 onNavigateToResultScreen(viewModel.originalPrompt.value)
             }
         }

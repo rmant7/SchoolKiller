@@ -53,6 +53,7 @@ fun ResultScreen(
     val openAlertDialog = remember { mutableStateOf(resultError != null) }
 
     if (requestGeminiResponse.value) {
+        println("PROMPT IS $originalPrompt")
         viewModel.fetchGeminiResponse(
             imageUri = selectedImageUri.toUri(),
             fileName = selectedImageUri.toUri().toString(),
