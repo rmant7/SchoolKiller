@@ -11,7 +11,6 @@ import com.schoolkiller.domain.usecases.adds.InterstitialAdUseCase
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -65,7 +64,7 @@ class ResultViewModel @Inject constructor(
         fileName: String,
         prompt: String
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val fileByteArray = getImageByteArrayUseCase.invoke(imageUri = imageUri)
             val uploadResult = geminiApiService.uploadFileWithProgress(
                 fileByteArray,

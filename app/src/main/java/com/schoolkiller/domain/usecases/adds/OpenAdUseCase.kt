@@ -7,6 +7,7 @@ import com.google.android.gms.ads.appopen.AppOpenAd
 import com.schoolkiller.presentation.screens.home.HomeViewModel
 
 import dagger.hilt.android.qualifiers.ApplicationContext
+import timber.log.Timber
 import javax.inject.Inject
 
 class OpenAdUseCase @Inject constructor(
@@ -33,8 +34,9 @@ class OpenAdUseCase @Inject constructor(
                     }
 
                     override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                        Timber.d(loadAdError.message)
                         viewModel.updateIsOpenAdLoading(false)
-                        onAdFailedToLoad(loadAdError)
+//                        onAdFailedToLoad(loadAdError)
                     }
                 }
             )

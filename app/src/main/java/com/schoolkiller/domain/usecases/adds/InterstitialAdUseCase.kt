@@ -12,6 +12,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class InterstitialAdUseCase @Inject constructor(
@@ -29,7 +30,8 @@ class InterstitialAdUseCase @Inject constructor(
                 adRequest,
                 object : InterstitialAdLoadCallback() {
                     override fun onAdFailedToLoad(adError: LoadAdError) {
-                        close(RuntimeException(adError.message)) // Close the flow with an error
+                        Timber.d("Adds server is not available${adError.message}")
+                        close() // Close the flow with an error
                     }
 
                     override fun onAdLoaded(ad: InterstitialAd) {
