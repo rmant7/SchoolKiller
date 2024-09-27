@@ -3,12 +3,11 @@ package com.schoolkiller.domain
 import android.content.Context
 import com.schoolkiller.R
 
-enum class SolutionLanguageOption(val arrayIndex: Int) {
-    ORIGINAL_TASK_LANGUAGE(0),
-    ENGLISH(1),
-    RUSSIAN(2),
-    HEBREW(3);
-
+enum class SolutionLanguageOptions(private val arrayIndex: Int, val code: String) {
+    ORIGINAL_TASK_LANGUAGE(0, "Language shown on picture"),
+    ENGLISH(1, "English language"),
+    RUSSIAN(2, "Russian language"),
+    HEBREW(3, "Hebrew language");
 
 
     fun getString(context: Context): String {

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -103,12 +104,9 @@ fun ParametersScreen(
             optionToString = { option, context -> option.getString(context) }
         )
 
-        //todo: need to fix. Use color from theme. This color doesn't feet for dark theme
-        //gray color for placeholder
-        //black color for input text
-        val textColor = if (descriptionText.isEmpty())
-            Color.Gray
-        else Color.Black
+        val textColor = if (additionalInformationText.value.isEmpty())
+            MaterialTheme.colorScheme.secondary
+        else  MaterialTheme.colorScheme.primary
 
         val defaultPlaceholderText =
             stringResource(R.string.additional_info_TextField_placeholder_text)
