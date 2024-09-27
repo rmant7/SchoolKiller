@@ -3,7 +3,7 @@ package com.schoolkiller.domain
 import android.content.Context
 import com.schoolkiller.R
 
-enum class GradeOptions(private val arrayIndex: Int, val code: String) {
+enum class GradeOption(val arrayIndex: Int, val code: String) {
     //added code in case array index is changed
     NONE(0, "0"),
     CLASS_1(1, "1"),
@@ -25,7 +25,7 @@ enum class GradeOptions(private val arrayIndex: Int, val code: String) {
     }
 
     companion object {
-        fun fromString(context: Context, string: String): GradeOptions? {
+        fun fromString(context: Context, string: String): GradeOption? {
             val classArray = context.resources.getStringArray(R.array.grades)
             val index = classArray.indexOf(string)
             return if (index != -1) entries[index] else null

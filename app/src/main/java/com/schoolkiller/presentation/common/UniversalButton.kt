@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.ui.reusable_components
+package com.schoolkiller.presentation.common
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

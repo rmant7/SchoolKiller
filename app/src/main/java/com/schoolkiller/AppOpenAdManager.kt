@@ -14,12 +14,11 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
 
 
-class AppOpenAdManager(private val myApplication: SchoolKillerApplication) :
-    Application.ActivityLifecycleCallbacks,
-    LifecycleObserver {
+class AppOpenAdManager(
+    private val myApplication: SchoolKillerApplication
+) : Application.ActivityLifecycleCallbacks, LifecycleObserver {
     private var appOpenAd: AppOpenAd? = null
     private var loadCallback: AppOpenAd.AppOpenAdLoadCallback? = null
-
     private var currentActivity: Activity? = null
     private var isShowingAd = false
     private val adRequest: AdRequest
