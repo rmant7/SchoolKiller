@@ -104,7 +104,7 @@ fun ParametersScreen(
 
         val textColor = if (descriptionText.isEmpty())
             MaterialTheme.colorScheme.secondary
-        else  MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.primary
 
         val defaultPlaceholderText =
             stringResource(R.string.additional_info_TextField_placeholder_text)
@@ -115,10 +115,9 @@ fun ParametersScreen(
         OutlinedTextField(
             modifier = modifier
                 .onFocusChanged {
-                    if (it.isFocused) {
-                        //placeholder isn't visible on user input focus
-                        placeHolder.value = ""
-                    }
+                    placeHolder.value =
+                        if (it.isFocused) ""
+                        else defaultPlaceholderText
                 }
                 .fillMaxWidth()
                 .height(60.dp)
