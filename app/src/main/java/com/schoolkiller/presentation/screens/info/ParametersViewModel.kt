@@ -58,7 +58,7 @@ class ParametersViewModel @Inject constructor() : ViewModel() {
     ) {
         _originalPrompt.update { "" }
         updatePromptState(gradeArray = gradeArray)
-        updateLanguagePrompt(languageArray = languageArray)
+        updateLanguagePrompt()
         updateExplanationPrompt(explanationArray = explanationArray)
         _originalPrompt.update {
             "${_originalPrompt.value} ${descriptionText.value}"
@@ -95,21 +95,19 @@ class ParametersViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    private fun updateLanguagePrompt(languageArray: Array<String>) {
+    private fun updateLanguagePrompt() {
         val defaultLanguagePrompt = "(language shown on this picture)" //"(the original task language/ chosen language)"
 
         if (selectedSolutionLanguageOption.value != SolutionLanguageOption.ORIGINAL_TASK_LANGUAGE) {
-            val languageString = languageArray.getOrNull(selectedSolutionLanguageOption.value.arrayIndex)
-                ?: "" // Handle potential out-of-bounds access
             _originalPrompt.update {
                 return@update if (_originalPrompt.value.contains(defaultLanguagePrompt)) {
                     _originalPrompt
                         .value
-                        .replace(defaultLanguagePrompt, " $languageString language")
+                        .replace(defaultLanguagePrompt, _selectedLanguage.value.languageName)
                 } else {
                     _originalPrompt
                         .value
-                        .plus(" $languageString language")
+                        .plus(_selectedLanguage.value.languageName)
                 }
             }
         }

@@ -3,7 +3,7 @@ package com.schoolkiller.domain
 import android.content.Context
 import com.schoolkiller.R
 
-enum class GradeOptions(private val arrayIndex: Int, val code: String) {
+enum class GradeOption(val arrayIndex: Int, val code: String) {
     //added code in case array index is changed
     NONE(0, "0"),
     CLASS_1(1, "1"),

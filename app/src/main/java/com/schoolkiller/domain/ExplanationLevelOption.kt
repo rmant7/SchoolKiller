@@ -3,7 +3,7 @@ package com.schoolkiller.domain
 import android.content.Context
 import com.schoolkiller.R
 
-enum class ExplanationLevelOptions(private val arrayIndex: Int, val code: String) {
+enum class ExplanationLevelOption(val arrayIndex: Int, val code: String) {
 
     SHORT_EXPLANATION(0, "briefly"),
     DETAILED_EXPLANATION(1, "in detail");
@@ -12,13 +12,4 @@ enum class ExplanationLevelOptions(private val arrayIndex: Int, val code: String
         val explanationsArray = context.resources.getStringArray(R.array.explanations)
         return explanationsArray[arrayIndex]
     }
-
-    companion object {
-        fun fromString(context: Context, string: String): ExplanationLevelOption? {
-            val explanationsArray = context.resources.getStringArray(R.array.explanations)
-            val index = explanationsArray.indexOf(string)
-            return if (index != -1) entries[index] else null
-        }
-    }
-
 }
