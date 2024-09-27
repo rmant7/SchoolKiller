@@ -4,6 +4,7 @@ import ExposedDropBox
 import android.content.Context
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -116,11 +117,9 @@ fun AdditionalInformationScreen(
             optionToString = { option, context -> option.getString(context) }
         )
 
-        //gray color for placeholder
-        //black color for input text
         val textColor = if (additionalInformationText.value.isEmpty())
-            Color.Gray
-        else Color.Black
+            MaterialTheme.colorScheme.secondary
+        else  MaterialTheme.colorScheme.primary
 
         val defaultPlaceholderText =
             stringResource(R.string.additional_info_TextField_placeholder_text)
