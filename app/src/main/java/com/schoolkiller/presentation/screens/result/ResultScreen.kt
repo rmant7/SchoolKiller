@@ -30,32 +30,30 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
-import com.schoolkiller.presentation.ui.ads.InterstitialAdPresenter
-import com.schoolkiller.presentation.ui.reusable_components.AlertDialog
-import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
-import com.schoolkiller.presentation.ui.reusable_components.UniversalButton
-import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
+import com.schoolkiller.presentation.common.AlertDialog
+import com.schoolkiller.presentation.common.ApplicationScaffold
+import com.schoolkiller.presentation.common.UniversalButton
 import io.ktor.client.plugins.ServerResponseException
 
 
 @Composable
 fun ResultScreen(
     modifier: Modifier = Modifier,
-    context: Context,
-    viewModel: SchoolKillerViewModel,
     onNavigateToHomeScreen: () -> Unit,
+    originalPrompt: String,
+    selectedImageUri: String
 ) {
+    val viewModel: ResultViewModel = hiltViewModel()
     val resultText: String by viewModel.textGenerationResult.collectAsState()
     val resultError: Throwable? by viewModel.error.collectAsState()
-    val image: Uri? by viewModel.selectedUri.collectAsState()
-    val prompt: String by viewModel.originalPrompt.collectAsState()
 
     val responseListState = rememberLazyListState()
-    val imageState = rememberLazyListState()
+//    val imageState = rememberLazyListState()
     val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState()
     val openAlertDialog = remember { mutableStateOf(resultError != null) }
-    val interstitialAd = viewModel.interstitialAd.collectAsState()
 
 
     if (requestGeminiResponse.value) {
@@ -76,6 +74,13 @@ fun ResultScreen(
                 prompt = prompt
             )
         }
+
+        viewModel.fetchGeminiResponse(
+            imageUri = selectedImageUri.toUri(),
+            fileName = selectedImageUri.toUri().toString(),
+            prompt = originalPrompt
+        )
+
         // after fetching the response, request for another fetch is closing
         viewModel.updateRequestGeminiResponse(false)
     }

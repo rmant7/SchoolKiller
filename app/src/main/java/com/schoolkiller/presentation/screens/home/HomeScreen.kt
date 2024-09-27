@@ -2,9 +2,11 @@ package com.schoolkiller.presentation.ui.screens
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,10 +31,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.LifecycleOwner
 import com.schoolkiller.R
+import com.schoolkiller.domain.UploadFileMethodOptions
+import com.schoolkiller.presentation.common.ApplicationScaffold
+import com.schoolkiller.presentation.common.EnlargedImage
+import com.schoolkiller.presentation.common.ImageCapture
+import com.schoolkiller.presentation.common.ImagePicker
+import com.schoolkiller.presentation.common.PictureItem
+import com.schoolkiller.presentation.common.ScreenImage
+import com.schoolkiller.presentation.common.UniversalButton
 import com.schoolkiller.domain.UploadFileMethodOptions
 import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
 import com.schoolkiller.presentation.ui.reusable_components.EnlargedImage
@@ -48,22 +58,26 @@ import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
 fun HomeScreen(
     modifier: Modifier = Modifier,
     context: Context,
+    listOfImages: SnapshotStateList<Uri>,
+    onNavigateToParametersScreen: (Uri) -> Unit,
+    onNavigateToCheckSolutionOptionsScreen: (Uri) -> Unit
     lifecycleOwner: LifecycleOwner,
     viewModel: SchoolKillerViewModel = hiltViewModel(),
     onNavigateToAdditionalInformationScreen: () -> Unit,
     onNavigateToCheckSolutionOptionsScreen: () -> Unit
 ) {
-
-
-
-
 //    val pictures by viewModel.allPictures.collectAsState(initial = emptyList())
+
+    val viewModel: HomeViewModel = hiltViewModel()
+    // updating viewmodel with previous uploaded pictures
+    viewModel.updateListOfImages(listOfImages)
     val selectedUploadFileMethod = viewModel.selectedUploadMethodOption
     val images = viewModel.listOfImages.collectAsState()
     val selectedImageIndex = remember { mutableStateOf<Int?>(null) }
     val selectedImageUri = selectedImageIndex.value?.let { images.value[it] }
     var isImageEnlarged by remember { mutableStateOf(false) }
     val state = rememberLazyListState()
+
 
     // Launcher for the ImagePicker
     val pickMultipleMediaLauncher = rememberLauncherForActivityResult(
@@ -79,6 +93,11 @@ fun HomeScreen(
         }
     )
 
+//    LaunchedEffect(Unit) {
+//        viewModel.updatePrompt(
+//            context.getString(R.string.prompt_text)
+//        )
+//    }
 
     LaunchedEffect(Unit) {
 
@@ -104,7 +123,6 @@ fun HomeScreen(
             UploadFileMethodOptions.TAKE_A_PICTURE -> {
                 ImageCapture(
                     context = context,
-                    lifecycleOwner = lifecycleOwner,
                     selectedUploadMethodOption = selectedUploadFileMethod,
                     onPictureCapture = { viewModel.insertImagesOnTheList(listOf(it)) },
                     onBackPress = { viewModel.updateSelectedUploadMethodOption(it) },
@@ -254,6 +272,8 @@ fun HomeScreen(
                  ) {
                      onNavigateToResultScreen()
                  }*/
+                    val uploadImageWarningMessage = stringResource(R.string.upload_image_warning)
+                    val selectImageWarningMessage = stringResource(R.string.select_image_warning)
 
                     UniversalButton(
                         modifier = modifier
@@ -262,9 +282,29 @@ fun HomeScreen(
                             .weight(1f),
                         label = R.string.check_solution_button_label
                     ) {
-                        onNext(
-                            images, context, selectedImageUri, viewModel
-                        ) { onNavigateToCheckSolutionOptionsScreen() }
+
+                        when {
+                            images.value.isEmpty() -> {
+                                Toast.makeText(
+                                    context,
+                                    uploadImageWarningMessage,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            selectedImageUri == null -> {
+                                Toast.makeText(
+                                    context,
+                                    selectImageWarningMessage,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            else -> {
+                                viewModel.updateSelectedUri(selectedImageUri)
+                                onNavigateToCheckSolutionOptionsScreen(selectedImageUri)
+                            }
+                        }
                     }
 
                     UniversalButton(
@@ -272,46 +312,33 @@ fun HomeScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 8.dp)
                             .weight(1f),
-                        label = R.string.solve_button_label
+                        label = R.string.next_button_label
                     ) {
-                        onNext(
-                            images, context, selectedImageUri, viewModel
-                        ) { onNavigateToAdditionalInformationScreen() }
+                        when {
+                            images.value.isEmpty() -> {
+                                Toast.makeText(
+                                    context,
+                                    uploadImageWarningMessage,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            selectedImageUri != null -> {
+                                viewModel.updateSelectedUri(selectedImageUri)
+                                onNavigateToParametersScreen(selectedImageUri)
+                            }
+
+                            else -> {
+                                Toast.makeText(
+                                    context,
+                                    selectImageWarningMessage,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
                     }
                 }
             }
-        }
-    }
-}
-
-private fun onNext(
-    images: State<SnapshotStateList<Uri>>,
-    context: Context,
-    selectedImageUri: Uri?,
-    viewModel: SchoolKillerViewModel,
-    onNavigateToNextScreen: () -> Unit
-) {
-    val resources = context.resources
-    when {
-        images.value.isEmpty() -> {
-            Toast.makeText(
-                context,
-                resources.getString(R.string.upload_image_warning),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
-        selectedImageUri != null -> {
-            viewModel.updateSelectedUri(selectedImageUri)
-            onNavigateToNextScreen()
-        }
-
-        else -> {
-            Toast.makeText(
-                context,
-                resources.getString(R.string.select_image_warning),
-                Toast.LENGTH_SHORT
-            ).show()
         }
     }
 }

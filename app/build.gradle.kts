@@ -3,6 +3,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
 
     // Room
     id ("androidx.room")
@@ -10,8 +11,6 @@ plugins {
     id("com.google.devtools.ksp")
     // Dagger-Hilt
     id("com.google.dagger.hilt.android")
-    // Serialization
-    id("org.jetbrains.kotlin.plugin.serialization")
     // Secrets Gradle Plugin
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }

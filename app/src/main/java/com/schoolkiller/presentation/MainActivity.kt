@@ -8,7 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.ui.unit.dp
-import com.schoolkiller.presentation.ui.navigation.NavigationController
+import com.schoolkiller.presentation.navigation.NavigationController
 import com.schoolkiller.presentation.ui.theme.SchoolKillerTheme
 import dagger.hilt.android.AndroidEntryPoint
 

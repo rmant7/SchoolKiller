@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.view_model
+package com.schoolkiller.presentation
 
 import android.net.Uri
 import androidx.compose.runtime.getValue
@@ -9,25 +9,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.appopen.AppOpenAd
-import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.schoolkiller.data.Constants
 import com.schoolkiller.data.entities.Picture
 import com.schoolkiller.data.network.api.GeminiApiService
 import com.schoolkiller.data.network.response.GeminiResponse
 import com.schoolkiller.data.repositories.PictureRepository
-import com.schoolkiller.domain.ExplanationLevelOptions
-import com.schoolkiller.domain.GradeOptions
-import com.schoolkiller.domain.SolutionLanguageOptions
+import com.schoolkiller.domain.ExplanationLevelOption
+import com.schoolkiller.domain.GradeOption
+import com.schoolkiller.domain.SolutionLanguageOption
 import com.schoolkiller.domain.UploadFileMethodOptions
-import com.schoolkiller.domain.usecases.adds.AdUseCases
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
 import com.schoolkiller.domain.usecases.database.AddPictureUseCase
 import com.schoolkiller.domain.usecases.database.DeletePictureUseCase
-import com.schoolkiller.domain.usecases.prompt.ConvertPromptUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,18 +33,17 @@ import kotlinx.serialization.json.jsonPrimitive
 import javax.inject.Inject
 
 
+@Deprecated(message = "Will be remove or refactor in the future")
 @HiltViewModel
-class SchoolKillerViewModel @Inject constructor(
+class MainViewModel @Inject constructor(
     private val pictureRepository: PictureRepository,
     private val addPictureUseCase: AddPictureUseCase,
     private val deletePictureUseCase: DeletePictureUseCase,
     private val geminiApiService: GeminiApiService,
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
-    private val convertPromptUseCases: ConvertPromptUseCases,
-    private val adUseCases: AdUseCases,
+//    private val convertPromptUseCases: ConvertPromptUseCases
 ) : ViewModel() {
-
 
     val allPictures = pictureRepository.allPictures
 
@@ -77,16 +69,16 @@ class SchoolKillerViewModel @Inject constructor(
     val selectedRateMax: Int
         get() = _selectedRateMax
 
-    private var _selectedGradeOption by mutableStateOf(GradeOptions.NONE)
-    val selectedGradeOption: GradeOptions
+    private var _selectedGradeOption by mutableStateOf(GradeOption.NONE)
+    val selectedGradeOption: GradeOption
         get() = _selectedGradeOption
 
-    private var _selectedLanguageOption by mutableStateOf(SolutionLanguageOptions.ORIGINAL_TASK_LANGUAGE)
-    val selectedSolutionLanguageOption: SolutionLanguageOptions
+    private var _selectedLanguageOption by mutableStateOf(SolutionLanguageOption.ORIGINAL_TASK_LANGUAGE)
+    val selectedSolutionLanguageOption: SolutionLanguageOption
         get() = _selectedLanguageOption
 
-    private var _selectedExplanationLevelOption by mutableStateOf(ExplanationLevelOptions.SHORT_EXPLANATION)
-    val selectedExplanationLevelOption: ExplanationLevelOptions
+    private var _selectedExplanationLevelOption by mutableStateOf(ExplanationLevelOption.SHORT_EXPLANATION)
+    val selectedExplanationLevelOption: ExplanationLevelOption
         get() = _selectedExplanationLevelOption
 
 
@@ -104,59 +96,6 @@ class SchoolKillerViewModel @Inject constructor(
     // For requesting Gemini response again
     private var _requestGeminiResponse = MutableStateFlow<Boolean>(true)
     val requestGeminiResponse: StateFlow<Boolean> = _requestGeminiResponse
-
-    // OpenAd State
-    private var _appOpenAd = MutableStateFlow<AppOpenAd?>(null)
-    val appOpenAd: StateFlow<AppOpenAd?> = _appOpenAd
-    private var _isOpenAdLoading = MutableStateFlow<Boolean>(false)
-    val isOpenAdLoading: StateFlow<Boolean> = _isOpenAdLoading
-    private var _openAdLoadTime = MutableStateFlow<Long>(0L)
-    val openAdLoadTime: StateFlow<Long> = _openAdLoadTime
-    private var _openAdLastAdShownTime = MutableStateFlow<Long>(0L)
-    val openAdLastAdShownTime: StateFlow<Long> = _openAdLastAdShownTime
-    private val _triggerAdLoadAfterCooldown = MutableStateFlow(false)
-    val triggerAdLoadAfterCooldown: StateFlow<Boolean> = _triggerAdLoadAfterCooldown.asStateFlow()
-    fun updateAppOpenAd(newAd: AppOpenAd?) { _appOpenAd.update { newAd } }
-    fun updateIsOpenAdLoading(isLoading: Boolean) { _isOpenAdLoading.update { isLoading } }
-    fun updateOpenAdLoadTime(newAdLoadTime: Long) { _openAdLoadTime.update { newAdLoadTime } }
-    fun updateOpenAdLastAdShownTime(newLastAdShowTime: Long) { _openAdLastAdShownTime.update { newLastAdShowTime } }
-    fun updateTriggerAdLoadAfterCooldown(isTriggered: Boolean) { _triggerAdLoadAfterCooldown.update { isTriggered } }
-
-
-    // BannerAd State
-    private var _adview = MutableStateFlow<AdView?>(null)
-    val adview: StateFlow<AdView?> = _adview
-    fun updateAdview(newAd: AdView?) { _adview.update { newAd } }
-
-    // InterstitialAd State
-    private var _interstitialAd = MutableStateFlow<InterstitialAd?>(null)
-    val interstitialAd: StateFlow<InterstitialAd?> = _interstitialAd
-    fun updateInterstitialAd(newAd: InterstitialAd?) { _interstitialAd.update { newAd } }
-
-    // Ads calling functions
-    fun loadOpenAd() = viewModelScope.launch {
-        adUseCases.openAdUseCase.loadOpenAd(
-            adUnitId = Constants.OPEN_AD_ID,
-            viewModel = this@SchoolKillerViewModel
-        )
-    }
-
-    fun loadBannerAd() {
-        viewModelScope.launch {
-            adUseCases.bannerAdUseCase.loadAd(
-                adUnitId = Constants.BANNER_AD_ID,
-                viewModel = this@SchoolKillerViewModel,
-                adSize = AdSize.BANNER)
-        }
-    }
-
-    fun loadInterstitialAd() {
-        adUseCases.interstitialAdUseCase.loadAd(
-            adUnitId = Constants.INTERSTITIAL_AD_ID,
-            viewModel = this@SchoolKillerViewModel
-        )
-    }
-
 
 
     fun updateSelectedRateMax(newRateMax: Int) {
@@ -179,15 +118,15 @@ class SchoolKillerViewModel @Inject constructor(
 //        _selectedAiModelOption = newAiModelSelection
 //    }
 
-    fun updateSelectedGradeOption(newClassSelection: GradeOptions) {
+    fun updateSelectedGradeOption(newClassSelection: GradeOption) {
         _selectedGradeOption = newClassSelection
     }
 
-    fun updateSelectedLanguageOption(newLanguageSelection: SolutionLanguageOptions) {
+    fun updateSelectedLanguageOption(newLanguageSelection: SolutionLanguageOption) {
         _selectedLanguageOption = newLanguageSelection
     }
 
-    fun updateSelectedExplanationLevelOption(newExplanationLevelSelection: ExplanationLevelOptions) {
+    fun updateSelectedExplanationLevelOption(newExplanationLevelSelection: ExplanationLevelOption) {
         _selectedExplanationLevelOption = newExplanationLevelSelection
     }
 
@@ -206,7 +145,6 @@ class SchoolKillerViewModel @Inject constructor(
     fun updateRequestGeminiResponse(requestResponse: Boolean) {
         _requestGeminiResponse.update { requestResponse }
     }
-
 
 
     fun addPicture(picture: Picture) {
@@ -337,51 +275,8 @@ class SchoolKillerViewModel @Inject constructor(
         }
     }
 
-    fun importGradeToOriginalPrompt() {
-        updatePrompt(
-            convertPromptUseCases.importGradeToPromptUseCase.invoke(
-                gradeOption = selectedGradeOption,
-                originalPrompt = originalPrompt.value
-            )
-        )
-    }
-
-    fun importLanguageToOriginalPrompt() {
-        updatePrompt(
-            convertPromptUseCases.importLanguageToPromptUseCase.invoke(
-                languageOption = selectedSolutionLanguageOption,
-                originalPrompt = originalPrompt.value
-            )
-        )
-    }
-
-    fun importExplanationToOriginalPrompt() {
-        updatePrompt(
-            convertPromptUseCases.importExplanationToPromptUseCase.invoke(
-                explanationOption = selectedExplanationLevelOption,
-                originalPrompt = originalPrompt.value
-            )
-        )
-    }
-
-    fun importAdditionalInfoToOriginalPrompt() {
-        updatePrompt(
-            convertPromptUseCases.importAdditionalInfoToPromptUseCase.invoke(
-                originalPrompt = originalPrompt.value,
-                additionalInformationText = additionalInfoText.value
-            )
-        )
-    }
-
     fun clearError() {
         _error.value = null;
-    }
-
-    // initialize ads as soon as the app starts
-    init {
-            loadOpenAd()
-            loadBannerAd()
-            loadInterstitialAd()
     }
 
 }
