@@ -19,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -104,7 +103,7 @@ fun ParametersScreen(
             optionToString = { option, context -> option.getString(context) }
         )
 
-        val textColor = if (additionalInformationText.value.isEmpty())
+        val textColor = if (descriptionText.isEmpty())
             MaterialTheme.colorScheme.secondary
         else  MaterialTheme.colorScheme.primary
 
