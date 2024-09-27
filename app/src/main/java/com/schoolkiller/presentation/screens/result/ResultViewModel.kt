@@ -3,8 +3,11 @@ package com.schoolkiller.presentation.screens.result
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.schoolkiller.data.Constants
 import com.schoolkiller.data.network.api.GeminiApiService
 import com.schoolkiller.data.network.response.GeminiResponse
+import com.schoolkiller.domain.usecases.adds.InterstitialAdUseCase
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,8 +27,8 @@ class ResultViewModel @Inject constructor(
     private val geminiApiService: GeminiApiService,
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
+    private val interstitialAdUseCase: InterstitialAdUseCase,
 ) : ViewModel() {
-
 
     private val _textGenerationResult = MutableStateFlow("")
     val textGenerationResult = _textGenerationResult.asStateFlow()
@@ -36,6 +39,21 @@ class ResultViewModel @Inject constructor(
 
     private var _requestGeminiResponse = MutableStateFlow(true)
     val requestGeminiResponse: StateFlow<Boolean> = _requestGeminiResponse
+
+    // InterstitialAd State
+    private var _interstitialAd = MutableStateFlow<InterstitialAd?>(null)
+    val interstitialAd: StateFlow<InterstitialAd?> = _interstitialAd
+
+    fun updateInterstitialAd(newAd: InterstitialAd?) {
+        _interstitialAd.update { newAd }
+    }
+
+    fun loadInterstitialAd() {
+        interstitialAdUseCase.loadAd(
+            adUnitId = Constants.INTERSTITIAL_AD_ID,
+            viewModel = this@ResultViewModel
+        )
+    }
 
     fun updateTextGenerationResult(resultText: String?, error: Throwable? = null) {
         resultText?.let { text -> _textGenerationResult.update { text } }
@@ -74,7 +92,10 @@ class ResultViewModel @Inject constructor(
                         updateTextGenerationResult(textResponse)
                     } else {
                         // Handle the case where the URI couldn't be extracted
-                        updateTextGenerationResult(null, RuntimeException(" URI couldn't be extracted"))
+                        updateTextGenerationResult(
+                            null,
+                            RuntimeException(" URI couldn't be extracted")
+                        )
                     }
                 }
 
@@ -95,4 +116,6 @@ class ResultViewModel @Inject constructor(
     fun clearError() {
         _error.value = null
     }
+
+
 }

@@ -1,12 +1,10 @@
-package com.schoolkiller.presentation.ui.screens
+package com.schoolkiller.presentation.screens.home
 
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,8 +18,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -43,15 +39,7 @@ import com.schoolkiller.presentation.common.ImagePicker
 import com.schoolkiller.presentation.common.PictureItem
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
-import com.schoolkiller.domain.UploadFileMethodOptions
-import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
-import com.schoolkiller.presentation.ui.reusable_components.EnlargedImage
-import com.schoolkiller.presentation.ui.reusable_components.ImageCapture
-import com.schoolkiller.presentation.ui.reusable_components.ImagePicker
-import com.schoolkiller.presentation.ui.reusable_components.PictureItem
-import com.schoolkiller.presentation.ui.reusable_components.ScreenImage
-import com.schoolkiller.presentation.ui.reusable_components.UniversalButton
-import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
+import com.schoolkiller.presentation.ui.ads.AppOpenAdHandler
 
 
 @Composable
@@ -61,10 +49,6 @@ fun HomeScreen(
     listOfImages: SnapshotStateList<Uri>,
     onNavigateToParametersScreen: (Uri) -> Unit,
     onNavigateToCheckSolutionOptionsScreen: (Uri) -> Unit
-    lifecycleOwner: LifecycleOwner,
-    viewModel: SchoolKillerViewModel = hiltViewModel(),
-    onNavigateToAdditionalInformationScreen: () -> Unit,
-    onNavigateToCheckSolutionOptionsScreen: () -> Unit
 ) {
 //    val pictures by viewModel.allPictures.collectAsState(initial = emptyList())
 
@@ -78,6 +62,12 @@ fun HomeScreen(
     var isImageEnlarged by remember { mutableStateOf(false) }
     val state = rememberLazyListState()
 
+    viewModel.loadOpenAd()
+    // App Open Ad
+    AppOpenAdHandler(
+        context = context,
+        viewModel = viewModel,
+    )
 
     // Launcher for the ImagePicker
     val pickMultipleMediaLauncher = rememberLauncherForActivityResult(
@@ -93,18 +83,6 @@ fun HomeScreen(
         }
     )
 
-//    LaunchedEffect(Unit) {
-//        viewModel.updatePrompt(
-//            context.getString(R.string.prompt_text)
-//        )
-//    }
-
-    LaunchedEffect(Unit) {
-
-        viewModel.updatePrompt(
-            context.getString(R.string.prompt_text)
-        )
-    }
 
     if (isImageEnlarged) {
         if (selectedImageUri != null) {

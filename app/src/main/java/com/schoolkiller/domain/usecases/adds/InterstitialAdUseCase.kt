@@ -6,7 +6,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
-import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
+import com.schoolkiller.presentation.screens.result.ResultViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
@@ -20,7 +20,7 @@ class InterstitialAdUseCase @Inject constructor(
 
     private var interstitialAd: InterstitialAd? = null
 
-    fun loadAd(adUnitId: String, viewModel: SchoolKillerViewModel) = viewModel.viewModelScope.launch {
+    fun loadAd(adUnitId: String, viewModel: ResultViewModel) = viewModel.viewModelScope.launch {
         interstitialAd = callbackFlow {
             val adRequest = AdRequest.Builder().build()
             InterstitialAd.load(

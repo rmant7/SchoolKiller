@@ -1,7 +1,6 @@
-package com.schoolkiller.presentation.ui.screens
+package com.schoolkiller.presentation.screens.result
 
 import android.content.Context
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,12 +35,14 @@ import com.schoolkiller.R
 import com.schoolkiller.presentation.common.AlertDialog
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.UniversalButton
+import com.schoolkiller.presentation.ui.ads.InterstitialAdPresenter
 import io.ktor.client.plugins.ServerResponseException
 
 
 @Composable
 fun ResultScreen(
     modifier: Modifier = Modifier,
+    context: Context,
     onNavigateToHomeScreen: () -> Unit,
     originalPrompt: String,
     selectedImageUri: String
@@ -51,10 +52,11 @@ fun ResultScreen(
     val resultError: Throwable? by viewModel.error.collectAsState()
 
     val responseListState = rememberLazyListState()
-//    val imageState = rememberLazyListState()
     val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState()
     val openAlertDialog = remember { mutableStateOf(resultError != null) }
 
+    val interstitialAd = viewModel.interstitialAd.collectAsState()
+    viewModel.loadInterstitialAd()
 
     if (requestGeminiResponse.value) {
 
@@ -64,14 +66,6 @@ fun ResultScreen(
                 interstitialAd = it,
                 viewModel = viewModel,
                 showAd = requestGeminiResponse.value
-            )
-        }
-
-        image?.let {
-            viewModel.fetchGeminiResponse(
-                imageUri = it,
-                fileName = "$image",
-                prompt = prompt
             )
         }
 

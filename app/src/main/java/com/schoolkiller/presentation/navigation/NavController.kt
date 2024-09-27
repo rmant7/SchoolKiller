@@ -23,6 +23,7 @@ fun NavigationController() {
 
     NavHost(navController = navController, startDestination = Screens.HomeScreen) {
         composable<Screens.HomeScreen> {
+
             HomeScreen(
                 context = context,
                 listOfImages = listOfImages,
@@ -77,6 +78,7 @@ fun NavigationController() {
             val args = it.toRoute<Screens.ResultScreen>()
 
             ResultScreen(
+                context = context,
                 onNavigateToHomeScreen = {
                     navController.navigate(Screens.HomeScreen)
                 },

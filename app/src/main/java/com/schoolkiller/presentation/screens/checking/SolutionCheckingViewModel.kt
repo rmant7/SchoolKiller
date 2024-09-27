@@ -5,17 +5,25 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.schoolkiller.data.Constants
 import com.schoolkiller.domain.GradeOption
 import com.schoolkiller.domain.PromptText
+import com.schoolkiller.domain.usecases.adds.BannerAdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SolutionCheckingViewModel @Inject constructor() : ViewModel() {
+class SolutionCheckingViewModel @Inject constructor(
+    private val bannerAdUseCase: BannerAdUseCase
+) : ViewModel() {
     private var _originalPromptText = MutableStateFlow("")
     val originalPrompt: StateFlow<String> = _originalPromptText
 
@@ -34,6 +42,24 @@ class SolutionCheckingViewModel @Inject constructor() : ViewModel() {
     val error: StateFlow<Throwable?>
         get() = _error.asStateFlow()
 
+    // BannerAd State
+    private var _adview = MutableStateFlow<AdView?>(null)
+    val adview: StateFlow<AdView?> = _adview
+
+    fun updateAdview(newAd: AdView?) {
+        _adview.update { newAd }
+    }
+
+    fun loadBannerAd() {
+        viewModelScope.launch {
+            bannerAdUseCase.loadAd(
+                adUnitId = Constants.BANNER_AD_ID,
+                viewModel = this@SolutionCheckingViewModel,
+                adSize = AdSize.BANNER
+            )
+        }
+    }
+
     fun updateSelectedGradeOption(newClassSelection: GradeOption) {
         _selectedGradeOption = newClassSelection
     }
@@ -49,7 +75,7 @@ class SolutionCheckingViewModel @Inject constructor() : ViewModel() {
 
     fun buildPropertiesPrompt() {
         // reset
-        updatePrompt( PromptText.CHECK_SOLUTION_PROMPT.promptText)
+        updatePrompt(PromptText.CHECK_SOLUTION_PROMPT.promptText)
         updatePrompt(
             getGradePrompt()
         )

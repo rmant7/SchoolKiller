@@ -6,12 +6,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.ads.AdView
-import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
+import com.schoolkiller.presentation.screens.checking.SolutionCheckingViewModel
 
 @Composable
 fun BannerAdContainer(
     modifier: Modifier = Modifier,
-    viewModel: SchoolKillerViewModel,
+    viewModel: SolutionCheckingViewModel,
     adView: AdView?
 
 ) {

@@ -32,7 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.schoolkiller.domain.UploadFileMethodOptions
@@ -44,7 +44,6 @@ import kotlin.coroutines.suspendCoroutine
 fun ImageCapture(
     modifier: Modifier = Modifier,
     context: Context,
-    lifecycleOwner: LifecycleOwner,
     selectedUploadMethodOption: UploadFileMethodOptions,
     onPictureCapture: (Uri) -> Unit,
     returnToNoOption: (UploadFileMethodOptions) -> Unit,
@@ -86,6 +85,7 @@ fun ImageCapture(
         }
 
     val lensFacing = CameraSelector.LENS_FACING_BACK
+    val lifecycleOwner = LocalLifecycleOwner.current
     val preview = Preview.Builder().build()
     val previewView = remember { PreviewView(context) }
     val cameraxSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()

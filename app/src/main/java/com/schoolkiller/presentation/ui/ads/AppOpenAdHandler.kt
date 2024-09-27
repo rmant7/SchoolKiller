@@ -8,12 +8,12 @@ import androidx.compose.runtime.collectAsState
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.schoolkiller.data.Constants
-import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
+import com.schoolkiller.presentation.screens.home.HomeViewModel
 
 @Composable
 fun AppOpenAdHandler(
     context: Context,
-    viewModel: SchoolKillerViewModel,
+    viewModel: HomeViewModel,
 ) {
 
     val cooldownInMillis = Constants.OPEN_AD_COOLDOWN
@@ -37,7 +37,7 @@ fun AppOpenAdHandler(
                 ad.fullScreenContentCallback = object : FullScreenContentCallback() {
                     override fun onAdDismissedFullScreenContent() {
                         viewModel.updateAppOpenAd(null)
-                        if (viewModel.appOpenAd.value == null){
+                        if (viewModel.appOpenAd.value == null) {
                             viewModel.loadOpenAd()
                         }
 
@@ -45,7 +45,7 @@ fun AppOpenAdHandler(
 
                     override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                         viewModel.updateAppOpenAd(null)
-                        if (viewModel.appOpenAd.value == null){
+                        if (viewModel.appOpenAd.value == null) {
                             viewModel.loadOpenAd()
                         }
                     }
@@ -58,7 +58,7 @@ fun AppOpenAdHandler(
             } else {
                 // Ad expired or cooldown not yet passed, load a new one
                 viewModel.updateAppOpenAd(null)
-                if (viewModel.appOpenAd.value == null){
+                if (viewModel.appOpenAd.value == null) {
                     viewModel.loadOpenAd()
                 }
             }

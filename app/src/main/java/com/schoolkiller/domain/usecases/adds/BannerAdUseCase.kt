@@ -6,7 +6,7 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
-import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
+import com.schoolkiller.presentation.screens.checking.SolutionCheckingViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -18,7 +18,7 @@ class BannerAdUseCase @Inject constructor(
 
     fun loadAd(
         adUnitId: String,
-        viewModel: SchoolKillerViewModel,
+        viewModel: SolutionCheckingViewModel,
         adSize: AdSize) {
         if (adView == null) {
             adView = AdView(context)
