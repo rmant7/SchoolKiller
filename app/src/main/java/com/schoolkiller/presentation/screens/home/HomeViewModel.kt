@@ -26,17 +26,8 @@ class HomeViewModel @Inject constructor(
     val selectedUploadMethodOption: UploadFileMethodOptions
         get() = _selectedUploadMethodOption
 
-    // converted prompt by Additional Information Screen
-    private var _originalPrompt = MutableStateFlow<String>("")
-    val originalPrompt: StateFlow<String> = _originalPrompt
-
-    // selected Uri
-    private var _selectedUri = MutableStateFlow<Uri?>(null)
-    val selectedUri: StateFlow<Uri?> = _selectedUri
-
-    fun updatePrompt(convertedPrompt: String) {
-        _originalPrompt.value = convertedPrompt
-    }
+    private var _selectedImageUri = MutableStateFlow<Uri?>(null)
+    val selectedUri: StateFlow<Uri?> = _selectedImageUri
 
 
     fun insertImagesOnTheList(newImages: List<Uri>) {
@@ -52,7 +43,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun updateSelectedUri(newUri: Uri?) {
-        _selectedUri.value = newUri
+        _selectedImageUri.value = newUri
     }
 
 }

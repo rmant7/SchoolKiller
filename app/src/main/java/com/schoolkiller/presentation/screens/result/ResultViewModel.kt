@@ -8,6 +8,7 @@ import com.schoolkiller.data.network.response.GeminiResponse
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,9 +34,6 @@ class ResultViewModel @Inject constructor(
     val error: StateFlow<Throwable?>
         get() = _error.asStateFlow()
 
-    private var _selectedUri = MutableStateFlow<Uri?>(null)
-    val selectedUri: StateFlow<Uri?> = _selectedUri
-
     private var _requestGeminiResponse = MutableStateFlow<Boolean>(true)
     val requestGeminiResponse: StateFlow<Boolean> = _requestGeminiResponse
 
@@ -49,7 +47,7 @@ class ResultViewModel @Inject constructor(
         fileName: String,
         prompt: String
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val fileByteArray = getImageByteArrayUseCase.invoke(imageUri = imageUri)
             val uploadResult = geminiApiService.uploadFileWithProgress(
                 fileByteArray,

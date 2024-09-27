@@ -21,8 +21,12 @@ fun NavigationController() {
         composable<Screens.HomeScreen> {
             HomeScreen(
                 context = context,
-                onNavigateToAdditionalInformationScreen = {
-                    navController.navigate(Screens.ParametersScreen)
+                onNavigateToParametersScreen = { selectedImageUri ->
+                    navController.navigate(
+                        Screens.ParametersScreen(
+                            selectedImageUri = selectedImageUri.toString()
+                        )
+                    )
                 },
                 onNavigateToCheckSolutionOptionsScreen = {
                     navController.navigate(Screens.CheckSolutionInformationScreen)
@@ -31,12 +35,14 @@ fun NavigationController() {
         }
 
         composable<Screens.ParametersScreen> {
+            val args = it.toRoute<Screens.ParametersScreen>()
             ParametersScreen(
                 context = context,
                 onNavigateToResultScreen = { originalPrompt ->
                     navController.navigate(
                         Screens.ResultScreen(
-                            originalPrompt = originalPrompt
+                            originalPrompt = originalPrompt,
+                            selectedImageUri = args.selectedImageUri
                         )
                     )
                 }
@@ -59,7 +65,8 @@ fun NavigationController() {
                 onNavigateToHomeScreen = {
                     navController.navigate(Screens.HomeScreen)
                 },
-                originalPrompt = args.originalPrompt
+                originalPrompt = args.originalPrompt,
+                selectedImageUri = args.selectedImageUri
             )
         }
     }
@@ -71,11 +78,14 @@ sealed class Screens {
     data object HomeScreen : Screens()
 
     @Serializable
-    data object ParametersScreen : Screens()
+    data class ParametersScreen(
+        val selectedImageUri: String
+    ) : Screens()
 
     @Serializable
     data class ResultScreen(
-        val originalPrompt: String
+        val originalPrompt: String,
+        val selectedImageUri: String
     ) : Screens()
 
     @Serializable
