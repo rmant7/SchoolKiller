@@ -306,7 +306,7 @@ fun HomeScreen(
                             .height(50.dp)
                             .padding(horizontal = 8.dp)
                             .weight(1f),
-                        label = R.string.next_button_label
+                        label = R.string.solve_button_label
                     ) {
                         when {
                             images.value.isEmpty() -> {
