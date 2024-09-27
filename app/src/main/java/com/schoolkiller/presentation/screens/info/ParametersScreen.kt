@@ -116,8 +116,8 @@ fun ParametersScreen(
             modifier = modifier
                 .onFocusChanged {
                     placeHolder.value =
-                        if (it.isFocused) defaultPlaceholderText
-                        else ""
+                        if (it.isFocused) ""
+                        else defaultPlaceholderText
                 }
                 .fillMaxWidth()
                 .height(60.dp)
