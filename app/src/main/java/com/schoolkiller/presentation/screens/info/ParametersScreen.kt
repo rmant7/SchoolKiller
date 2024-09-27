@@ -43,9 +43,9 @@ fun ParametersScreen(
     onNavigateToResultScreen: (String) -> Unit
 ) {
     val viewModel: ParametersViewModel = hiltViewModel()
-    val selectedGrade = viewModel.selectedGradeOption
-    val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption
-    val selectedExplanationLevel = viewModel.selectedExplanationLevelOption
+    val selectedGrade = viewModel.selectedGradeOption.collectAsState()
+    val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption.collectAsState()
+    val selectedExplanationLevel = viewModel.selectedExplanationLevelOption.collectAsState()
     val descriptionText: String by viewModel.descriptionText.collectAsState() // changed to Val from Var
 
     ApplicationScaffold {
@@ -71,7 +71,7 @@ fun ParametersScreen(
             maxHeightIn = 200.dp,
             context = context,
             label = R.string.grade_label,
-            selectedOption = selectedGrade,
+            selectedOption = selectedGrade.value,
             options = GradeOption.entries.toList(),
             onOptionSelected = {
                 viewModel.updateSelectedGradeOption(it)
@@ -83,7 +83,7 @@ fun ParametersScreen(
             maxHeightIn = 200.dp,
             context = context,
             label = R.string.solution_language_label,
-            selectedOption = selectedSolutionLanguage,
+            selectedOption = selectedSolutionLanguage.value,
             options = SolutionLanguageOption.entries.toList(),
             onOptionSelected = {
                 viewModel.updateSelectedLanguageOption(it)
@@ -95,7 +95,7 @@ fun ParametersScreen(
             maxHeightIn = 200.dp,
             context = context,
             label = R.string.explanations_label,
-            selectedOption = selectedExplanationLevel,
+            selectedOption = selectedExplanationLevel.value,
             options = ExplanationLevelOption.entries.toList(),
             onOptionSelected = {
                 viewModel.updateSelectedExplanationLevelOption(it)
@@ -157,7 +157,7 @@ fun ParametersScreen(
                 modifier = modifier.fillMaxWidth(),
                 label = R.string.solve_button_label,
             ) {
-                viewModel.updatePropertiesPrompt(
+                viewModel.buildPropertiesPrompt(
                     gradeArray = gradeArray,
                     languageArray = languageArray,
                     explanationArray = explanationArray
