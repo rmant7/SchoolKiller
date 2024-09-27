@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -205,7 +206,7 @@ fun HomeScreen(
 
                 LazyColumn(
                     modifier = modifier
-                        .fillMaxHeight(0.75f),
+                        .fillMaxHeight(0.70f),
                     state = state,
                     content = {
 
@@ -246,11 +247,11 @@ fun HomeScreen(
                     }
                 )
 
-                Row(
+                Column(
                     modifier = modifier
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
 
                     //Cheat sheet button, can be removed (?)
@@ -269,6 +270,7 @@ fun HomeScreen(
                     UniversalButton(
                         modifier = modifier
                             .fillMaxWidth()
+                            .height(50.dp)
                             .padding(horizontal = 8.dp)
                             .weight(1f),
                         label = R.string.check_solution_button_label
@@ -301,6 +303,7 @@ fun HomeScreen(
                     UniversalButton(
                         modifier = modifier
                             .fillMaxWidth()
+                            .height(50.dp)
                             .padding(horizontal = 8.dp)
                             .weight(1f),
                         label = R.string.next_button_label
