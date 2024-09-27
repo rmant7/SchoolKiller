@@ -6,6 +6,7 @@
     <string name="ai_school_assistant_image_content_description">AI School Assistant Image</string>
     <string name="upload_to_ai_school_image_assistant_content_description">העלה ל AI School Assistant Image</string>
     <string name="ArrowDropDown_icon_content_description">פותח תפריט משנה</string>
+    <string name="add_image">הוסף תמונה</string>
 
     // Prompt
     //changed (the original task language/ chosen language) to (language shown on this picture or text)

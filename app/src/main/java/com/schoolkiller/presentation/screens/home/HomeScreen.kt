@@ -155,7 +155,8 @@ fun HomeScreen(
                     ) {
                         Text(
                             modifier = Modifier.padding(bottom = 10.dp),
-                            text = "Добавьте изображение"
+                            text = stringResource(R.string.add_image),
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
 

@@ -6,6 +6,7 @@
     <string name="ai_school_assistant_image_content_description">Изображение AI School Assistant</string>
     <string name="upload_to_ai_school_image_assistant_content_description">Загрузить изображение AI School Assistant</string>
     <string name="ArrowDropDown_icon_content_description">Открыть sub-меню</string>
+    <string name="add_image">Добавьте изображение</string>
 
     // Prompt
     //changed (the original task language/ chosen language) to (language shown on this picture or text)
