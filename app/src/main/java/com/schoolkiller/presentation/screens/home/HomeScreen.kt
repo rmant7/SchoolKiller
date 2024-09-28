@@ -1,5 +1,6 @@
 package com.schoolkiller.presentation.screens.home
 
+import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.widget.Toast
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,7 +37,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import com.schoolkiller.R
 import com.schoolkiller.domain.UploadFileMethodOptions
+import com.schoolkiller.presentation.ads.AppOpenAdHandler
 import com.schoolkiller.presentation.common.ApplicationScaffold
+import com.schoolkiller.presentation.common.DeleteGhostImagesButton
 import com.schoolkiller.presentation.common.EnlargedImage
 import com.schoolkiller.presentation.common.ImageCapture
 import com.schoolkiller.presentation.common.ImagePicker
@@ -45,22 +47,20 @@ import com.schoolkiller.presentation.common.PictureItem
 import com.schoolkiller.presentation.common.RoundIconButton
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
+import com.schoolkiller.presentation.common.deleteImageFromStorage
+import com.schoolkiller.presentation.common.deleteSchoolKillerImagesFromMediaStore
+import com.schoolkiller.presentation.common.getSystemLocale
 
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     context: Context,
+    lifecycleOwner: LifecycleOwner,
     listOfImages: SnapshotStateList<Uri>,
     onNavigateToParametersScreen: (Uri) -> Unit,
     onNavigateToCheckSolutionOptionsScreen: (Uri) -> Unit
-    lifecycleOwner: LifecycleOwner,
-    viewModel: SchoolKillerViewModel = hiltViewModel(),
-    onNavigateToAdditionalInformationScreen: () -> Unit,
-    onNavigateToCheckSolutionOptionsScreen: () -> Unit
 ) {
-
-
 
 
 //    val pictures by viewModel.allPictures.collectAsState(initial = emptyList())
@@ -73,7 +73,9 @@ fun HomeScreen(
     val selectedImageIndex = remember { mutableStateOf<Int?>(null) }
     val selectedImageUri = selectedImageIndex.value?.let { images.value[it] }
     var isImageEnlarged by remember { mutableStateOf(false) }
+    var isDeleteButtonClicked by remember { mutableStateOf(false) }
     val state = rememberLazyListState()
+    val systemLocale = getSystemLocale()
 
     // Launcher for the ImagePicker
     val pickMultipleMediaLauncher = rememberLauncherForActivityResult(
@@ -88,11 +90,7 @@ fun HomeScreen(
         }
     )
 
-//    LaunchedEffect(Unit) {
-//        viewModel.updatePrompt(
-//            context.getString(R.string.prompt_text)
-//        )
-//    }
+
 
     if (isImageEnlarged) {
         if (selectedImageUri != null) {
@@ -106,6 +104,14 @@ fun HomeScreen(
     }
 
     ApplicationScaffold {
+
+        // App Open Ad
+        AppOpenAdHandler(
+            context = context,
+            viewModel = viewModel,
+        )
+
+
         when (selectedUploadFileMethod) {
             UploadFileMethodOptions.TAKE_A_PICTURE -> {
                 ImageCapture(
@@ -145,6 +151,8 @@ fun HomeScreen(
 
             UploadFileMethodOptions.NO_OPTION -> {
                 ScreenImage(
+                    modifier = modifier
+                        .fillMaxHeight(0.35f), // adjust the height of the image from here
                     image = R.drawable.upload_to_school_assistant,
                     contentDescription = R.string.upload_to_ai_school_image_assistant_content_description
                 )
@@ -152,50 +160,89 @@ fun HomeScreen(
                 /**
                  * Image upload selection buttons
                  */
+
                 Column(
                     modifier = modifier
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceAround
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
+                    verticalArrangement = Arrangement.Center,
+                    content = {
                         Text(
                             modifier = Modifier.padding(bottom = 10.dp),
                             text = stringResource(R.string.add_image),
                             color = MaterialTheme.colorScheme.primary
                         )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Absolute.SpaceAround,
+                            content = {
+                                RoundIconButton(
+                                    modifier = Modifier.size(60.dp),
+                                    icon = R.drawable.ic_add_image
+                                ) {
+                                    viewModel.updateSelectedUploadMethodOption(
+                                        UploadFileMethodOptions.UPLOAD_AN_IMAGE
+                                    )
+                                }
+
+                                RoundIconButton(
+                                    modifier = Modifier.size(60.dp),
+                                    icon = R.drawable.ic_camera
+                                ) {
+                                    viewModel.updateSelectedUploadMethodOption(
+                                        UploadFileMethodOptions.TAKE_A_PICTURE
+                                    )
+                                }
+
+                                /**
+                                 * Solves the problem with the ghost images leftover bug taken from the app camera
+                                 * Need to implement it in a menu, this is not a suitable place
+                                 * Delete all camera Images taken from the app
+                                 * Request permission
+                                 * if permission denied permanently we have an empty screen
+                                 */
+                                DeleteGhostImagesButton(
+                                    modifier = Modifier.size(60.dp),
+                                    icon = R.drawable.ic_delete_media_storage,
+                                    showRationale = {
+                                        Toast.makeText(
+                                            context,
+                                            "In order the app work as intended you must accept the permission", // TODO { hardcode string }
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    },
+                                    onPermissionDeniedPermanently = {
+                                        Toast.makeText(
+                                            context,
+                                            "You denied the permission, in order to accepted it you can go to the app settings", // TODO { hardcode string }
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        return@DeleteGhostImagesButton
+                                    },
+                                    onButtonClick = {
+                                        if (images.value.isNotEmpty()) {
+                                            Toast.makeText(
+                                                context,
+                                                "Remove the images from the list first", // TODO { hardcode string }
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        } else {
+                                            deleteSchoolKillerImagesFromMediaStore(
+                                                context,
+                                                context as Activity
+                                            )
+                                        }
+                                    }
+                                )
+
+
+
+
+                            }
+                        )
                     }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Absolute.SpaceAround
-                    ) {
-                        RoundIconButton(
-                            modifier = Modifier.size(60.dp),
-                            icon = R.drawable.ic_add_image
-                        ) {
-                            viewModel.updateSelectedUploadMethodOption(
-                                UploadFileMethodOptions.UPLOAD_AN_IMAGE
-                            )
-                        }
-
-                        RoundIconButton(
-                            modifier = Modifier.size(60.dp),
-                            icon = R.drawable.ic_camera
-                        ) {
-                            viewModel.updateSelectedUploadMethodOption(
-                                UploadFileMethodOptions.TAKE_A_PICTURE
-                            )
-                        }
-                    }
-
-                }
+                )
 
                 /**
                  * Changed to Image upload selection buttons
@@ -250,6 +297,21 @@ fun HomeScreen(
                                     if (selectedImageIndex.value == index) {
                                         selectedImageIndex.value = null
                                     }
+                                },
+                                onDeleteFromStorage = {
+                                    /** Not implement an Icon in PictureItem for Using it yet
+                                     * lets see if we will keep it
+                                     * check PictureItem composable
+                                     */
+                                    if (images.value.contains(imageUri)) {
+                                        Toast.makeText(
+                                            context,
+                                            "Image is more than one time on the list", // TODO { hardcode string }
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } else {
+                                        deleteImageFromStorage(context, context as Activity, imageUri)
+                                    }
                                 }
                             )
                         }
@@ -257,11 +319,12 @@ fun HomeScreen(
                     }
                 )
 
-                Column(
+                Row(
                     modifier = modifier
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
 
                     //Cheat sheet button, can be removed (?)
@@ -277,12 +340,27 @@ fun HomeScreen(
                     val uploadImageWarningMessage = stringResource(R.string.upload_image_warning)
                     val selectImageWarningMessage = stringResource(R.string.select_image_warning)
 
+
                     UniversalButton(
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                            .padding(horizontal = 8.dp)
-                            .weight(1f),
+                        modifier = when (systemLocale.language) {
+                            "iw" -> {
+                                modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                            }
+
+                            "ru" -> {
+                                modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                            }
+
+                            else -> {
+                                modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                            }
+                        },
                         label = R.string.check_solution_button_label
                     ) {
 
@@ -311,11 +389,25 @@ fun HomeScreen(
                     }
 
                     UniversalButton(
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                            .padding(horizontal = 8.dp)
-                            .weight(1f),
+                        modifier = when (systemLocale.language) {
+                            "iw" -> {
+                                modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                            }
+
+                            "ru" -> {
+                                modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                            }
+
+                            else -> {
+                                modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                            }
+                        },
                         label = R.string.solve_button_label
                     ) {
                         when {

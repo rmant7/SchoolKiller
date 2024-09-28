@@ -1,13 +1,4 @@
-package com.schoolkiller.domain.usecases.adds
-
-import android.app.Activity
-import com.google.android.gms.ads.AdError
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.FullScreenContentCallback
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.appopen.AppOpenAd
-import com.schoolkiller.data.Constants
-import timber.log.Timber
+package com.schoolkiller.domain.usecases.ads
 
 /* Not needed you can delete this
 class AppOpenAdManager {

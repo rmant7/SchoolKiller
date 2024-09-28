@@ -3,7 +3,7 @@ package com.schoolkiller.presentation.screens.info
 import ExposedDropBox
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,19 +28,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
-import com.schoolkiller.domain.ExplanationLevelOptions
-import com.schoolkiller.domain.GradeOptions
-import com.schoolkiller.domain.SolutionLanguageOptions
-import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
-import com.schoolkiller.presentation.ui.reusable_components.ScreenImage
-import com.schoolkiller.presentation.ui.reusable_components.UniversalButton
-import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
 import com.schoolkiller.domain.ExplanationLevelOption
 import com.schoolkiller.domain.GradeOption
 import com.schoolkiller.domain.SolutionLanguageOption
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
+import com.schoolkiller.presentation.common.getSystemLocale
+import com.schoolkiller.presentation.screens.result.ResultViewModel
 
 @Composable
 fun ParametersScreen(
@@ -49,14 +44,19 @@ fun ParametersScreen(
     onNavigateToResultScreen: (String) -> Unit
 ) {
     val viewModel: ParametersViewModel = hiltViewModel()
+    val resultViewModel: ResultViewModel = hiltViewModel()
     val selectedGrade = viewModel.selectedGradeOption.collectAsState()
     val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption.collectAsState()
     val selectedExplanationLevel = viewModel.selectedExplanationLevelOption.collectAsState()
-    val descriptionText: String by viewModel.descriptionText.collectAsState() // changed to Val from Var
+    val descriptionText: String by viewModel.descriptionText.collectAsState()
+    val systemLocale = getSystemLocale()
+
 
     ApplicationScaffold {
 
         ScreenImage(
+            modifier = modifier
+                .fillMaxHeight(0.35f), // adjust the height of the image from here
             image = R.drawable.ai_school_assistant,
             contentDescription = R.string.ai_school_assistant_image_content_description
         )
@@ -146,47 +146,48 @@ fun ParametersScreen(
             else VisualTransformation.None,
             textStyle = TextStyle(color = textColor)
         )
-        Column(
-            modifier = Modifier.fillMaxHeight(),
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ){
 
+
+
+            //Reused Component
             UniversalButton(
-                modifier = modifier.fillMaxWidth(),
+                modifier = when(systemLocale.language) {
+                    "iw" -> {
+                        modifier
+                            .weight(1f)
+                            .fillMaxHeight(0.6f)
+                    }
+
+                    "ru" -> {
+                        modifier
+                            .weight(1f)
+                            .fillMaxHeight(0.6f)
+                    }
+
+                    else -> {
+                        modifier
+                            .weight(1f)
+                            .fillMaxHeight(0.6f)
+                    }
+                },
                 label = R.string.solve_button_label,
             ) {
                 viewModel.buildPropertiesPrompt()
+                // on back press from ResultScreen we have to restore requestGeminiResponse back to true
+                resultViewModel.updateRequestGeminiResponse(true)
+
+                // reset TextGenerationResult to initialize the loading indicator
+                resultViewModel.updateTextGenerationResult("")
+
                 onNavigateToResultScreen(viewModel.originalPrompt.value)
             }
-        //Reused Component
-        UniversalButton(
-            modifier = modifier.fillMaxWidth(),
-            label = R.string.solve_button_label,
-        ) {
-            viewModel.updateTextGenerationResult("")
-
-            /**
-             * Imports for updated prompt are moved here
-             * as otherwise imports are included only by clicking on options
-             * on this screen and are overwritten by original prompt every time
-             * when user doesn't select options on this screen
-             * and return to the Home_Screen.
-             * Code line in Home_Screen which causes overwrite:
-             * viewModel.updatePrompt(
-             *             context.getString(R.string.prompt_text)
-             *         )
-             */
-
-            viewModel.importGradeToOriginalPrompt()
-            viewModel.importLanguageToOriginalPrompt()
-            viewModel.importExplanationToOriginalPrompt()
-            viewModel.importAdditionalInfoToOriginalPrompt()
-
-
-            // on back press from ResultScreen we have to restore requestGeminiResponse back to true
-            viewModel.updateRequestGeminiResponse(true)
-            onNavigateToResultScreen()
         }
     }
 }

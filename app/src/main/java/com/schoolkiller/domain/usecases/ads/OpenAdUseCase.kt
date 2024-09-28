@@ -1,34 +1,22 @@
-package com.schoolkiller.domain.usecases.adds
+package com.schoolkiller.domain.usecases.ads
 
-import android.app.Activity
 import android.content.Context
-import androidx.lifecycle.viewModelScope
-import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.appopen.AppOpenAd
-import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
+import com.schoolkiller.presentation.screens.home.HomeViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.Date
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class OpenAdUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
-//    viewModel: SchoolKillerViewModel,
 ) {
 
-//    private var appOpenAd: AppOpenAd? = null
-//    private var isLoading = false
-//    private var loadTime: Long = 0
-//    private val appOpenAd = viewModel.appOpenAd
-//    private val isLoading = viewModel.isOpenAdLoading
-//    private var loadTime = viewModel.openAdLoadTime
 
-
-    fun loadOpenAd(adUnitId: String, viewModel: SchoolKillerViewModel,){
+    fun loadOpenAd(adUnitId: String, viewModel: HomeViewModel) {
         if (!viewModel.isOpenAdLoading.value && viewModel.appOpenAd.value == null) {
             viewModel.updateIsOpenAdLoading(true)
             val adRequest = AdRequest.Builder().build()
@@ -45,8 +33,8 @@ class OpenAdUseCase @Inject constructor(
                     }
 
                     override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                        Timber.d(loadAdError.message)
                         viewModel.updateIsOpenAdLoading(false)
-                        onAdFailedToLoad(loadAdError)
                     }
                 }
             )

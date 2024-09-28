@@ -9,29 +9,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.schoolkiller.data.Constants
 import com.schoolkiller.data.entities.Picture
 import com.schoolkiller.data.network.api.GeminiApiService
 import com.schoolkiller.data.network.response.GeminiResponse
 import com.schoolkiller.data.repositories.PictureRepository
-import com.schoolkiller.domain.ExplanationLevelOptions
-import com.schoolkiller.domain.GradeOptions
-import com.schoolkiller.domain.SolutionLanguageOptions
-import com.schoolkiller.domain.UploadFileMethodOptions
-import com.schoolkiller.domain.usecases.adds.AdUseCases
 import com.schoolkiller.domain.ExplanationLevelOption
 import com.schoolkiller.domain.GradeOption
 import com.schoolkiller.domain.SolutionLanguageOption
 import com.schoolkiller.domain.UploadFileMethodOptions
+import com.schoolkiller.domain.usecases.ads.InterstitialAdUseCase
+import com.schoolkiller.domain.usecases.ads.OpenAdUseCase
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
 import com.schoolkiller.domain.usecases.database.AddPictureUseCase
 import com.schoolkiller.domain.usecases.database.DeletePictureUseCase
-import com.schoolkiller.domain.usecases.prompt.ConvertPromptUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -43,7 +37,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import javax.inject.Inject
 
-
+/*
 @Deprecated(message = "Will be remove or refactor in the future")
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -53,9 +47,8 @@ class MainViewModel @Inject constructor(
     private val geminiApiService: GeminiApiService,
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
-    private val convertPromptUseCases: ConvertPromptUseCases,
-    private val adUseCases: AdUseCases,
-//    private val convertPromptUseCases: ConvertPromptUseCases
+    private val openAdUseCase: OpenAdUseCase,
+    private val interstitialAdUseCase: InterstitialAdUseCase
 ) : ViewModel() {
 
     val allPictures = pictureRepository.allPictures
@@ -139,28 +132,23 @@ class MainViewModel @Inject constructor(
     fun updateInterstitialAd(newAd: InterstitialAd?) { _interstitialAd.update { newAd } }
 
     // Ads calling functions
-    fun loadOpenAd() = viewModelScope.launch {
-        adUseCases.openAdUseCase.loadOpenAd(
-            adUnitId = Constants.OPEN_AD_ID,
-            viewModel = this@SchoolKillerViewModel
-        )
-    }
+//    fun loadOpenAd() = viewModelScope.launch {
+//        openAdUseCase.loadOpenAd(
+//            adUnitId = Constants.OPEN_AD_ID,
+//            viewModel = this@MainViewModel
+//        )
+//    }
 
-    fun loadBannerAd() {
-        viewModelScope.launch {
-            adUseCases.bannerAdUseCase.loadAd(
-                adUnitId = Constants.BANNER_AD_ID,
-                viewModel = this@SchoolKillerViewModel,
-                adSize = AdSize.BANNER)
-        }
-    }
+//    fun loadBannerAd() {
+//        viewModelScope.launch {
+//            bannerAdUseCase.loadAd(
+//                adUnitId = Constants.BANNER_AD_ID,
+//                viewModel = this@SchoolKillerViewModel,
+//                adSize = AdSize.BANNER)
+//        }
+//    }
 
-    fun loadInterstitialAd() {
-        adUseCases.interstitialAdUseCase.loadAd(
-            adUnitId = Constants.INTERSTITIAL_AD_ID,
-            viewModel = this@SchoolKillerViewModel
-        )
-    }
+
 
 
 
@@ -348,12 +336,12 @@ class MainViewModel @Inject constructor(
 
     // initialize ads as soon as the app starts
     init {
-            loadOpenAd()
-            loadBannerAd()
-            loadInterstitialAd()
+//            loadOpenAd()
+//            loadBannerAd()
+//            loadInterstitialAd()
     }
 
 }
-
+*/
 
 

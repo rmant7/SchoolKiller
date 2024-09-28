@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -20,6 +19,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ScreenImage(
     modifier: Modifier = Modifier,
+    imageModifier: Modifier = Modifier,
     image: Int,
     contentDescription: Int
 ) {
@@ -35,8 +35,7 @@ fun ScreenImage(
             contentAlignment = Alignment.Center,
         ) {
             Image(
-                modifier = modifier
-                    .height(250.dp)
+                modifier = imageModifier
                     .clip(RoundedCornerShape(16.dp)),
                 painter = painterResource(image),
                 contentDescription = stringResource(id = contentDescription),

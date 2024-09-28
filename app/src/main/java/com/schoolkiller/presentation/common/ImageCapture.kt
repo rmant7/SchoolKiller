@@ -193,8 +193,9 @@ private fun captureImage(
     onPictureCapture: (Uri) -> Unit,
     returnToNoOption: (UploadFileMethodOptions) -> Unit
 ) {
+    var currentUri: Uri? = null
 
-    val name = "SchoolKillerImage.jpeg"
+    val name = "SchoolKillerImage_${System.currentTimeMillis()}.jpeg"
     val contentValues = ContentValues().apply {
         put(MediaStore.MediaColumns.DISPLAY_NAME, name)
         put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
@@ -215,7 +216,10 @@ private fun captureImage(
         object : ImageCapture.OnImageSavedCallback {
             override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                 val savedUri = outputFileResults.savedUri
-                savedUri?.let { onPictureCapture(it) }
+                savedUri?.let { uri ->
+                    onPictureCapture(uri)
+                        currentUri = uri
+                }
                 returnToNoOption(UploadFileMethodOptions.NO_OPTION)
             }
 

@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.ui.ads
+package com.schoolkiller.presentation.ads
 
 import android.app.Activity
 import android.content.Context
@@ -8,12 +8,12 @@ import androidx.compose.runtime.collectAsState
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.schoolkiller.data.Constants
-import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
+import com.schoolkiller.presentation.screens.home.HomeViewModel
 
 @Composable
 fun AppOpenAdHandler(
     context: Context,
-    viewModel: SchoolKillerViewModel,
+    viewModel: HomeViewModel,
 ) {
 
     val cooldownInMillis = Constants.OPEN_AD_COOLDOWN

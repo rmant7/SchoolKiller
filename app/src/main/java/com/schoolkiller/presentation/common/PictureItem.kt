@@ -1,9 +1,12 @@
 package com.schoolkiller.presentation.common
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -34,6 +37,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.schoolkiller.R
+import com.schoolkiller.data.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -47,14 +51,15 @@ fun PictureItem(
     context: Context,
     imageUri: Uri,
     onRemove: () -> Unit,
-    onEnlarge: () -> Unit
+    onEnlarge: () -> Unit,
+    onDeleteFromStorage: () -> Unit
 ) {
 
     var buttonColor by remember { mutableStateOf(Color.Black) }
 
     LaunchedEffect(imageUri) {
         val luminance = calculateImageLuminance(imageUri, context)
-        buttonColor = if ( luminance < 0.5 ) Color.White else Color.Black
+        buttonColor = if (luminance < 0.5) Color.White else Color.Black
     }
 
     Card(
@@ -74,7 +79,7 @@ fun PictureItem(
                 contentDescription = "Picture",  // TODO { hardcoded string }
                 error = painterResource(id = R.drawable.upload_to_school_assistant), // TODO { import an error image }
                 placeholder = painterResource(id = R.drawable.ai_school_assistant), // TODO { import a placeholder image }
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.FillHeight,
             )
 
             Row(
@@ -108,6 +113,47 @@ fun PictureItem(
             )
         }
     }
+}
+
+
+/**
+ * function to delete image from the storage not only the list
+ * but we have to use with a condition that the list don`t have
+ * the same uri image loaded more than once
+ */
+fun deleteImageFromStorage(
+    context: Context,
+    activity: Activity,
+    imageUri: Uri
+) {
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        // For Android 10 and above, use createDeleteRequest
+        val pendingIntent = MediaStore.createDeleteRequest(
+            context.contentResolver,
+            listOf(imageUri)
+        )
+        activity.startIntentSenderForResult(
+            pendingIntent.intentSender,
+            Constants.DELETE_REQUEST_CODE,
+            null,
+            0,
+            0,
+            0,
+            null
+        )
+
+    } else {
+        // For older Android versions, use contentResolver.delete
+        imageUri?.let {
+            context.contentResolver.delete(
+                it,
+                null,
+                null
+            )
+        }
+    }
+
 }
 
 

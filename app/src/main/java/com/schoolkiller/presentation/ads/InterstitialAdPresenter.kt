@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.ui.ads
+package com.schoolkiller.presentation.ads
 
 import android.app.Activity
 import android.content.Context
@@ -7,13 +7,13 @@ import androidx.compose.runtime.LaunchedEffect
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
+import com.schoolkiller.presentation.screens.result.ResultViewModel
 
 @Composable
 fun InterstitialAdPresenter(
     context: Context,
     interstitialAd: InterstitialAd,
-    viewModel: SchoolKillerViewModel,
+    viewModel: ResultViewModel,
     showAd: Boolean
 ) {
 
@@ -42,6 +42,7 @@ fun InterstitialAdPresenter(
                     }
                 }
             }
+
             interstitialAd.show(context as Activity)
         }
     }

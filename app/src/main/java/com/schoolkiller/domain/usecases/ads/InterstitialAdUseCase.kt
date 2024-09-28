@@ -1,4 +1,4 @@
-package com.schoolkiller.domain.usecases.adds
+package com.schoolkiller.domain.usecases.ads
 
 import android.content.Context
 import androidx.lifecycle.viewModelScope
@@ -6,21 +6,24 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
-import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
+import com.schoolkiller.presentation.screens.result.ResultViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class InterstitialAdUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
 
     private var interstitialAd: InterstitialAd? = null
 
-    fun loadAd(adUnitId: String, viewModel: SchoolKillerViewModel) = viewModel.viewModelScope.launch {
+    fun loadAd(adUnitId: String, viewModel: ResultViewModel) = viewModel.viewModelScope.launch {
         interstitialAd = callbackFlow {
             val adRequest = AdRequest.Builder().build()
             InterstitialAd.load(
@@ -29,7 +32,8 @@ class InterstitialAdUseCase @Inject constructor(
                 adRequest,
                 object : InterstitialAdLoadCallback() {
                     override fun onAdFailedToLoad(adError: LoadAdError) {
-                        close(RuntimeException(adError.message)) // Close the flow with an error
+                        Timber.d("Adds server is not available${adError.message}")
+                        close() // Close the flow with an error
                     }
 
                     override fun onAdLoaded(ad: InterstitialAd) {
@@ -44,22 +48,6 @@ class InterstitialAdUseCase @Inject constructor(
         viewModel.updateInterstitialAd(interstitialAd)
     }
 
-
-
-
-
-//    fun showAd(activity: Activity, adUnitId: String, viewModel: SchoolKillerViewModel) {
-//            if (interstitialAd != null) {
-//                interstitialAd?.show(activity)
-//                interstitialAd = null
-//                // Reload the ad after showing it
-//                viewModel.viewModelScope.launch {
-//                    loadAd(adUnitId, viewModel)
-//                }
-//            } else {
-//                Timber.tag("InterstitialAd").d("The interstitial ad wasn't ready yet.")
-//            }
-//        }
-    }
+}
 
 

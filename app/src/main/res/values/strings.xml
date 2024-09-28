@@ -4,6 +4,7 @@
     // Content Descriptions
     <string name="ai_school_assistant_image_content_description">AI School Assistant Image</string>
     <string name="upload_to_ai_school_image_assistant_content_description">Upload To AI School Assistant Image</string>
+    <string name="check_solution_ai_school_image_assistant_content_description">Check Solution AI School Assistant Image</string>
     <string name="ArrowDropDown_icon_content_description">Opens a submenu</string>
     <string name="add_image">Add task</string>
 
