@@ -37,7 +37,7 @@ fun AppOpenAdHandler(
                 ad.fullScreenContentCallback = object : FullScreenContentCallback() {
                     override fun onAdDismissedFullScreenContent() {
                         viewModel.updateAppOpenAd(null)
-                        if (viewModel.appOpenAd.value == null){
+                        if (viewModel.appOpenAd.value == null) {
                             viewModel.loadOpenAd()
                         }
 
@@ -45,7 +45,7 @@ fun AppOpenAdHandler(
 
                     override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                         viewModel.updateAppOpenAd(null)
-                        if (viewModel.appOpenAd.value == null){
+                        if (viewModel.appOpenAd.value == null) {
                             viewModel.loadOpenAd()
                         }
                     }
@@ -58,7 +58,7 @@ fun AppOpenAdHandler(
             } else {
                 // Ad expired or cooldown not yet passed, load a new one
                 viewModel.updateAppOpenAd(null)
-                if (viewModel.appOpenAd.value == null){
+                if (viewModel.appOpenAd.value == null) {
                     viewModel.loadOpenAd()
                 }
             }

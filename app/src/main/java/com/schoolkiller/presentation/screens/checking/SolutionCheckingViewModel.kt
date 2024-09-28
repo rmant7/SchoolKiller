@@ -6,14 +6,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.ads.AdView
+import androidx.lifecycle.viewModelScope
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.schoolkiller.data.Constants
 import com.schoolkiller.domain.GradeOption
 import com.schoolkiller.domain.PromptText
 import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
+import com.schoolkiller.domain.usecases.adds.BannerAdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel

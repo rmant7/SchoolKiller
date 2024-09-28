@@ -27,6 +27,7 @@ fun NavigationController() {
     NavHost(navController = navController, startDestination = Screens.HomeScreen) {
 
         composable<Screens.HomeScreen> {
+
             HomeScreen(
                 context = context,
                 lifecycleOwner = lifecycleOwner,

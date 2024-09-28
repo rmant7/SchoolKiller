@@ -37,7 +37,9 @@ import com.schoolkiller.presentation.common.AlertDialog
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.UniversalButton
 import com.schoolkiller.presentation.common.getSystemLocale
+import com.schoolkiller.presentation.ui.ads.InterstitialAdPresenter
 import io.ktor.client.plugins.ServerResponseException
+
 
 @Composable
 fun ResultScreen(
@@ -52,7 +54,6 @@ fun ResultScreen(
     val resultError: Throwable? by viewModel.error.collectAsState()
 
     val responseListState = rememberLazyListState()
-//    val imageState = rememberLazyListState()
     val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState()
     val openAlertDialog = remember { mutableStateOf(resultError != null) }
     val interstitialAd = viewModel.interstitialAd.collectAsState()
@@ -62,8 +63,20 @@ fun ResultScreen(
 
 
 
+    val interstitialAd = viewModel.interstitialAd.collectAsState()
+    viewModel.loadInterstitialAd()
+
     if (requestGeminiResponse.value) {
-        println("PROMPT IS $originalPrompt")
+
+        interstitialAd.value?.let {
+            InterstitialAdPresenter(
+                context = context,
+                interstitialAd = it,
+                viewModel = viewModel,
+                showAd = requestGeminiResponse.value
+            )
+        }
+
         viewModel.fetchGeminiResponse(
             imageUri = selectedImageUri.toUri(),
             fileName = selectedImageUri.toUri().toString(),
@@ -130,7 +143,10 @@ fun ResultScreen(
                 .fillMaxHeight(0.65f),
             state = responseListState,
             content = {
+
+
                 item { Spacer(modifier.height(16.dp)) }
+
 
                 item {
                     if (resultText.isBlank() && resultError == null) {
@@ -224,6 +240,7 @@ fun ResultScreen(
         )
     }
 }
+
 
 private fun getAlertWindowData(t: Throwable?): Pair<Int, Int> {
     return when (t) {
