@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.ui.reusable_components
+package com.schoolkiller.presentation.common
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -74,12 +74,11 @@ fun PictureItem(
                 contentDescription = "Picture",  // TODO { hardcoded string }
                 error = painterResource(id = R.drawable.upload_to_school_assistant), // TODO { import an error image }
                 placeholder = painterResource(id = R.drawable.ai_school_assistant), // TODO { import a placeholder image }
-                //contentScale = ContentScale.FillBounds,
-                contentScale = ContentScale.FillHeight
-                )
+                contentScale = ContentScale.Crop,
+            )
+
             Row(
                 modifier = imageModifier
-
                     .padding(vertical = 40.dp)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,

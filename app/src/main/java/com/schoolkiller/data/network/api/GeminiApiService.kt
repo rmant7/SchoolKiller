@@ -44,6 +44,7 @@ class GeminiApiService @Inject constructor(
             return if (uploadUrl != null) {
                 Result.success(UploadModel(uploadUrl))
             } else {
+                Timber.d("Upload url is $uploadUrl")
                 Result.failure(ServerResponseException(response, "Upload url is $uploadUrl"))
             }
 

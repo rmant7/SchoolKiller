@@ -1,18 +1,24 @@
-package com.schoolkiller.presentation.ui.screens
+package com.schoolkiller.presentation.screens.info
 
 import ExposedDropBox
 import android.content.Context
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -29,21 +35,24 @@ import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
 import com.schoolkiller.presentation.ui.reusable_components.ScreenImage
 import com.schoolkiller.presentation.ui.reusable_components.UniversalButton
 import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
+import com.schoolkiller.domain.ExplanationLevelOption
+import com.schoolkiller.domain.GradeOption
+import com.schoolkiller.domain.SolutionLanguageOption
+import com.schoolkiller.presentation.common.ApplicationScaffold
+import com.schoolkiller.presentation.common.ScreenImage
+import com.schoolkiller.presentation.common.UniversalButton
 
 @Composable
-fun AdditionalInformationScreen(
+fun ParametersScreen(
     modifier: Modifier = Modifier,
     context: Context,
-    viewModel: SchoolKillerViewModel = hiltViewModel(),
-    onNavigateToResultScreen: () -> Unit
+    onNavigateToResultScreen: (String) -> Unit
 ) {
-
-
-    val selectedGrade = viewModel.selectedGradeOption
-    val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption
-    val selectedExplanationLevel = viewModel.selectedExplanationLevelOption
-    val additionalInformationText = viewModel.additionalInfoText.collectAsState()
-
+    val viewModel: ParametersViewModel = hiltViewModel()
+    val selectedGrade = viewModel.selectedGradeOption.collectAsState()
+    val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption.collectAsState()
+    val selectedExplanationLevel = viewModel.selectedExplanationLevelOption.collectAsState()
+    val descriptionText: String by viewModel.descriptionText.collectAsState() // changed to Val from Var
 
     ApplicationScaffold {
 
@@ -68,8 +77,8 @@ fun AdditionalInformationScreen(
             maxHeightIn = 200.dp,
             context = context,
             label = R.string.grade_label,
-            selectedOption = selectedGrade,
-            options = GradeOptions.entries.toList(),
+            selectedOption = selectedGrade.value,
+            options = GradeOption.entries.toList(),
             onOptionSelected = {
                 viewModel.updateSelectedGradeOption(it)
             },
@@ -80,8 +89,8 @@ fun AdditionalInformationScreen(
             maxHeightIn = 200.dp,
             context = context,
             label = R.string.solution_language_label,
-            selectedOption = selectedSolutionLanguage,
-            options = SolutionLanguageOptions.entries.toList(),
+            selectedOption = selectedSolutionLanguage.value,
+            options = SolutionLanguageOption.entries.toList(),
             onOptionSelected = {
                 viewModel.updateSelectedLanguageOption(it)
             },
@@ -92,19 +101,17 @@ fun AdditionalInformationScreen(
             maxHeightIn = 200.dp,
             context = context,
             label = R.string.explanations_label,
-            selectedOption = selectedExplanationLevel,
-            options = ExplanationLevelOptions.entries.toList(),
+            selectedOption = selectedExplanationLevel.value,
+            options = ExplanationLevelOption.entries.toList(),
             onOptionSelected = {
                 viewModel.updateSelectedExplanationLevelOption(it)
             },
             optionToString = { option, context -> option.getString(context) }
         )
 
-        //gray color for placeholder
-        //black color for input text
-        val textColor = if (additionalInformationText.value.isEmpty())
-            Color.Gray
-        else Color.Black
+        val textColor = if (descriptionText.isEmpty())
+            MaterialTheme.colorScheme.secondary
+        else MaterialTheme.colorScheme.primary
 
         val defaultPlaceholderText =
             stringResource(R.string.additional_info_TextField_placeholder_text)
@@ -115,16 +122,16 @@ fun AdditionalInformationScreen(
         OutlinedTextField(
             modifier = modifier
                 .onFocusChanged {
-                    if (it.isFocused) {
-                        //placeholder isn't visible on user input focus
-                        placeHolder.value = ""
-                    }
+                    placeHolder.value =
+                        if (it.isFocused) ""
+                        else defaultPlaceholderText
                 }
                 .fillMaxWidth()
+                .height(60.dp)
                 .heightIn(max = 200.dp),
-            value = additionalInformationText.value,
+            value = descriptionText,
             onValueChange = {
-                viewModel.updateAdditionalInfoText(it)
+                viewModel.updateDescriptionText(it)
             },
             label = {
                 Text(
@@ -134,12 +141,24 @@ fun AdditionalInformationScreen(
                 )
             },
             //added for label always be visible
-            visualTransformation = if (additionalInformationText.value.isEmpty())
+            visualTransformation = if (descriptionText.isEmpty())
                 PlaceholderTransformation(placeholder = placeHolder.value)
             else VisualTransformation.None,
             textStyle = TextStyle(color = textColor)
         )
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
+            UniversalButton(
+                modifier = modifier.fillMaxWidth(),
+                label = R.string.solve_button_label,
+            ) {
+                viewModel.buildPropertiesPrompt()
+                onNavigateToResultScreen(viewModel.originalPrompt.value)
+            }
         //Reused Component
         UniversalButton(
             modifier = modifier.fillMaxWidth(),
@@ -169,7 +188,6 @@ fun AdditionalInformationScreen(
             viewModel.updateRequestGeminiResponse(true)
             onNavigateToResultScreen()
         }
-
     }
 }
 

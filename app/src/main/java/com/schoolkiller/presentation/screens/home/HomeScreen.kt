@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.ui.screens
+package com.schoolkiller.presentation.screens.home
 
 import android.content.Context
 import android.net.Uri
@@ -8,18 +8,20 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -29,25 +31,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import com.schoolkiller.R
 import com.schoolkiller.domain.UploadFileMethodOptions
-import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
-import com.schoolkiller.presentation.ui.reusable_components.EnlargedImage
-import com.schoolkiller.presentation.ui.reusable_components.ImageCapture
-import com.schoolkiller.presentation.ui.reusable_components.ImagePicker
-import com.schoolkiller.presentation.ui.reusable_components.PictureItem
-import com.schoolkiller.presentation.ui.reusable_components.ScreenImage
-import com.schoolkiller.presentation.ui.reusable_components.UniversalButton
-import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
+import com.schoolkiller.presentation.common.ApplicationScaffold
+import com.schoolkiller.presentation.common.EnlargedImage
+import com.schoolkiller.presentation.common.ImageCapture
+import com.schoolkiller.presentation.common.ImagePicker
+import com.schoolkiller.presentation.common.PictureItem
+import com.schoolkiller.presentation.common.RoundIconButton
+import com.schoolkiller.presentation.common.ScreenImage
+import com.schoolkiller.presentation.common.UniversalButton
 
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     context: Context,
+    listOfImages: SnapshotStateList<Uri>,
+    onNavigateToParametersScreen: (Uri) -> Unit,
+    onNavigateToCheckSolutionOptionsScreen: (Uri) -> Unit
     lifecycleOwner: LifecycleOwner,
     viewModel: SchoolKillerViewModel = hiltViewModel(),
     onNavigateToAdditionalInformationScreen: () -> Unit,
@@ -58,6 +64,10 @@ fun HomeScreen(
 
 
 //    val pictures by viewModel.allPictures.collectAsState(initial = emptyList())
+
+    val viewModel: HomeViewModel = hiltViewModel()
+    // updating viewmodel with previous uploaded pictures
+    viewModel.updateListOfImages(listOfImages)
     val selectedUploadFileMethod = viewModel.selectedUploadMethodOption
     val images = viewModel.listOfImages.collectAsState()
     val selectedImageIndex = remember { mutableStateOf<Int?>(null) }
@@ -72,20 +82,17 @@ fun HomeScreen(
             if (uris.isNotEmpty()) {
                 viewModel.insertImagesOnTheList(uris)
                 viewModel.updateSelectedUploadMethodOption(UploadFileMethodOptions.NO_OPTION)
-
             } else {
                 viewModel.updateSelectedUploadMethodOption(UploadFileMethodOptions.NO_OPTION)
             }
         }
     )
 
-
-    LaunchedEffect(Unit) {
-
-        viewModel.updatePrompt(
-            context.getString(R.string.prompt_text)
-        )
-    }
+//    LaunchedEffect(Unit) {
+//        viewModel.updatePrompt(
+//            context.getString(R.string.prompt_text)
+//        )
+//    }
 
     if (isImageEnlarged) {
         if (selectedImageUri != null) {
@@ -97,7 +104,6 @@ fun HomeScreen(
             )
         }
     }
-
 
     ApplicationScaffold {
         when (selectedUploadFileMethod) {
@@ -146,35 +152,49 @@ fun HomeScreen(
                 /**
                  * Image upload selection buttons
                  */
-                Row(
+                Column(
                     modifier = modifier
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceAround
                 ) {
-                    UniversalButton(
-                        modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp)
-                            .weight(1f),
-                        R.string.upload_picture
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        viewModel.updateSelectedUploadMethodOption(
-                            UploadFileMethodOptions.UPLOAD_AN_IMAGE
+                        Text(
+                            modifier = Modifier.padding(bottom = 10.dp),
+                            text = stringResource(R.string.add_image),
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
 
-                    UniversalButton(
-                        modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp)
-                            .weight(1f),
-                        R.string.take_a_picture
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Absolute.SpaceAround
                     ) {
-                        viewModel.updateSelectedUploadMethodOption(
-                            UploadFileMethodOptions.TAKE_A_PICTURE
-                        )
+                        RoundIconButton(
+                            modifier = Modifier.size(60.dp),
+                            icon = R.drawable.ic_add_image
+                        ) {
+                            viewModel.updateSelectedUploadMethodOption(
+                                UploadFileMethodOptions.UPLOAD_AN_IMAGE
+                            )
+                        }
+
+                        RoundIconButton(
+                            modifier = Modifier.size(60.dp),
+                            icon = R.drawable.ic_camera
+                        ) {
+                            viewModel.updateSelectedUploadMethodOption(
+                                UploadFileMethodOptions.TAKE_A_PICTURE
+                            )
+                        }
                     }
+
                 }
 
                 /**
@@ -196,7 +216,7 @@ fun HomeScreen(
 
                 LazyColumn(
                     modifier = modifier
-                        .fillMaxHeight(0.75f),
+                        .fillMaxHeight(0.70f),
                     state = state,
                     content = {
 
@@ -237,11 +257,11 @@ fun HomeScreen(
                     }
                 )
 
-                Row(
+                Column(
                     modifier = modifier
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
 
                     //Cheat sheet button, can be removed (?)
@@ -254,64 +274,75 @@ fun HomeScreen(
                  ) {
                      onNavigateToResultScreen()
                  }*/
+                    val uploadImageWarningMessage = stringResource(R.string.upload_image_warning)
+                    val selectImageWarningMessage = stringResource(R.string.select_image_warning)
 
                     UniversalButton(
                         modifier = modifier
                             .fillMaxWidth()
+                            .height(50.dp)
                             .padding(horizontal = 8.dp)
                             .weight(1f),
                         label = R.string.check_solution_button_label
                     ) {
-                        onNext(
-                            images, context, selectedImageUri, viewModel
-                        ) { onNavigateToCheckSolutionOptionsScreen() }
+
+                        when {
+                            images.value.isEmpty() -> {
+                                Toast.makeText(
+                                    context,
+                                    uploadImageWarningMessage,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            selectedImageUri == null -> {
+                                Toast.makeText(
+                                    context,
+                                    selectImageWarningMessage,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            else -> {
+                                viewModel.updateSelectedUri(selectedImageUri)
+                                onNavigateToCheckSolutionOptionsScreen(selectedImageUri)
+                            }
+                        }
                     }
 
                     UniversalButton(
                         modifier = modifier
                             .fillMaxWidth()
+                            .height(50.dp)
                             .padding(horizontal = 8.dp)
                             .weight(1f),
                         label = R.string.solve_button_label
                     ) {
-                        onNext(
-                            images, context, selectedImageUri, viewModel
-                        ) { onNavigateToAdditionalInformationScreen() }
+                        when {
+                            images.value.isEmpty() -> {
+                                Toast.makeText(
+                                    context,
+                                    uploadImageWarningMessage,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            selectedImageUri != null -> {
+                                viewModel.updateSelectedUri(selectedImageUri)
+                                onNavigateToParametersScreen(selectedImageUri)
+                            }
+
+                            else -> {
+                                Toast.makeText(
+                                    context,
+                                    selectImageWarningMessage,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
                     }
                 }
             }
-        }
-    }
-}
-
-private fun onNext(
-    images: State<SnapshotStateList<Uri>>,
-    context: Context,
-    selectedImageUri: Uri?,
-    viewModel: SchoolKillerViewModel,
-    onNavigateToNextScreen: () -> Unit
-) {
-    val resources = context.resources
-    when {
-        images.value.isEmpty() -> {
-            Toast.makeText(
-                context,
-                resources.getString(R.string.upload_image_warning),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
-        selectedImageUri != null -> {
-            viewModel.updateSelectedUri(selectedImageUri)
-            onNavigateToNextScreen()
-        }
-
-        else -> {
-            Toast.makeText(
-                context,
-                resources.getString(R.string.select_image_warning),
-                Toast.LENGTH_SHORT
-            ).show()
         }
     }
 }

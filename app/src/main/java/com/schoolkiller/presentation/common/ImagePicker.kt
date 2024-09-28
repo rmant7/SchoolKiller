@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.ui.reusable_components
+package com.schoolkiller.presentation.common
 
 import android.Manifest
 import android.net.Uri

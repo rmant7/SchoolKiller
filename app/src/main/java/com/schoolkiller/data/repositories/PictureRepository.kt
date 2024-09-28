@@ -10,7 +10,6 @@ import javax.inject.Inject
 class PictureRepository @Inject constructor(
     private val pictureDao: PictureDao
 ) {
-
     val allPictures: Flow<List<Picture>> = pictureDao.getAllPictures()
 
     suspend fun insertPicture(picture: Picture) {

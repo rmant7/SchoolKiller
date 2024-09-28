@@ -5,11 +5,12 @@
     <string name="ai_school_assistant_image_content_description">AI School Assistant Image</string>
     <string name="upload_to_ai_school_image_assistant_content_description">Upload To AI School Assistant Image</string>
     <string name="ArrowDropDown_icon_content_description">Opens a submenu</string>
+    <string name="add_image">Add task</string>
 
     // Prompt
     //changed (the original task language/ chosen language) to (language shown on this picture or text)
-    <string name="prompt_text">solve this task (as grade+th grader). show the solution and explain (briefly) how to get there, explain in (language shown on this picture). use a chain of thoughts before answering.</string>
-    <string name="check_solution_text">check this solution and rate it on scale (1–100), explain in (language shown on this picture), use a chain of thoughts before answering</string>
+    <string name="prompt_text" translatable="false">solve this task (as grade+th grader). show the solution and explain (briefly) how to get there, explain in (language shown on this picture). use a chain of thoughts before answering.</string>
+    <string name="check_solution_text" translatable="false">check this solution and rate it on scale (1–100), explain in (language shown on this picture), use a chain of thoughts before answering</string>
 
 
     // Button Labels

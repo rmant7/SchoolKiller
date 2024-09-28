@@ -6,12 +6,14 @@
     <string name="ai_school_assistant_image_content_description">Изображение AI School Assistant</string>
     <string name="upload_to_ai_school_image_assistant_content_description">Загрузить изображение AI School Assistant</string>
     <string name="ArrowDropDown_icon_content_description">Открыть sub-меню</string>
+    <string name="add_image">Добавьте задание</string>
 
     // Prompt
     //changed (the original task language/ chosen language) to (language shown on this picture or text)
+    <!--
     <string name="prompt_text">решить эту задачу (как класс + th-grader). покажите решение и объясните (кратко), как туда добраться, объясняя только использование (язык, показанный на этом рисунке или тексте). используйте цепочку мыслей, прежде чем отвечать.</string>
     <string name="check_solution_text">проверьте это решение и оцените его по шкале (1-100), объясните (язык показан на этом рисунке), используйте цепочку мыслей, прежде чем отвечать</string>
-
+-->
 
 	// Button Labels
     <string name="next_button_label">Дальше</string>

@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.view_model
+package com.schoolkiller.presentation
 
 import android.net.Uri
 import androidx.compose.runtime.getValue
@@ -23,6 +23,10 @@ import com.schoolkiller.domain.GradeOptions
 import com.schoolkiller.domain.SolutionLanguageOptions
 import com.schoolkiller.domain.UploadFileMethodOptions
 import com.schoolkiller.domain.usecases.adds.AdUseCases
+import com.schoolkiller.domain.ExplanationLevelOption
+import com.schoolkiller.domain.GradeOption
+import com.schoolkiller.domain.SolutionLanguageOption
+import com.schoolkiller.domain.UploadFileMethodOptions
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
 import com.schoolkiller.domain.usecases.database.AddPictureUseCase
@@ -40,8 +44,9 @@ import kotlinx.serialization.json.jsonPrimitive
 import javax.inject.Inject
 
 
+@Deprecated(message = "Will be remove or refactor in the future")
 @HiltViewModel
-class SchoolKillerViewModel @Inject constructor(
+class MainViewModel @Inject constructor(
     private val pictureRepository: PictureRepository,
     private val addPictureUseCase: AddPictureUseCase,
     private val deletePictureUseCase: DeletePictureUseCase,
@@ -50,8 +55,8 @@ class SchoolKillerViewModel @Inject constructor(
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
     private val convertPromptUseCases: ConvertPromptUseCases,
     private val adUseCases: AdUseCases,
+//    private val convertPromptUseCases: ConvertPromptUseCases
 ) : ViewModel() {
-
 
     val allPictures = pictureRepository.allPictures
 
@@ -77,16 +82,16 @@ class SchoolKillerViewModel @Inject constructor(
     val selectedRateMax: Int
         get() = _selectedRateMax
 
-    private var _selectedGradeOption by mutableStateOf(GradeOptions.NONE)
-    val selectedGradeOption: GradeOptions
+    private var _selectedGradeOption by mutableStateOf(GradeOption.NONE)
+    val selectedGradeOption: GradeOption
         get() = _selectedGradeOption
 
-    private var _selectedLanguageOption by mutableStateOf(SolutionLanguageOptions.ORIGINAL_TASK_LANGUAGE)
-    val selectedSolutionLanguageOption: SolutionLanguageOptions
+    private var _selectedLanguageOption by mutableStateOf(SolutionLanguageOption.ORIGINAL_TASK_LANGUAGE)
+    val selectedSolutionLanguageOption: SolutionLanguageOption
         get() = _selectedLanguageOption
 
-    private var _selectedExplanationLevelOption by mutableStateOf(ExplanationLevelOptions.SHORT_EXPLANATION)
-    val selectedExplanationLevelOption: ExplanationLevelOptions
+    private var _selectedExplanationLevelOption by mutableStateOf(ExplanationLevelOption.SHORT_EXPLANATION)
+    val selectedExplanationLevelOption: ExplanationLevelOption
         get() = _selectedExplanationLevelOption
 
 
@@ -179,15 +184,15 @@ class SchoolKillerViewModel @Inject constructor(
 //        _selectedAiModelOption = newAiModelSelection
 //    }
 
-    fun updateSelectedGradeOption(newClassSelection: GradeOptions) {
+    fun updateSelectedGradeOption(newClassSelection: GradeOption) {
         _selectedGradeOption = newClassSelection
     }
 
-    fun updateSelectedLanguageOption(newLanguageSelection: SolutionLanguageOptions) {
+    fun updateSelectedLanguageOption(newLanguageSelection: SolutionLanguageOption) {
         _selectedLanguageOption = newLanguageSelection
     }
 
-    fun updateSelectedExplanationLevelOption(newExplanationLevelSelection: ExplanationLevelOptions) {
+    fun updateSelectedExplanationLevelOption(newExplanationLevelSelection: ExplanationLevelOption) {
         _selectedExplanationLevelOption = newExplanationLevelSelection
     }
 
@@ -335,42 +340,6 @@ class SchoolKillerViewModel @Inject constructor(
                 _error.update { throwable }
             }
         }
-    }
-
-    fun importGradeToOriginalPrompt() {
-        updatePrompt(
-            convertPromptUseCases.importGradeToPromptUseCase.invoke(
-                gradeOption = selectedGradeOption,
-                originalPrompt = originalPrompt.value
-            )
-        )
-    }
-
-    fun importLanguageToOriginalPrompt() {
-        updatePrompt(
-            convertPromptUseCases.importLanguageToPromptUseCase.invoke(
-                languageOption = selectedSolutionLanguageOption,
-                originalPrompt = originalPrompt.value
-            )
-        )
-    }
-
-    fun importExplanationToOriginalPrompt() {
-        updatePrompt(
-            convertPromptUseCases.importExplanationToPromptUseCase.invoke(
-                explanationOption = selectedExplanationLevelOption,
-                originalPrompt = originalPrompt.value
-            )
-        )
-    }
-
-    fun importAdditionalInfoToOriginalPrompt() {
-        updatePrompt(
-            convertPromptUseCases.importAdditionalInfoToPromptUseCase.invoke(
-                originalPrompt = originalPrompt.value,
-                additionalInformationText = additionalInfoText.value
-            )
-        )
     }
 
     fun clearError() {

@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.ui.screens
+package com.schoolkiller.presentation.screens.checking
 
 import ExposedDropBox
 import android.content.Context
@@ -21,22 +21,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.unit.dp
 import com.schoolkiller.R
-import com.schoolkiller.domain.GradeOptions
-import com.schoolkiller.presentation.ui.ads.BannerAdContainer
-import com.schoolkiller.presentation.ui.reusable_components.ApplicationScaffold
-import com.schoolkiller.presentation.ui.reusable_components.UniversalButton
-import com.schoolkiller.presentation.view_model.SchoolKillerViewModel
+import com.schoolkiller.domain.GradeOption
+import com.schoolkiller.presentation.common.ApplicationScaffold
+import com.schoolkiller.presentation.common.UniversalButton
 
 @Composable
-fun CheckSolutionOptionsScreen(
-    modifier: Modifier = Modifier,
+fun CheckSolutionScreen(
     context: Context,
-    viewModel: SchoolKillerViewModel,
-    onNavigateToResultScreen: () -> Unit
+    onNavigateToResultScreen: (String) -> Unit
 ) {
-
+    val viewModel: SolutionCheckingViewModel = hiltViewModel()
     val selectedGrade = viewModel.selectedGradeOption
     val adView = viewModel.adview.collectAsState()
 
@@ -69,41 +66,36 @@ fun CheckSolutionOptionsScreen(
             optionToString = { option, context -> option.getString(context) }
         )
 
-        Spacer(Modifier.padding(0.dp, 20.dp))
-        // Rating Slider for max selected rating value, don't remove.
-        // Text(stringResource(R.string.rating_TextField_label))
-        // RatingSlider(viewModel)
+            Spacer(Modifier.padding(0.dp, 20.dp))
+            // Rating Slider for max selected rating value, don't remove.
+            // Text(stringResource(R.string.rating_TextField_label))
+            // RatingSlider(viewModel)
+            val gradeArray: Array<String> = stringArrayResource(R.array.grades)
+            //Reused Component
+            UniversalButton(
+                modifier = Modifier.fillMaxWidth(),
+                label = R.string.check_solution_button_label,
+            ) {
+                viewModel.updateTextGenerationResult("")
 
-        //Reused Component
-        UniversalButton(
-            modifier = Modifier.fillMaxWidth(),
-            label = R.string.check_solution_button_label,
-        ) {
-            viewModel.updateTextGenerationResult("")
-
-            //Updating rating scale in prompt, don't remove.
-            /*val originalPrompt = viewModel.originalPrompt.value
-            val selectedMaxRate = viewModel.selectedRateMax
-            viewModel.updatePrompt(
-                originalPrompt.replace(
-                    "(1–100)", selectedMaxRate.toString()
-                )
-            )*/
-
-
-            // on back press from ResultScreen we have to restore requestGeminiResponse back to true
-            viewModel.updateRequestGeminiResponse(true)
-
-            viewModel.importGradeToOriginalPrompt()
-            onNavigateToResultScreen()
+                //Updating rating scale in prompt, don't remove.
+                /*val originalPrompt = viewModel.originalPrompt.value
+                val selectedMaxRate = viewModel.selectedRateMax
+                viewModel.updatePrompt(
+                    originalPrompt.replace(
+                        "(1–100)", selectedMaxRate.toString()
+                    )
+                )*/
+                viewModel.buildPropertiesPrompt()
+                onNavigateToResultScreen(viewModel.originalPrompt.value)
+            }
         }
 //        }
     }
 }
 
 @Composable
-fun RatingSlider(viewModel: SchoolKillerViewModel) {
-
+fun RatingSlider(viewModel: SolutionCheckingViewModel) {
     var sliderPosition by remember {
         mutableIntStateOf(100)
     }
@@ -126,8 +118,6 @@ fun RatingSlider(viewModel: SchoolKillerViewModel) {
         )
         Text(text = sliderPosition.toString())
     }
-
-
 }
 
 
