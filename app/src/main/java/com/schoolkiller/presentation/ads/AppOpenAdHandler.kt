@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.ui.ads
+package com.schoolkiller.presentation.ads
 
 import android.app.Activity
 import android.content.Context

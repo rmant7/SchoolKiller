@@ -2,6 +2,9 @@ package com.schoolkiller.presentation.screens.info
 
 import ExposedDropBox
 import android.content.Context
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.MaterialTheme
@@ -12,6 +15,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
@@ -29,6 +33,8 @@ import com.schoolkiller.domain.SolutionLanguageOption
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
+import com.schoolkiller.presentation.common.getSystemLocale
+import com.schoolkiller.presentation.screens.result.ResultViewModel
 
 @Composable
 fun ParametersScreen(
@@ -37,14 +43,19 @@ fun ParametersScreen(
     onNavigateToResultScreen: (String) -> Unit
 ) {
     val viewModel: ParametersViewModel = hiltViewModel()
+    val resultViewModel: ResultViewModel = hiltViewModel()
     val selectedGrade = viewModel.selectedGradeOption.collectAsState()
     val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption.collectAsState()
     val selectedExplanationLevel = viewModel.selectedExplanationLevelOption.collectAsState()
-    val descriptionText: String by viewModel.descriptionText.collectAsState() // changed to Val from Var
+    val descriptionText: String by viewModel.descriptionText.collectAsState()
+    val systemLocale = getSystemLocale()
+
 
     ApplicationScaffold {
 
         ScreenImage(
+            modifier = modifier
+                .fillMaxHeight(0.35f), // adjust the height of the image from here
             image = R.drawable.ai_school_assistant,
             contentDescription = R.string.ai_school_assistant_image_content_description
         )
@@ -133,15 +144,51 @@ fun ParametersScreen(
             else VisualTransformation.None,
             textStyle = TextStyle(color = textColor)
         )
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
+
+            //Reused Component
             UniversalButton(
-                modifier = modifier.fillMaxWidth(),
+                modifier = when (systemLocale.language) {
+                    "iw" -> {
+                        modifier
+                            .weight(1f)
+                            .fillMaxHeight(0.6f)
+                    }
+
+                    "ru" -> {
+                        modifier
+                            .weight(1f)
+                            .fillMaxHeight(0.6f)
+                    }
+
+                    else -> {
+                        modifier
+                            .weight(1f)
+                            .fillMaxHeight(0.6f)
+                    }
+                },
                 label = R.string.solve_button_label,
             ) {
+
                 viewModel.buildPropertiesPrompt()
+
+                // on back press from ResultScreen we have to restore requestGeminiResponse back to true
+                resultViewModel.updateRequestGeminiResponse(true)
+
+                // reset TextGenerationResult to initialize the loading indicator
+                resultViewModel.updateTextGenerationResult("")
+
                 onNavigateToResultScreen(viewModel.originalPrompt.value)
             }
         }
+    }
 }
 
 class PlaceholderTransformation(private val placeholder: String) : VisualTransformation {

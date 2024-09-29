@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -15,17 +16,21 @@ import com.schoolkiller.presentation.screens.info.ParametersScreen
 import com.schoolkiller.presentation.screens.result.ResultScreen
 import kotlinx.serialization.Serializable
 
+
 @Composable
 fun NavigationController() {
     val navController = rememberNavController()
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val listOfImages = remember { mutableStateListOf<Uri>() }
 
     NavHost(navController = navController, startDestination = Screens.HomeScreen) {
+
         composable<Screens.HomeScreen> {
 
             HomeScreen(
                 context = context,
+                lifecycleOwner = lifecycleOwner,
                 listOfImages = listOfImages,
                 onNavigateToParametersScreen = { selectedImageUri ->
                     navController.navigate(

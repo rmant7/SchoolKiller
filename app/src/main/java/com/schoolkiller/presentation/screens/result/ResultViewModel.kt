@@ -7,7 +7,7 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.schoolkiller.data.Constants
 import com.schoolkiller.data.network.api.GeminiApiService
 import com.schoolkiller.data.network.response.GeminiResponse
-import com.schoolkiller.domain.usecases.adds.InterstitialAdUseCase
+import com.schoolkiller.domain.usecases.ads.InterstitialAdUseCase
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,23 +26,12 @@ class ResultViewModel @Inject constructor(
     private val geminiApiService: GeminiApiService,
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
-    private val interstitialAdUseCase: InterstitialAdUseCase,
+    private val interstitialAdUseCase: InterstitialAdUseCase
 ) : ViewModel() {
-
-    private val _textGenerationResult = MutableStateFlow("")
-    val textGenerationResult = _textGenerationResult.asStateFlow()
-
-    private var _error = MutableStateFlow<Throwable?>(null)
-    val error: StateFlow<Throwable?>
-        get() = _error.asStateFlow()
-
-    private var _requestGeminiResponse = MutableStateFlow(true)
-    val requestGeminiResponse: StateFlow<Boolean> = _requestGeminiResponse
 
     // InterstitialAd State
     private var _interstitialAd = MutableStateFlow<InterstitialAd?>(null)
     val interstitialAd: StateFlow<InterstitialAd?> = _interstitialAd
-
     fun updateInterstitialAd(newAd: InterstitialAd?) {
         _interstitialAd.update { newAd }
     }
@@ -54,10 +43,22 @@ class ResultViewModel @Inject constructor(
         )
     }
 
+
+    private val _textGenerationResult = MutableStateFlow("")
+    val textGenerationResult = _textGenerationResult.asStateFlow()
+
+    private var _error = MutableStateFlow<Throwable?>(null)
+    val error: StateFlow<Throwable?>
+        get() = _error.asStateFlow()
+
+    private var _requestGeminiResponse = MutableStateFlow(true)
+    val requestGeminiResponse: StateFlow<Boolean> = _requestGeminiResponse
+
     fun updateTextGenerationResult(resultText: String?, error: Throwable? = null) {
         resultText?.let { text -> _textGenerationResult.update { text } }
         error?.let { err -> _error.update { err } }
     }
+
 
     fun fetchGeminiResponse(
         imageUri: Uri,
@@ -116,5 +117,8 @@ class ResultViewModel @Inject constructor(
         _error.value = null
     }
 
+    init {
+        loadInterstitialAd()
+    }
 
 }

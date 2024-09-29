@@ -1,6 +1,7 @@
 package com.schoolkiller.data
 
 object Constants {
+
     // Database
     const val DATABASE_NAME = "school_killer_database"
 
@@ -17,5 +18,7 @@ object Constants {
     const val OPEN_AD_COOLDOWN = 60 * 1000 // 1 minute
 
 
+    // Deleting device storage images
+    const val DELETE_REQUEST_CODE = 123
 
 }

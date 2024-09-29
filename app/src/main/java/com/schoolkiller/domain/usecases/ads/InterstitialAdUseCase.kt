@@ -1,4 +1,4 @@
-package com.schoolkiller.domain.usecases.adds
+package com.schoolkiller.domain.usecases.ads
 
 import android.content.Context
 import androidx.lifecycle.viewModelScope
@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class InterstitialAdUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
@@ -46,22 +48,6 @@ class InterstitialAdUseCase @Inject constructor(
         viewModel.updateInterstitialAd(interstitialAd)
     }
 
-
-
-
-
-//    fun showAd(activity: Activity, adUnitId: String, viewModel: SchoolKillerViewModel) {
-//            if (interstitialAd != null) {
-//                interstitialAd?.show(activity)
-//                interstitialAd = null
-//                // Reload the ad after showing it
-//                viewModel.viewModelScope.launch {
-//                    loadAd(adUnitId, viewModel)
-//                }
-//            } else {
-//                Timber.tag("InterstitialAd").d("The interstitial ad wasn't ready yet.")
-//            }
-//        }
-    }
+}
 
 

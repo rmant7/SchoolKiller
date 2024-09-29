@@ -1,4 +1,4 @@
-package com.schoolkiller.presentation.ui.ads
+package com.schoolkiller.presentation.ads
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -9,16 +9,16 @@ import com.google.android.gms.ads.AdView
 @Composable
 fun BannerAdContainer(
     modifier: Modifier = Modifier,
-    adView: AdView?
-
+    adView : AdView?,
 ) {
+
     if (adView != null) {
         AndroidView(
-            factory = { adView }, // Assuming adView is successfully loaded
+            factory = { adView },
             modifier = modifier
                 .fillMaxWidth()
         ) { view ->
-            (view as AdView).resume() // Resume ad when it becomes visible
+            (view as AdView).resume()
         }
     }
 }

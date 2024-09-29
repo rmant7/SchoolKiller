@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -44,6 +45,7 @@ import kotlin.coroutines.suspendCoroutine
 fun ImageCapture(
     modifier: Modifier = Modifier,
     context: Context,
+    lifecycleOwner: LifecycleOwner,
     selectedUploadMethodOption: UploadFileMethodOptions,
     onPictureCapture: (Uri) -> Unit,
     returnToNoOption: (UploadFileMethodOptions) -> Unit,
@@ -85,7 +87,6 @@ fun ImageCapture(
         }
 
     val lensFacing = CameraSelector.LENS_FACING_BACK
-    val lifecycleOwner = LocalLifecycleOwner.current
     val preview = Preview.Builder().build()
     val previewView = remember { PreviewView(context) }
     val cameraxSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
@@ -193,8 +194,9 @@ private fun captureImage(
     onPictureCapture: (Uri) -> Unit,
     returnToNoOption: (UploadFileMethodOptions) -> Unit
 ) {
+    var currentUri: Uri? = null
 
-    val name = "SchoolKillerImage.jpeg"
+    val name = "SchoolKillerImage_${System.currentTimeMillis()}.jpeg"
     val contentValues = ContentValues().apply {
         put(MediaStore.MediaColumns.DISPLAY_NAME, name)
         put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
@@ -215,7 +217,10 @@ private fun captureImage(
         object : ImageCapture.OnImageSavedCallback {
             override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                 val savedUri = outputFileResults.savedUri
-                savedUri?.let { onPictureCapture(it) }
+                savedUri?.let { uri ->
+                    onPictureCapture(uri)
+                        currentUri = uri
+                }
                 returnToNoOption(UploadFileMethodOptions.NO_OPTION)
             }
 

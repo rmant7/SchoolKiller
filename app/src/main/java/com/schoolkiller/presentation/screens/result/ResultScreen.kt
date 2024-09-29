@@ -3,7 +3,7 @@ package com.schoolkiller.presentation.screens.result
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,10 +32,11 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
+import com.schoolkiller.presentation.ads.InterstitialAdPresenter
 import com.schoolkiller.presentation.common.AlertDialog
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.UniversalButton
-import com.schoolkiller.presentation.ui.ads.InterstitialAdPresenter
+import com.schoolkiller.presentation.common.getSystemLocale
 import io.ktor.client.plugins.ServerResponseException
 
 
@@ -43,9 +44,9 @@ import io.ktor.client.plugins.ServerResponseException
 fun ResultScreen(
     modifier: Modifier = Modifier,
     context: Context,
-    onNavigateToHomeScreen: () -> Unit,
     originalPrompt: String,
-    selectedImageUri: String
+    selectedImageUri: String,
+    onNavigateToHomeScreen: () -> Unit,
 ) {
     val viewModel: ResultViewModel = hiltViewModel()
     val resultText: String by viewModel.textGenerationResult.collectAsState()
@@ -54,33 +55,41 @@ fun ResultScreen(
     val responseListState = rememberLazyListState()
     val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState()
     val openAlertDialog = remember { mutableStateOf(resultError != null) }
+    val systemLocale = getSystemLocale()
 
     val interstitialAd = viewModel.interstitialAd.collectAsState()
-    viewModel.loadInterstitialAd()
 
+
+    /**
+     * Gemini sometimes fetch 2-3 times with one call
+     */
     if (requestGeminiResponse.value) {
-
-        interstitialAd.value?.let {
-            InterstitialAdPresenter(
-                context = context,
-                interstitialAd = it,
-                viewModel = viewModel,
-                showAd = requestGeminiResponse.value
-            )
-        }
-
         viewModel.fetchGeminiResponse(
             imageUri = selectedImageUri.toUri(),
             fileName = selectedImageUri.toUri().toString(),
             prompt = originalPrompt
         )
-
-        // after fetching the response, request for another fetch is closing
-        viewModel.updateRequestGeminiResponse(false)
     }
 
 
     ApplicationScaffold {
+
+        if (interstitialAd.value != null) {
+
+            InterstitialAdPresenter(
+                context = context,
+                interstitialAd = interstitialAd.value!!,
+                viewModel = viewModel,
+                showAd = requestGeminiResponse.value
+            ).apply {
+                viewModel.updateRequestGeminiResponse(false)
+                viewModel.loadInterstitialAd()
+            }
+
+        }
+
+
+
         if (resultError != null) {
             openAlertDialog.value = true
 
@@ -103,7 +112,7 @@ fun ResultScreen(
         /*
         LazyColumn(
             modifier = modifier,
-                //.fillMaxHeight(0.40f),
+                //.fillMaxHeight(0.35f),
             state = imageState,
             content = {
                 item {
@@ -159,17 +168,34 @@ fun ResultScreen(
             }
         )
 
-
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
             content = {
 
                 UniversalButton(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                        .weight(1f),
+                    modifier = when(systemLocale.language) {
+                        "iw" -> {
+                            modifier
+                                .weight(1f)
+                                .fillMaxHeight(0.4f)
+                        }
+
+                        "ru" -> {
+                            modifier
+                                .weight(1f)
+                                .fillMaxHeight(0.4f)
+                        }
+
+                        else -> {
+                            modifier
+                                .weight(1f)
+                                .fillMaxHeight(0.4f)
+                        }
+                    },
                     label = R.string.try_again
                 ) {
                     viewModel.updateTextGenerationResult("")
@@ -177,10 +203,25 @@ fun ResultScreen(
                 }
 
                 UniversalButton(
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                        .weight(1f),
+                    modifier = when(systemLocale.language) {
+                        "iw" -> {
+                            modifier
+                                .weight(1f)
+                                .fillMaxHeight(0.4f)
+                        }
+
+                        "ru" -> {
+                            modifier
+                                .weight(1f)
+                                .fillMaxHeight(0.4f)
+                        }
+
+                        else -> {
+                            modifier
+                                .weight(1f)
+                                .fillMaxHeight(0.4f)
+                        }
+                    },
                     label = R.string.start_again
                 ) {
                     onNavigateToHomeScreen()
