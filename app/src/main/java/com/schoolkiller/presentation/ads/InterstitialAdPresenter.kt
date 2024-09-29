@@ -23,23 +23,23 @@ fun InterstitialAdPresenter(
             interstitialAd.fullScreenContentCallback = object : FullScreenContentCallback() {
                 override fun onAdDismissedFullScreenContent() {
                     viewModel.updateInterstitialAd(null) // Reset after dismissed
-                    if (viewModel.interstitialAd.value == null){
-                        viewModel.loadInterstitialAd()
-                    }
+//                    if (viewModel.interstitialAd.value == null){
+//                        viewModel.loadInterstitialAd()
+//                    }
                 }
 
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                     viewModel.updateInterstitialAd(null) // Reset after failing to show
-                    if (viewModel.interstitialAd.value == null){
-                        viewModel.loadInterstitialAd()
-                    }
+//                    if (viewModel.interstitialAd.value == null){
+//                        viewModel.loadInterstitialAd()
+//                    }
                 }
 
                 override fun onAdShowedFullScreenContent() {
                     viewModel.updateInterstitialAd(null) // Reset after showing
-                    if (viewModel.interstitialAd.value == null){
-                        viewModel.loadInterstitialAd()
-                    }
+//                    if (viewModel.interstitialAd.value == null){
+//                        viewModel.loadInterstitialAd()
+//                    }
                 }
             }
 

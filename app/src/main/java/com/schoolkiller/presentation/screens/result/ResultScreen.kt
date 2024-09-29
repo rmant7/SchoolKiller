@@ -37,7 +37,6 @@ import com.schoolkiller.presentation.common.AlertDialog
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.UniversalButton
 import com.schoolkiller.presentation.common.getSystemLocale
-import com.schoolkiller.presentation.ui.ads.InterstitialAdPresenter
 import io.ktor.client.plugins.ServerResponseException
 
 
@@ -56,27 +55,15 @@ fun ResultScreen(
     val responseListState = rememberLazyListState()
     val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState()
     val openAlertDialog = remember { mutableStateOf(resultError != null) }
-    val interstitialAd = viewModel.interstitialAd.collectAsState()
     val systemLocale = getSystemLocale()
-    viewModel.loadInterstitialAd()
-
-
-
 
     val interstitialAd = viewModel.interstitialAd.collectAsState()
-    viewModel.loadInterstitialAd()
 
+
+    /**
+     * Gemini sometimes fetch 2-3 times with one call
+     */
     if (requestGeminiResponse.value) {
-
-        interstitialAd.value?.let {
-            InterstitialAdPresenter(
-                context = context,
-                interstitialAd = it,
-                viewModel = viewModel,
-                showAd = requestGeminiResponse.value
-            )
-        }
-
         viewModel.fetchGeminiResponse(
             imageUri = selectedImageUri.toUri(),
             fileName = selectedImageUri.toUri().toString(),
@@ -94,7 +81,10 @@ fun ResultScreen(
                 interstitialAd = interstitialAd.value!!,
                 viewModel = viewModel,
                 showAd = requestGeminiResponse.value
-            ).apply { viewModel.updateRequestGeminiResponse(false) }
+            ).apply {
+                viewModel.updateRequestGeminiResponse(false)
+                viewModel.loadInterstitialAd()
+            }
 
         }
 

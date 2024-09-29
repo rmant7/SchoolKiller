@@ -15,7 +15,7 @@ object Constants {
     const val INTERSTITIAL_AD_ID = "ca-app-pub-7574006463043131/6792230592"
     const val BANNER_AD_ID = "ca-app-pub-7574006463043131/8588527997"
     const val OPEN_AD_ID = "ca-app-pub-7574006463043131/6600658902"
-    const val OPEN_AD_COOLDOWN = 600 * 1000 // 1 minute
+    const val OPEN_AD_COOLDOWN = 60 * 1000 // 1 minute
 
 
     // Deleting device storage images

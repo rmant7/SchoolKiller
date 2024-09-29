@@ -50,7 +50,6 @@ import com.schoolkiller.presentation.common.UniversalButton
 import com.schoolkiller.presentation.common.deleteImageFromStorage
 import com.schoolkiller.presentation.common.deleteSchoolKillerImagesFromMediaStore
 import com.schoolkiller.presentation.common.getSystemLocale
-import com.schoolkiller.presentation.ui.ads.AppOpenAdHandler
 
 
 @Composable
@@ -74,16 +73,10 @@ fun HomeScreen(
     val selectedImageIndex = remember { mutableStateOf<Int?>(null) }
     val selectedImageUri = selectedImageIndex.value?.let { images.value[it] }
     var isImageEnlarged by remember { mutableStateOf(false) }
-    var isDeleteButtonClicked by remember { mutableStateOf(false) }
     val state = rememberLazyListState()
     val systemLocale = getSystemLocale()
 
-    viewModel.loadOpenAd()
-    // App Open Ad
-    AppOpenAdHandler(
-        context = context,
-        viewModel = viewModel,
-    )
+
 
     // Launcher for the ImagePicker
     val pickMultipleMediaLauncher = rememberLauncherForActivityResult(
@@ -273,7 +266,7 @@ fun HomeScreen(
 
                 LazyColumn(
                     modifier = modifier
-                        .fillMaxHeight(0.75f),
+                        .fillMaxHeight(0.70f),
                     state = state,
                     content = {
 
