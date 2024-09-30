@@ -40,7 +40,7 @@ fun ImagePicker(
             rememberPermissionState(Manifest.permission.READ_MEDIA_IMAGES)
 
         LaunchedEffect(requestReadMediaPermissionsState) {
-            readMediaPermissionState.launchPermissionRequest()
+                readMediaPermissionState.launchPermissionRequest()
             requestReadMediaPermissionsState = false
         }
 
@@ -66,7 +66,7 @@ fun ImagePicker(
             rememberPermissionState(Manifest.permission.READ_EXTERNAL_STORAGE)
 
         LaunchedEffect(requestReadExternalStoragePermissionsState) {
-            readExternalStoragePermissionState.launchPermissionRequest()
+                readExternalStoragePermissionState.launchPermissionRequest()
             requestReadExternalStoragePermissionsState = false
         }
 

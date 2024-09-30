@@ -6,6 +6,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.ImageCapture
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,7 +40,7 @@ import com.schoolkiller.R
 import com.schoolkiller.domain.UploadFileMethodOptions
 import com.schoolkiller.presentation.ads.AppOpenAdHandler
 import com.schoolkiller.presentation.common.ApplicationScaffold
-import com.schoolkiller.presentation.common.DeleteGhostImagesButton
+import com.schoolkiller.presentation.common.CaptureImage
 import com.schoolkiller.presentation.common.EnlargedImage
 import com.schoolkiller.presentation.common.ImageCapture
 import com.schoolkiller.presentation.common.ImagePicker
@@ -48,8 +49,7 @@ import com.schoolkiller.presentation.common.RoundIconButton
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
 import com.schoolkiller.presentation.common.deleteImageFromStorage
-import com.schoolkiller.presentation.common.deleteSchoolKillerImagesFromMediaStore
-import com.schoolkiller.presentation.common.getSystemLocale
+import com.schoolkiller.presentation.common.imageCaptureNew
 
 
 @Composable
@@ -76,6 +76,8 @@ fun HomeScreen(
     val state = rememberLazyListState()
     //val systemLocale = getSystemLocale()
 
+    var capturedImage by remember { mutableStateOf<Uri?>(null) }
+
 
     // Launcher for the ImagePicker
     val pickMultipleMediaLauncher = rememberLauncherForActivityResult(
@@ -91,6 +93,23 @@ fun HomeScreen(
         }
     )
 
+        val cameraLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->}
+
+//    val cameraLauncher =
+//        rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
+//            val imageUri = result.data?.data
+//
+//            if (imageUri != null) {
+//                capturedImage = imageUri
+//                viewModel.insertImagesOnTheList(listOf(capturedImage!!))
+//
+//            } else {
+//                viewModel.updateSelectedUploadMethodOption(UploadFileMethodOptions.NO_OPTION)
+//                Toast.makeText(context, "Image capture failed", Toast.LENGTH_SHORT).show()
+//            }
+//
+//        }
 
 
     if (isImageEnlarged) {
@@ -117,15 +136,17 @@ fun HomeScreen(
 
             when (selectedUploadFileMethod) {
                 UploadFileMethodOptions.TAKE_A_PICTURE -> {
-                    ImageCapture(
-                        context = context,
-                        lifecycleOwner = lifecycleOwner,
-                        selectedUploadMethodOption = selectedUploadFileMethod,
-                        onPictureCapture = { viewModel.insertImagesOnTheList(listOf(it)) },
-                        onBackPress = { viewModel.updateSelectedUploadMethodOption(it) },
-                        returnToNoOption = { viewModel.updateSelectedUploadMethodOption(it) }
-                    )
-                }
+
+                        ImageCapture(
+                           context = context,
+                            cameraLauncher = cameraLauncher,
+                            onBackPress = {viewModel.updateSelectedUploadMethodOption(it)},
+                            returnToNoOption = {viewModel.updateSelectedUploadMethodOption(it)},
+                            selectedUploadMethodOption = selectedUploadFileMethod,
+                            onPictureCapture = { viewModel.insertImagesOnTheList(listOf(it)) }
+                        )
+                    }
+
 
                 UploadFileMethodOptions.UPLOAD_AN_IMAGE -> {
                     ImagePicker(

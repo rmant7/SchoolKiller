@@ -1,6 +1,7 @@
 package com.schoolkiller.data.network.api
 
 import com.schoolkiller.BuildConfig
+import com.schoolkiller.data.Constants
 import com.schoolkiller.data.network.HttpRoutes
 import com.schoolkiller.data.network.response.GeminiResponse
 import io.ktor.client.HttpClient
@@ -103,7 +104,8 @@ class GeminiApiService @Inject constructor(
 
         return try {
             val response: HttpResponse = client.post(
-                "${HttpRoutes.MODELS}/gemini-1.5-flash:generateContent?key=${BuildConfig.gemini_api_key}"
+                "${HttpRoutes.MODELS}/${Constants.FLASH_002}?key=${BuildConfig.gemini_api_key}"
+
             ) {
                 contentType(ContentType.Application.Json)
                 setBody(
