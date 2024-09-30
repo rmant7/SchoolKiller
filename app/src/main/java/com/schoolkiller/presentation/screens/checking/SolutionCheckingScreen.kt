@@ -50,12 +50,15 @@ fun CheckSolutionScreen(
         content =
         {
 
-            ScreenImage(
+            // Banner ad
+            BannerAdContainer(adView = adView.value)
+
+            /*ScreenImage(
                 modifier = modifier
                     .fillMaxHeight(0.35f), // adjust the height of the image from here
                 image = R.drawable.check_solution_assistant,
                 contentDescription = R.string.check_solution_ai_school_image_assistant_content_description
-            )
+            )*/
 
 
             ExposedDropBox(
@@ -93,12 +96,6 @@ fun CheckSolutionScreen(
                      */
                 }
             )
-
-
-            // Banner ad
-            BannerAdContainer(adView = adView.value)
-
-
 
             Row(
                 modifier = modifier

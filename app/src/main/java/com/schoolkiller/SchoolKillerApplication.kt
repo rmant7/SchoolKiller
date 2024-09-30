@@ -27,7 +27,10 @@ class SchoolKillerApplication : Application(){
             MobileAds.setAppMuted(true)
         }
 
-        bannerAdUseCase.loadAd(adUnitId = Constants.BANNER_AD_ID, adSize = AdSize.LARGE_BANNER)
+        bannerAdUseCase.loadAd(
+            adUnitId = Constants.BANNER_AD_ID,
+            adSize = AdSize.MEDIUM_RECTANGLE
+        )
 
     }
 }
