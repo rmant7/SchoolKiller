@@ -1,14 +1,13 @@
 package com.schoolkiller.presentation.screens.result
 
 import android.content.Context
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,7 +36,6 @@ import com.schoolkiller.presentation.ads.InterstitialAdPresenter
 import com.schoolkiller.presentation.common.AlertDialog
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.UniversalButton
-import com.schoolkiller.presentation.common.getSystemLocale
 import io.ktor.client.plugins.ServerResponseException
 
 
@@ -69,7 +67,6 @@ fun ResultScreen(
     // fetch only when user requested AI response
     // and result wasn't fetched yet
     if (requestGeminiResponse.value && !isResultFetched.value) {
-
         viewModel.fetchGeminiResponse(
             imageUri = selectedImageUri.toUri(),
             fileName = selectedImageUri.toUri().toString(),
@@ -84,24 +81,6 @@ fun ResultScreen(
     ApplicationScaffold(
         content = {
             // only show ad if it's loaded and user requested AI response
-            if (interstitialAd.value != null && requestGeminiResponse.value) {
-                InterstitialAdPresenter(
-                    context = context,
-                    interstitialAd = interstitialAd.value!!,
-                    viewModel = viewModel,
-                    showAd = true
-                ).apply {
-                    viewModel.updateRequestGeminiResponse(false)
-
-                    /**
-                     * Load new ad only when user dismisses it
-                     * this logic was moved to InterstitialAdPresenter:
-                     * viewModel.loadInterstitialAd()
-                     */
-                }
-            }
-
-
 
             if (resultError != null) {
                 openAlertDialog.value = true
@@ -159,10 +138,31 @@ fun ResultScreen(
                                     .padding(top = 32.dp),
                                 contentAlignment = Alignment.Center,
                                 content = {
-                                    CircularProgressIndicator(modifier = modifier.size(80.dp))
+                                    if (interstitialAd.value != null && requestGeminiResponse.value) {
+                                        InterstitialAdPresenter(
+                                            context = context,
+                                            interstitialAd = interstitialAd.value!!,
+                                            viewModel = viewModel,
+                                            showAd = true
+                                        ).apply {
+                                            viewModel.updateRequestGeminiResponse(false)
+
+                                            /**
+                                             * Load new ad only when user dismisses it
+                                             * this logic was moved to InterstitialAdPresenter:
+                                             * viewModel.loadInterstitialAd()
+                                             */
+                                        }
+                                    } else {
+                                        println("NO AI RESPONSE YET")
+                                        CircularProgressIndicator(modifier = modifier.size(80.dp))
+                                    }
+
                                 }
                             )
                         } else {
+                            println("AI RESPONSE FETCHED")
+
                             SelectionContainer {
                                 OutlinedTextField(
                                     modifier = modifier
@@ -183,7 +183,8 @@ fun ResultScreen(
 
         },
         bottomBar = {
-            Column (
+            Column(
+                modifier = Modifier.navigationBarsPadding(),
                 content = {
 
                     UniversalButton(

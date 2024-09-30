@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -49,6 +50,7 @@ import com.schoolkiller.presentation.common.RoundIconButton
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
 import com.schoolkiller.presentation.common.deleteImageFromStorage
+import com.schoolkiller.presentation.common.deleteSchoolKillerImagesFromMediaStore
 import com.schoolkiller.presentation.common.imageCaptureNew
 
 
@@ -336,8 +338,7 @@ fun HomeScreen(
         },
         bottomBar = {
             Column(
-                modifier = modifier
-                //.fillMaxWidth()
+                modifier = Modifier.navigationBarsPadding()
             ) {
 
                 //Cheat sheet button, can be removed (?)
