@@ -7,6 +7,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -14,11 +15,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -55,12 +59,13 @@ fun PictureItem(
     onDeleteFromStorage: () -> Unit
 ) {
 
-    var buttonColor by remember { mutableStateOf(Color.Black) }
+    val buttonColor = Color.Black
+    // var buttonColor by remember { mutableStateOf(Color.Black) }
 
-    LaunchedEffect(imageUri) {
+    /*LaunchedEffect(imageUri) {
         val luminance = calculateImageLuminance(imageUri, context)
         buttonColor = if (luminance < 0.5) Color.White else Color.Black
-    }
+    }*/
 
     Card(
         modifier = modifier
@@ -79,7 +84,7 @@ fun PictureItem(
                 contentDescription = "Picture",  // TODO { hardcoded string }
                 error = painterResource(id = R.drawable.upload_to_school_assistant), // TODO { import an error image }
                 placeholder = painterResource(id = R.drawable.ai_school_assistant), // TODO { import a placeholder image }
-                contentScale = ContentScale.FillHeight,
+                contentScale = ContentScale.Crop,
             )
 
             Row(
@@ -91,7 +96,14 @@ fun PictureItem(
                 content = {
 
                     // Enlarge Button
-                    IconButton(onClick = onEnlarge) {
+                    IconButton(
+                        modifier = Modifier
+                            .background(
+                                color = Color.White,
+                                shape = CircleShape
+                            ),
+                        onClick = onEnlarge
+                    ) {
                         Icon(
                             painter = painterResource(R.drawable.enlarge_image),
                             contentDescription = "Enlarge", // TODO { hardcoded string }
@@ -102,7 +114,14 @@ fun PictureItem(
                     Spacer(modifier.weight(1f))
 
                     // Remove Button
-                    IconButton(onClick = onRemove) {
+                    IconButton(
+                        modifier = Modifier
+                            .background(
+                                color = Color.White,
+                                shape = CircleShape
+                            ),
+                        onClick = onRemove
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
                             contentDescription = "Remove", // TODO { hardcoded string }

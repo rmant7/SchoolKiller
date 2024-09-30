@@ -24,10 +24,10 @@ class SchoolKillerApplication : Application(){
         backgroundScope.launch {
             // Initialize the Google Mobile Ads SDK on a background thread.
             MobileAds.initialize(this@SchoolKillerApplication) {}
+            MobileAds.setAppMuted(true)
         }
 
         bannerAdUseCase.loadAd(adUnitId = Constants.BANNER_AD_ID, adSize = AdSize.LARGE_BANNER)
-
 
     }
 }

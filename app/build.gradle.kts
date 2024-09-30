@@ -71,13 +71,12 @@ android {
 
 dependencies {
 
-
     // AdMob advertisement
-    implementation("com.google.android.gms:play-services-ads:23.3.0")
+    implementation(libs.play.services.ads)
     // Added dependency on Guava to avoid conflicts with CameraX and AdMob
-    implementation("com.google.guava:guava:33.3.1-android")
+    implementation(libs.guava)
     // Process Lifecycle Owner
-    implementation("androidx.lifecycle:lifecycle-process:2.6.1")
+    //implementation("androidx.lifecycle:lifecycle-process:2.6.1")
 
     // Accompanist Permissions
     implementation (libs.accompanist.permissions)

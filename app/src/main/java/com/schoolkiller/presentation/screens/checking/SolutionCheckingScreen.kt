@@ -39,127 +39,102 @@ fun CheckSolutionScreen(
     onNavigateToResultScreen: (String) -> Unit
 ) {
     val viewModel: SolutionCheckingViewModel = hiltViewModel()
-    val resultViewModel : ResultViewModel = hiltViewModel()
+    val resultViewModel: ResultViewModel = hiltViewModel()
     val selectedGrade = viewModel.selectedGradeOption
     val adView = viewModel.adview.collectAsState()
     val systemLocale = getSystemLocale()
 
-    LaunchedEffect(Unit) {
-        viewModel.updatePrompt(
-            context.getString(R.string.check_solution_text)
-        )
-    }
-
 
     ApplicationScaffold(
-        columnHorizontalAlignment = Alignment.CenterHorizontally
-    ) {
+        columnHorizontalAlignment = Alignment.CenterHorizontally,
+        content =
+        {
 
-        ScreenImage(
-            modifier = modifier
-                .fillMaxHeight(0.35f), // adjust the height of the image from here
-            image = R.drawable.check_solution_assistant,
-            contentDescription = R.string.check_solution_ai_school_image_assistant_content_description
-        )
-
-
-        ExposedDropBox(
-            maxHeightIn = 200.dp,
-            context = context,
-            label = R.string.grade_label,
-            selectedOption = selectedGrade,
-            options = GradeOption.entries.toList(),
-            onOptionSelected = {
-                viewModel.updateSelectedGradeOption(it)
-            },
-            optionToString = { option, context -> option.getString(context) }
-        )
+            ScreenImage(
+                modifier = modifier
+                    .fillMaxHeight(0.35f), // adjust the height of the image from here
+                image = R.drawable.check_solution_assistant,
+                contentDescription = R.string.check_solution_ai_school_image_assistant_content_description
+            )
 
 
-        /**
-         * what the following Spacer padding parameters are? like vertical, horizontal, top, bottom?
-         */
+            ExposedDropBox(
+                maxHeightIn = 200.dp,
+                context = context,
+                label = R.string.grade_label,
+                selectedOption = selectedGrade,
+                options = GradeOption.entries.toList(),
+                onOptionSelected = {
+                    viewModel.updateSelectedGradeOption(it)
+                },
+                optionToString = { option, context -> option.getString(context) }
+            )
+
+
+            /**
+             * what the following Spacer padding parameters are? like vertical, horizontal, top, bottom?
+             */
 //        Spacer(Modifier.padding(0.dp, 20.dp))
-        // Rating Slider for max selected rating value, don't remove.
-        // Text(stringResource(R.string.rating_TextField_label))
-        // RatingSlider(viewModel)
-        val gradeArray: Array<String> = stringArrayResource(R.array.grades)
+            // Rating Slider for max selected rating value, don't remove.
+            // Text(stringResource(R.string.rating_TextField_label))
+            // RatingSlider(viewModel)
 
-        /**
-         * PlaceHolder in the screen to place what needed
-         */
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.2f),
-            content = {
-                /* you can use here your composables or create
-                what has to be presented here but try to keep the height to 0.2f
-                or you have to play with button adjustments if the screen remains as it is
-                 */
+            /**
+             * PlaceHolder in the screen to place what needed
+             */
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.2f),
+                content = {
+                    /* you can use here your composables or create
+                    what has to be presented here but try to keep the height to 0.2f
+                    or you have to play with button adjustments if the screen remains as it is
+                     */
+                }
+            )
+
+
+            // Banner ad
+            BannerAdContainer(adView = adView.value)
+
+
+
+            Row(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                //Reused Component
+                UniversalButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = R.string.check_solution_button_label,
+                ) {
+
+                    //Updating rating scale in prompt, don't remove.
+                    /*val originalPrompt = viewModel.originalPrompt.value
+                    val selectedMaxRate = viewModel.selectedRateMax
+                    viewModel.updatePrompt(
+                        originalPrompt.replace(
+                            "(1–100)", selectedMaxRate.toString()
+                        )
+                    )*/
+
+                    viewModel.buildPropertiesPrompt()
+
+                    // on back press from ResultScreen we have to restore requestGeminiResponse back to true
+                    resultViewModel.updateRequestGeminiResponse(true)
+
+                    // reset TextGenerationResult to initialize the loading indicator
+                    viewModel.updateTextGenerationResult("")
+
+                    onNavigateToResultScreen(viewModel.originalPrompt.value)
+                }
             }
-        )
-
-
-
-        // Banner ad
-        BannerAdContainer(adView = adView.value)
-
-
-
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .fillMaxHeight(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-
-        //Reused Component
-        UniversalButton(
-            modifier = when (systemLocale.language) {
-                "iw" -> {
-                    modifier
-                        .weight(1f)
-                        .fillMaxHeight(0.5f)
-                }
-
-                "ru" -> {
-                    modifier
-                        .weight(1f)
-                        .fillMaxHeight(0.5f)
-                }
-
-                else -> {
-                    modifier
-                        .weight(1f)
-                        .fillMaxHeight(0.5f)
-                }
-            },
-            label = R.string.check_solution_button_label,
-        ) {
-
-            //Updating rating scale in prompt, don't remove.
-            /*val originalPrompt = viewModel.originalPrompt.value
-            val selectedMaxRate = viewModel.selectedRateMax
-            viewModel.updatePrompt(
-                originalPrompt.replace(
-                    "(1–100)", selectedMaxRate.toString()
-                )
-            )*/
-
-            viewModel.buildPropertiesPrompt()
-
-            // on back press from ResultScreen we have to restore requestGeminiResponse back to true
-            resultViewModel.updateRequestGeminiResponse(true)
-
-            // reset TextGenerationResult to initialize the loading indicator
-            viewModel.updateTextGenerationResult("")
-
-            onNavigateToResultScreen(viewModel.originalPrompt.value)
-        }
-    }
-    }
+        })
 }
 
 

@@ -32,6 +32,7 @@ class ResultViewModel @Inject constructor(
     // InterstitialAd State
     private var _interstitialAd = MutableStateFlow<InterstitialAd?>(null)
     val interstitialAd: StateFlow<InterstitialAd?> = _interstitialAd
+
     fun updateInterstitialAd(newAd: InterstitialAd?) {
         _interstitialAd.update { newAd }
     }
@@ -53,6 +54,13 @@ class ResultViewModel @Inject constructor(
 
     private var _requestGeminiResponse = MutableStateFlow(true)
     val requestGeminiResponse: StateFlow<Boolean> = _requestGeminiResponse
+
+    private var _isResultFetchedStatus = MutableStateFlow(false)
+    val isResultFetchedStatus: StateFlow<Boolean> = _isResultFetchedStatus
+
+    fun updateResultFetchedStatus(isResultFetchedStatus: Boolean) {
+        _isResultFetchedStatus.update { isResultFetchedStatus }
+    }
 
     fun updateTextGenerationResult(resultText: String?, error: Throwable? = null) {
         resultText?.let { text -> _textGenerationResult.update { text } }

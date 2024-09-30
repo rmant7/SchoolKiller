@@ -51,144 +51,128 @@ fun ParametersScreen(
     val systemLocale = getSystemLocale()
 
 
-    ApplicationScaffold {
+    ApplicationScaffold(
+        content = {
 
-        ScreenImage(
-            modifier = modifier
-                .fillMaxHeight(0.35f), // adjust the height of the image from here
-            image = R.drawable.ai_school_assistant,
-            contentDescription = R.string.ai_school_assistant_image_content_description
-        )
+            ScreenImage(
+                modifier = modifier
+                    .fillMaxHeight(0.35f), // adjust the height of the image from here
+                image = R.drawable.ai_school_assistant,
+                contentDescription = R.string.ai_school_assistant_image_content_description
+            )
 
-        //Don't remove, for feature development
-        /*        ExposedDropBox(
-                    maxHeightIn = 200.dp,
-                    context = context,
-                    label = R.string.grade_label,
-                    selectedOption = selectedAiModel,
-                    options = AiModelOptions.entries.toList(),
-                    onOptionSelected = { viewModel.updateSelectedAiModelOption(it) },
-                    optionToString = { option, context -> option.getString(context) }
-                )
-        */
-        //Reused Component
-        ExposedDropBox(
-            maxHeightIn = 200.dp,
-            context = context,
-            label = R.string.grade_label,
-            selectedOption = selectedGrade.value,
-            options = GradeOption.entries.toList(),
-            onOptionSelected = {
-                viewModel.updateSelectedGradeOption(it)
-            },
-            optionToString = { option, context -> option.getString(context) }
-        )
-
-        ExposedDropBox(
-            maxHeightIn = 200.dp,
-            context = context,
-            label = R.string.solution_language_label,
-            selectedOption = selectedSolutionLanguage.value,
-            options = SolutionLanguageOption.entries.toList(),
-            onOptionSelected = {
-                viewModel.updateSelectedLanguageOption(it)
-            },
-            optionToString = { option, context -> option.getString(context) }
-        )
-
-        ExposedDropBox(
-            maxHeightIn = 200.dp,
-            context = context,
-            label = R.string.explanations_label,
-            selectedOption = selectedExplanationLevel.value,
-            options = ExplanationLevelOption.entries.toList(),
-            onOptionSelected = {
-                viewModel.updateSelectedExplanationLevelOption(it)
-            },
-            optionToString = { option, context -> option.getString(context) }
-        )
-
-        val textColor = if (descriptionText.isEmpty())
-            MaterialTheme.colorScheme.secondary
-        else MaterialTheme.colorScheme.primary
-
-        val defaultPlaceholderText =
-            stringResource(R.string.additional_info_TextField_placeholder_text)
-        val placeHolder = remember {
-            mutableStateOf(defaultPlaceholderText)
-        }
-
-        OutlinedTextField(
-            modifier = modifier
-                .onFocusChanged {
-                    placeHolder.value =
-                        if (it.isFocused) ""
-                        else defaultPlaceholderText
-                }
-                .fillMaxWidth()
-                .heightIn(max = 200.dp),
-            value = descriptionText,
-            onValueChange = {
-                viewModel.updateDescriptionText(it)
-            },
-            label = {
-                Text(
-                    text = stringResource(
-                        id = R.string.additional_information_TextField_label
+            //Don't remove, for feature development
+            /*        ExposedDropBox(
+                        maxHeightIn = 200.dp,
+                        context = context,
+                        label = R.string.grade_label,
+                        selectedOption = selectedAiModel,
+                        options = AiModelOptions.entries.toList(),
+                        onOptionSelected = { viewModel.updateSelectedAiModelOption(it) },
+                        optionToString = { option, context -> option.getString(context) }
                     )
-                )
-            },
-            //added for label always be visible
-            visualTransformation = if (descriptionText.isEmpty())
-                PlaceholderTransformation(placeholder = placeHolder.value)
-            else VisualTransformation.None,
-            textStyle = TextStyle(color = textColor)
-        )
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .fillMaxHeight(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-
+            */
             //Reused Component
-            UniversalButton(
-                modifier = when (systemLocale.language) {
-                    "iw" -> {
-                        modifier
-                            .weight(1f)
-                            .fillMaxHeight(0.6f)
-                    }
-
-                    "ru" -> {
-                        modifier
-                            .weight(1f)
-                            .fillMaxHeight(0.6f)
-                    }
-
-                    else -> {
-                        modifier
-                            .weight(1f)
-                            .fillMaxHeight(0.6f)
-                    }
+            ExposedDropBox(
+                maxHeightIn = 200.dp,
+                context = context,
+                label = R.string.grade_label,
+                selectedOption = selectedGrade.value,
+                options = GradeOption.entries.toList(),
+                onOptionSelected = {
+                    viewModel.updateSelectedGradeOption(it)
                 },
-                label = R.string.solve_button_label,
+                optionToString = { option, context -> option.getString(context) }
+            )
+
+            ExposedDropBox(
+                maxHeightIn = 200.dp,
+                context = context,
+                label = R.string.solution_language_label,
+                selectedOption = selectedSolutionLanguage.value,
+                options = SolutionLanguageOption.entries.toList(),
+                onOptionSelected = {
+                    viewModel.updateSelectedLanguageOption(it)
+                },
+                optionToString = { option, context -> option.getString(context) }
+            )
+
+            ExposedDropBox(
+                maxHeightIn = 200.dp,
+                context = context,
+                label = R.string.explanations_label,
+                selectedOption = selectedExplanationLevel.value,
+                options = ExplanationLevelOption.entries.toList(),
+                onOptionSelected = {
+                    viewModel.updateSelectedExplanationLevelOption(it)
+                },
+                optionToString = { option, context -> option.getString(context) }
+            )
+
+            val textColor = if (descriptionText.isEmpty())
+                MaterialTheme.colorScheme.secondary
+            else MaterialTheme.colorScheme.primary
+
+            val defaultPlaceholderText =
+                stringResource(R.string.additional_info_TextField_placeholder_text)
+            val placeHolder = remember {
+                mutableStateOf(defaultPlaceholderText)
+            }
+
+            OutlinedTextField(
+                modifier = modifier
+                    .onFocusChanged {
+                        placeHolder.value =
+                            if (it.isFocused) ""
+                            else defaultPlaceholderText
+                    }
+                    .fillMaxWidth()
+                    .heightIn(max = 200.dp),
+                value = descriptionText,
+                onValueChange = {
+                    viewModel.updateDescriptionText(it)
+                },
+                label = {
+                    Text(
+                        text = stringResource(
+                            id = R.string.additional_information_TextField_label
+                        )
+                    )
+                },
+                //added for label always be visible
+                visualTransformation = if (descriptionText.isEmpty())
+                    PlaceholderTransformation(placeholder = placeHolder.value)
+                else VisualTransformation.None,
+                textStyle = TextStyle(color = textColor)
+            )
+            Row(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
 
-                viewModel.buildPropertiesPrompt()
 
-                // on back press from ResultScreen we have to restore requestGeminiResponse back to true
-                resultViewModel.updateRequestGeminiResponse(true)
+                //Reused Component
+                UniversalButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = R.string.solve_button_label,
+                ) {
 
-                // reset TextGenerationResult to initialize the loading indicator
-                resultViewModel.updateTextGenerationResult("")
+                    viewModel.buildPropertiesPrompt()
 
-                onNavigateToResultScreen(viewModel.originalPrompt.value)
+                    // on back press from ResultScreen we have to restore requestGeminiResponse back to true
+                    resultViewModel.updateRequestGeminiResponse(true)
+
+                    // reset TextGenerationResult to initialize the loading indicator
+                    resultViewModel.updateTextGenerationResult("")
+
+                    onNavigateToResultScreen(viewModel.originalPrompt.value)
+                }
             }
         }
-    }
+    )
 }
 
 class PlaceholderTransformation(private val placeholder: String) : VisualTransformation {
