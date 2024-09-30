@@ -109,7 +109,6 @@ class ParametersViewModel @Inject constructor() : ViewModel() {
         _originalPrompt.update {
             val selectedExplanationStr = " ${_selectedExplanationLevel.value.code}"
             if (_originalPrompt.value.contains("(briefly)")) {
-                println("CONTAINS")
                 _originalPrompt.value.replace(
                     "(briefly)",
                     selectedExplanationStr

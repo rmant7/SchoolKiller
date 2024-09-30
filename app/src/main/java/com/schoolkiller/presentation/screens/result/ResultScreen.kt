@@ -3,6 +3,7 @@ package com.schoolkiller.presentation.screens.result
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -55,180 +56,153 @@ fun ResultScreen(
     val responseListState = rememberLazyListState()
     val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState()
     val openAlertDialog = remember { mutableStateOf(resultError != null) }
-    val systemLocale = getSystemLocale()
 
     val interstitialAd = viewModel.interstitialAd.collectAsState()
-
+    val isResultFetched = viewModel.isResultFetchedStatus.collectAsState()
 
     /**
+     * Attempt to fix following issue:
      * Gemini sometimes fetch 2-3 times with one call
      */
-    if (requestGeminiResponse.value) {
+
+    // fetch only when user requested AI response
+    // and result wasn't fetched yet
+    if (requestGeminiResponse.value && !isResultFetched.value) {
+
         viewModel.fetchGeminiResponse(
             imageUri = selectedImageUri.toUri(),
             fileName = selectedImageUri.toUri().toString(),
             prompt = originalPrompt
         )
+        // result is fetched and this block wouldn't run
+        // until new try request from user
+        viewModel.updateResultFetchedStatus(true)
     }
 
 
-    ApplicationScaffold {
+    ApplicationScaffold(
+        content = {
+            // only show ad if it's loaded and user requested AI response
+            if (interstitialAd.value != null && requestGeminiResponse.value) {
+                InterstitialAdPresenter(
+                    context = context,
+                    interstitialAd = interstitialAd.value!!,
+                    viewModel = viewModel,
+                    showAd = true
+                ).apply {
+                    viewModel.updateRequestGeminiResponse(false)
 
-        if (interstitialAd.value != null) {
-
-            InterstitialAdPresenter(
-                context = context,
-                interstitialAd = interstitialAd.value!!,
-                viewModel = viewModel,
-                showAd = requestGeminiResponse.value
-            ).apply {
-                viewModel.updateRequestGeminiResponse(false)
-                viewModel.loadInterstitialAd()
-            }
-
-        }
-
-
-
-        if (resultError != null) {
-            openAlertDialog.value = true
-
-            val dialogData = getAlertWindowData(resultError)
-
-            AlertDialog(
-                onDismissRequest = { openAlertDialog.value = false },
-                onConfirmation = {
-                    openAlertDialog.value = false
-                    viewModel.clearError()
-                    onNavigateToHomeScreen()
-                },
-                dialogTitle = stringResource(dialogData.first),
-                dialogText = stringResource(dialogData.second),
-                icon = Icons.Default.Info
-            )
-        }
-
-        //Don't remove, solution images
-        /*
-        LazyColumn(
-            modifier = modifier,
-                //.fillMaxHeight(0.35f),
-            state = imageState,
-            content = {
-                item {
-                    image?.let {
-                        SolutionImage(
-                            image = it,
-                            context = context,
-                            contentDescription = resultText
-                        )
-                    }
+                    /**
+                     * Load new ad only when user dismisses it
+                     * this logic was moved to InterstitialAdPresenter:
+                     * viewModel.loadInterstitialAd()
+                     */
                 }
             }
-        )
-        */
-
-        LazyColumn(
-            modifier = modifier
-                .fillMaxHeight(0.65f),
-            state = responseListState,
-            content = {
 
 
-                item { Spacer(modifier.height(16.dp)) }
 
+            if (resultError != null) {
+                openAlertDialog.value = true
 
-                item {
-                    if (resultText.isBlank() && resultError == null) {
-                        Box(
-                            modifier = modifier
-                                .fillMaxWidth()
-                                .padding(top = 32.dp),
-                            contentAlignment = Alignment.Center,
-                            content = {
-                                CircularProgressIndicator(modifier = modifier.size(80.dp))
-                            }
-                        )
-                    } else {
-                        SelectionContainer {
-                            OutlinedTextField(
-                                modifier = modifier
-                                    .fillMaxWidth(),
-                                value = resultText,
-                                onValueChange = {},
-                                textStyle = TextStyle(
-                                    fontSize = 20.sp,
-                                    textAlign = TextAlign.Start
-                                ),
-                                readOnly = true
+                val dialogData = getAlertWindowData(resultError)
+
+                AlertDialog(
+                    onDismissRequest = { openAlertDialog.value = false },
+                    onConfirmation = {
+                        openAlertDialog.value = false
+                        viewModel.clearError()
+                        onNavigateToHomeScreen()
+                    },
+                    dialogTitle = stringResource(dialogData.first),
+                    dialogText = stringResource(dialogData.second),
+                    icon = Icons.Default.Info
+                )
+            }
+
+            //Don't remove, solution images
+            /*
+            LazyColumn(
+                modifier = modifier,
+                    //.fillMaxHeight(0.35f),
+                state = imageState,
+                content = {
+                    item {
+                        image?.let {
+                            SolutionImage(
+                                image = it,
+                                context = context,
+                                contentDescription = resultText
                             )
                         }
                     }
                 }
-            }
-        )
+            )
+            */
 
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .fillMaxHeight(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-            content = {
+            LazyColumn(
+                modifier = modifier
+                    .fillMaxHeight(0.65f),
+                state = responseListState,
+                content = {
 
-                UniversalButton(
-                    modifier = when(systemLocale.language) {
-                        "iw" -> {
-                            modifier
-                                .weight(1f)
-                                .fillMaxHeight(0.4f)
+
+                    item { Spacer(modifier.height(16.dp)) }
+
+
+                    item {
+                        if (resultText.isBlank() && resultError == null) {
+                            Box(
+                                modifier = modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 32.dp),
+                                contentAlignment = Alignment.Center,
+                                content = {
+                                    CircularProgressIndicator(modifier = modifier.size(80.dp))
+                                }
+                            )
+                        } else {
+                            SelectionContainer {
+                                OutlinedTextField(
+                                    modifier = modifier
+                                        .fillMaxWidth(),
+                                    value = resultText,
+                                    onValueChange = {},
+                                    textStyle = TextStyle(
+                                        fontSize = 20.sp,
+                                        textAlign = TextAlign.Start
+                                    ),
+                                    readOnly = true
+                                )
+                            }
                         }
-
-                        "ru" -> {
-                            modifier
-                                .weight(1f)
-                                .fillMaxHeight(0.4f)
-                        }
-
-                        else -> {
-                            modifier
-                                .weight(1f)
-                                .fillMaxHeight(0.4f)
-                        }
-                    },
-                    label = R.string.try_again
-                ) {
-                    viewModel.updateTextGenerationResult("")
-                    viewModel.updateRequestGeminiResponse(true)
+                    }
                 }
+            )
 
-                UniversalButton(
-                    modifier = when(systemLocale.language) {
-                        "iw" -> {
-                            modifier
-                                .weight(1f)
-                                .fillMaxHeight(0.4f)
-                        }
+        },
+        bottomBar = {
+            Column (
+                content = {
 
-                        "ru" -> {
-                            modifier
-                                .weight(1f)
-                                .fillMaxHeight(0.4f)
-                        }
+                    UniversalButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = R.string.try_again
+                    ) {
+                        viewModel.updateTextGenerationResult("")
+                        viewModel.updateRequestGeminiResponse(true)
+                        viewModel.updateResultFetchedStatus(false)
+                    }
 
-                        else -> {
-                            modifier
-                                .weight(1f)
-                                .fillMaxHeight(0.4f)
-                        }
-                    },
-                    label = R.string.start_again
-                ) {
-                    onNavigateToHomeScreen()
+                    UniversalButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = R.string.start_again
+                    ) {
+                        onNavigateToHomeScreen()
+                    }
                 }
-            }
-        )
-    }
+            )
+        })
 }
 
 

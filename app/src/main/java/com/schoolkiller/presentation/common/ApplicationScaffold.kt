@@ -17,10 +17,12 @@ fun ApplicationScaffold(
     columnVerticalArrangement: Arrangement. Vertical = Arrangement.spacedBy(16.dp),
     columnHorizontalAlignment: Alignment. Horizontal = Alignment.Start,
     content: @Composable () -> Unit,
+    bottomBar : @Composable () -> Unit = {},
 ){
 
     Scaffold(
         modifier = modifier,
+        bottomBar = bottomBar,
         content = { paddingValues ->
             Column(
                 modifier = columnModifier
