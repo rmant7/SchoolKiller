@@ -3,8 +3,8 @@ package com.schoolkiller
 import android.app.Application
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.MobileAds
-import com.schoolkiller.data.Constants
 import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
+import com.schoolkiller.domain.usecases.ads.InterstitialAdUseCase
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -12,10 +12,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltAndroidApp
-class SchoolKillerApplication : Application(){
+class SchoolKillerApplication : Application() {
 
     @Inject
     lateinit var bannerAdUseCase: BannerAdUseCase
+
+    @Inject
+    lateinit var interstitialAdUseCase: InterstitialAdUseCase
 
 
     override fun onCreate() {
@@ -27,10 +30,9 @@ class SchoolKillerApplication : Application(){
             MobileAds.setAppMuted(true)
         }
 
-        bannerAdUseCase.loadAd(
-            adUnitId = Constants.BANNER_AD_ID,
-            adSize = AdSize.MEDIUM_RECTANGLE
-        )
+        // preloading ads
+        bannerAdUseCase.loadBannerAd(adSize = AdSize.MEDIUM_RECTANGLE)
+        interstitialAdUseCase.loadAd()
 
     }
 }

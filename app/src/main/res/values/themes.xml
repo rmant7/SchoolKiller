@@ -2,4 +2,7 @@
 <resources>
 
     <style name="Theme.SchoolKiller" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.LoadingScreen" parent="android:Theme.Material.Light.NoActionBar"/>
+
 </resources>

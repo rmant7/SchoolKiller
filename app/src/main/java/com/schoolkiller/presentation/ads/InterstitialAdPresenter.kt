@@ -9,7 +9,7 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.schoolkiller.presentation.screens.result.ResultViewModel
 
-@Composable
+/*@Composable
 fun InterstitialAdPresenter(
     context: Context,
     interstitialAd: InterstitialAd,
@@ -39,4 +39,4 @@ fun InterstitialAdPresenter(
             interstitialAd.show(context as Activity)
         }
     }
-}
+}*/

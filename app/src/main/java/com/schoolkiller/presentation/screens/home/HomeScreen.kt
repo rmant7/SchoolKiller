@@ -38,9 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import com.schoolkiller.R
 import com.schoolkiller.domain.UploadFileMethodOptions
-import com.schoolkiller.presentation.ads.AppOpenAdHandler
 import com.schoolkiller.presentation.common.ApplicationScaffold
-import com.schoolkiller.presentation.common.DeleteGhostImagesButton
 import com.schoolkiller.presentation.common.EnlargedImage
 import com.schoolkiller.presentation.common.ImageCapture
 import com.schoolkiller.presentation.common.ImagePicker
@@ -49,7 +47,6 @@ import com.schoolkiller.presentation.common.RoundIconButton
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
 import com.schoolkiller.presentation.common.deleteImageFromStorage
-import com.schoolkiller.presentation.common.deleteSchoolKillerImagesFromMediaStore
 
 
 @Composable
@@ -59,7 +56,7 @@ fun HomeScreen(
     lifecycleOwner: LifecycleOwner,
     listOfImages: SnapshotStateList<Uri>,
     onNavigateToParametersScreen: (Uri) -> Unit,
-    onNavigateToCheckSolutionOptionsScreen: (Uri) -> Unit
+    onNavigateToCheckSolutionOptionsScreen: (Uri) -> Unit,
 ) {
 
 
@@ -68,6 +65,7 @@ fun HomeScreen(
     val viewModel: HomeViewModel = hiltViewModel()
     // updating viewmodel with previous uploaded pictures
     viewModel.updateListOfImages(listOfImages)
+
     val selectedUploadFileMethod = viewModel.selectedUploadMethodOption
     val images = viewModel.listOfImages.collectAsState()
     val selectedImageIndex = remember { mutableStateOf<Int?>(null) }
@@ -108,12 +106,8 @@ fun HomeScreen(
     ApplicationScaffold(
         content = {
 
-            // App Open Ad
-            AppOpenAdHandler(
-                context = context,
-                viewModel = viewModel,
-            )
-
+           // Show App Open Ad
+           viewModel.showAppOpenAd(context)
 
             when (selectedUploadFileMethod) {
                 UploadFileMethodOptions.TAKE_A_PICTURE -> {

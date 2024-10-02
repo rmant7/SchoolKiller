@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
-import com.schoolkiller.presentation.ads.InterstitialAdPresenter
 import com.schoolkiller.presentation.common.AlertDialog
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.UniversalButton
@@ -55,7 +54,7 @@ fun ResultScreen(
     val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState()
     val openAlertDialog = remember { mutableStateOf(resultError != null) }
 
-    val interstitialAd = viewModel.interstitialAd.collectAsState()
+    //val interstitialAd = viewModel.interstitialAd.collectAsState()
     val isResultFetched = viewModel.isResultFetchedStatus.collectAsState()
 
     /**
@@ -66,6 +65,8 @@ fun ResultScreen(
     // fetch only when user requested AI response
     // and result wasn't fetched yet
     if (requestGeminiResponse.value && !isResultFetched.value) {
+        //viewModel.showInterstitialAd(context)
+
         viewModel.fetchGeminiResponse(
             imageUri = selectedImageUri.toUri(),
             fileName = selectedImageUri.toUri().toString(),
@@ -73,6 +74,7 @@ fun ResultScreen(
         )
         // result is fetched and this block wouldn't run
         // until new try request from user
+        //viewModel.updateRequestGeminiResponse(false)
         viewModel.updateResultFetchedStatus(true)
     }
 
@@ -137,31 +139,17 @@ fun ResultScreen(
                                     .padding(top = 32.dp),
                                 contentAlignment = Alignment.Center,
                                 content = {
-                                    if (interstitialAd.value != null && requestGeminiResponse.value) {
-                                        InterstitialAdPresenter(
-                                            context = context,
-                                            interstitialAd = interstitialAd.value!!,
-                                            viewModel = viewModel,
-                                            showAd = true
-                                        ).apply {
-                                            viewModel.updateRequestGeminiResponse(false)
 
-                                            /**
-                                             * Load new ad only when user dismisses it
-                                             * this logic was moved to InterstitialAdPresenter:
-                                             * viewModel.loadInterstitialAd()
-                                             */
-                                        }
+                                    if (requestGeminiResponse.value) {
+                                       viewModel.showInterstitialAd(context)
+                                       viewModel.updateRequestGeminiResponse(false)
                                     } else {
-                                        println("NO AI RESPONSE YET")
                                         CircularProgressIndicator(modifier = modifier.size(80.dp))
                                     }
 
                                 }
                             )
                         } else {
-                            println("AI RESPONSE FETCHED")
-
                             SelectionContainer {
                                 OutlinedTextField(
                                     modifier = modifier

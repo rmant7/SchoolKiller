@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.schoolkiller.presentation.screens.checking.CheckSolutionScreen
 import com.schoolkiller.presentation.screens.home.HomeScreen
+import com.schoolkiller.presentation.screens.home_loading.HomeLoadingScreen
 import com.schoolkiller.presentation.screens.info.ParametersScreen
 import com.schoolkiller.presentation.screens.result.ResultScreen
 import kotlinx.serialization.Serializable
@@ -24,10 +25,22 @@ fun NavigationController() {
     val lifecycleOwner = LocalLifecycleOwner.current
     val listOfImages = remember { mutableStateListOf<Uri>() }
 
-    NavHost(navController = navController, startDestination = Screens.HomeScreen) {
+    NavHost(
+        navController = navController,
+        startDestination = Screens.HomeLoadingScreen
+    ) {
+
+        composable<Screens.HomeLoadingScreen> {
+            HomeLoadingScreen(
+                onNavigateToHomeScreen = {
+                    navController.navigate(Screens.HomeScreen)
+                }
+            )
+        }
+
+
 
         composable<Screens.HomeScreen> {
-
             HomeScreen(
                 context = context,
                 lifecycleOwner = lifecycleOwner,
@@ -94,10 +107,33 @@ fun NavigationController() {
     }
 }
 
+/*inline fun <reified T : AppOpenAd> navTypeOf(
+    isNullableAllowed: Boolean = false,
+    json: Json = Json,
+) = object : NavType<T>(isNullableAllowed = isNullableAllowed) {
+    override fun get(bundle: Bundle, key: String): T? =
+        bundle.getString(key)?.let(json::decodeFromString)
+
+    override fun parseValue(value: String): T = json.decodeFromString(Uri.decode(value))
+
+    override fun serializeAsValue(value: T): String = Uri.encode(json.encodeToString(value))
+
+    override fun put(bundle: Bundle, key: String, value: T) =
+        bundle.putString(key, json.encodeToString(value))
+
+}*/
+
+
 @Serializable
 sealed class Screens {
     @Serializable
-    data object HomeScreen : Screens()
+    data object HomeLoadingScreen : Screens()
+
+    @Serializable
+    data object HomeScreen/*(
+        @Contextual
+        val appOpenAd: AppOpenAd?
+    )*/ : Screens()
 
     @Serializable
     data class ParametersScreen(
