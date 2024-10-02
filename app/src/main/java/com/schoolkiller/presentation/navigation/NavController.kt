@@ -1,6 +1,8 @@
 package com.schoolkiller.presentation.navigation
 
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
@@ -15,6 +17,8 @@ import com.schoolkiller.presentation.screens.info.ParametersScreen
 import com.schoolkiller.presentation.screens.result.ResultScreen
 import kotlinx.serialization.Serializable
 
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun NavigationController() {
     val navController = rememberNavController()
@@ -22,7 +26,9 @@ fun NavigationController() {
     val listOfImages = remember { mutableStateListOf<Uri>() }
 
     NavHost(navController = navController, startDestination = Screens.HomeScreen) {
+
         composable<Screens.HomeScreen> {
+
             HomeScreen(
                 context = context,
                 listOfImages = listOfImages,
@@ -47,6 +53,7 @@ fun NavigationController() {
             val args = it.toRoute<Screens.ParametersScreen>()
             ParametersScreen(
                 context = context,
+                selectedImageUri = args.selectedImageUri,
                 onNavigateToResultScreen = { originalPrompt ->
                     navController.navigate(
                         Screens.ResultScreen(
@@ -62,6 +69,7 @@ fun NavigationController() {
             val args = it.toRoute<Screens.CheckSolutionInformationScreen>()
             CheckSolutionScreen(
                 context = context,
+                selectedImageUri = args.selectedImageUri,
                 onNavigateToResultScreen = { originalPrompt ->
                     navController.navigate(
                         Screens.ResultScreen(
@@ -77,6 +85,7 @@ fun NavigationController() {
             val args = it.toRoute<Screens.ResultScreen>()
 
             ResultScreen(
+                context = context,
                 onNavigateToHomeScreen = {
                     navController.navigate(Screens.HomeScreen)
                 },

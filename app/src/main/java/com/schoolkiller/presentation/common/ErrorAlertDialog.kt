@@ -10,7 +10,7 @@ import androidx.compose.ui.res.stringResource
 import com.schoolkiller.R
 
 @Composable
-fun AlertDialog(
+fun ErrorAlertDialog(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
     dialogTitle: String,

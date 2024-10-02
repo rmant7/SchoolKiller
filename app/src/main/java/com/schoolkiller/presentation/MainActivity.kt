@@ -18,6 +18,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             SchoolKillerTheme {
                 MaterialTheme(
@@ -27,6 +28,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
     }
 }
+
+
+

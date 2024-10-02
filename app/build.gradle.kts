@@ -23,8 +23,8 @@ android {
         applicationId = "com.schoolkiller"
         minSdk = 29
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.2"
+        versionCode = 4
+        versionName = "1.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -71,12 +71,13 @@ android {
 
 dependencies {
 
+
     // AdMob advertisement
-    implementation("com.google.android.gms:play-services-ads:23.3.0")
+    implementation(libs.play.services.ads)
     // Added dependency on Guava to avoid conflicts with CameraX and AdMob
-    implementation("com.google.guava:guava:33.3.1-android")
+    implementation(libs.guava)/** CameraX not used anymore */
     // Process Lifecycle Owner
-    implementation("androidx.lifecycle:lifecycle-process:2.6.1")
+    //implementation("androidx.lifecycle:lifecycle-process:2.6.1")
 
     // Accompanist Permissions
     implementation (libs.accompanist.permissions)
@@ -84,15 +85,15 @@ dependencies {
     // Logging
     implementation (libs.timber)
 
-    //LangChain4j
+    // LangChain4j
     implementation (libs.dev.langchain4j.langchain4j.open.ai)
     implementation (libs.langchain4j)
 
-    // CameraX
-    implementation (libs.androidx.camera.core)
-    implementation (libs.androidx.camera.camera2)
-    implementation (libs.androidx.camera.lifecycle)
-    implementation (libs.androidx.camera.view)
+    // CameraX (not in use anymore)
+//    implementation (libs.androidx.camera.core)
+//    implementation (libs.androidx.camera.camera2)
+//    implementation (libs.androidx.camera.lifecycle)
+//    implementation (libs.androidx.camera.view)
 
     // Coil
     implementation(libs.coil.compose)
@@ -107,6 +108,7 @@ dependencies {
     implementation(libs.androidx.runner)
     implementation(libs.androidx.espresso.core)
     implementation(libs.common)
+    implementation(libs.play.services.ads.lite)
     ksp(libs.androidx.room.compiler)
 
     // DataStore Preferences
@@ -126,7 +128,7 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
 
-    // Gemini
+    // Gemini SDK Library, not needed cause we used Http fetch with Ktor
     implementation(libs.generativeai)
 
     // ViewModel
