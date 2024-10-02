@@ -72,7 +72,6 @@ fun HomeScreen(
     val selectedImageUri = selectedImageIndex.value?.let { images.value[it] }
     var isImageEnlarged by remember { mutableStateOf(false) }
     val state = rememberLazyListState()
-    //val systemLocale = getSystemLocale()
 
 
     // Launcher for the ImagePicker
