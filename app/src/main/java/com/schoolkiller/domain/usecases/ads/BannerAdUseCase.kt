@@ -15,23 +15,40 @@ import javax.inject.Singleton
 @Singleton
 class BannerAdUseCase @Inject constructor(
     @ApplicationContext private val context: Context
-) : AdUseCase{
+) : AdUseCase() {
 
-    private var adView: AdView? = null
+    private var stretchedBanner: AdView? = null
+    private var mediumBanner: AdView? = null
 
-    fun loadBannerAd(adSize: AdSize) {
-        shouldShowAdsCheck()
+    override fun load() {
 
-        if (adView == null) {
-            adView = AdView(context).apply {
+        if (stretchedBanner == null) {
+            val adSize = AdSize(AdSize.FULL_WIDTH, 650)
+            //val adaptiveSize = AdSize.getInlineAdaptiveBannerAdSize(AdSize.FULL_WIDTH, 700)
+
+            stretchedBanner = AdView(context).apply {
                 this.adUnitId = Constants.BANNER_AD_ID
-                this.setAdSize(adSize)
+                this.setAdSize(adSize) // AdSize.MEDIUM_RECTANGLE
             }
         }
+
+        if (mediumBanner == null) {
+            mediumBanner = AdView(context).apply {
+                this.adUnitId = Constants.BANNER_AD_ID
+                this.setAdSize(AdSize.MEDIUM_RECTANGLE)
+            }
+        }
+
+        loadBanner(stretchedBanner)
+        loadBanner(mediumBanner)
+    }
+
+    private fun loadBanner(adView: AdView?) {
 
         adView?.apply {
             adListener = object : AdListener() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
+                    getOnFailedAction().invoke(adError)
                     Timber.d("Adds server is not available${adError.message}")
                 }
 
@@ -42,11 +59,15 @@ class BannerAdUseCase @Inject constructor(
         }
 
         adView?.loadAd(AdRequest.Builder().build())
-
     }
 
-    fun getBannerAdView(): AdView? {
-        return adView
+
+    fun getStretchedBannerAdView(): AdView? {
+        return stretchedBanner
+    }
+
+    fun getSMediumBannerAdView(): AdView? {
+        return mediumBanner
     }
 
 }

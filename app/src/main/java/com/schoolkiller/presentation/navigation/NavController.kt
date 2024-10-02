@@ -12,7 +12,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.schoolkiller.presentation.screens.checking.CheckSolutionScreen
 import com.schoolkiller.presentation.screens.home.HomeScreen
-import com.schoolkiller.presentation.screens.home_loading.HomeLoadingScreen
 import com.schoolkiller.presentation.screens.info.ParametersScreen
 import com.schoolkiller.presentation.screens.result.ResultScreen
 import kotlinx.serialization.Serializable
@@ -27,19 +26,8 @@ fun NavigationController() {
 
     NavHost(
         navController = navController,
-        startDestination = Screens.HomeLoadingScreen
+        startDestination = Screens.HomeScreen
     ) {
-
-        composable<Screens.HomeLoadingScreen> {
-            HomeLoadingScreen(
-                onNavigateToHomeScreen = {
-                    navController.navigate(Screens.HomeScreen)
-                }
-            )
-        }
-
-
-
         composable<Screens.HomeScreen> {
             HomeScreen(
                 context = context,
@@ -126,14 +114,9 @@ fun NavigationController() {
 
 @Serializable
 sealed class Screens {
-    @Serializable
-    data object HomeLoadingScreen : Screens()
 
     @Serializable
-    data object HomeScreen/*(
-        @Contextual
-        val appOpenAd: AppOpenAd?
-    )*/ : Screens()
+    data object HomeScreen: Screens()
 
     @Serializable
     data class ParametersScreen(

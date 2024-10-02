@@ -17,12 +17,12 @@ import javax.inject.Singleton
 @Singleton
 class InterstitialAdUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
-) : AdUseCase{
+) : AdUseCase(){
 
     private var interstitialAd: InterstitialAd? = null
 
-    fun loadAd() {
-        shouldShowAdsCheck()
+
+    override fun load() {
 
         val adRequest = AdRequest.Builder().build()
         InterstitialAd.load(
@@ -32,6 +32,7 @@ class InterstitialAdUseCase @Inject constructor(
             object : InterstitialAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
                     interstitialAd = null
+                    getOnFailedAction().invoke(adError)
                     Timber.d("Adds server is not available${adError.message}")
                 }
 
@@ -51,7 +52,7 @@ class InterstitialAdUseCase @Inject constructor(
         interstitialAd!!.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
                 interstitialAd = null
-                loadAd()
+                loadAdWithNoAdsCheck()
             }
 
             override fun onAdFailedToShowFullScreenContent(adError: AdError) {

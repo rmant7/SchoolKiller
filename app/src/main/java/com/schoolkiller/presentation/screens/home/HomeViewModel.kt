@@ -21,6 +21,11 @@ class HomeViewModel @Inject constructor(
     private val openAdUseCase: OpenAdUseCase
 ) : ViewModel() {
 
+    init {
+        // additional load in case other ones failed
+       // openAdUseCase.loadAd()
+    }
+
     private var _listOfImages = MutableStateFlow(mutableStateListOf<Uri>())
     var listOfImages: StateFlow<SnapshotStateList<Uri>> = _listOfImages
 

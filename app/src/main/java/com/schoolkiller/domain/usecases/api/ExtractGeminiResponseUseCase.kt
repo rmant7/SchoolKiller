@@ -33,10 +33,10 @@ data class Candidate(
 
 @Serializable
 data class Content(
-    val parts: List<Part>
+    val parts: List<Part>? = null
 )
 
 @Serializable
 data class Part(
-    val text: String
+    val text: String? = null
 )

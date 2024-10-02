@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
+import com.schoolkiller.presentation.ads.BannerAdContainer
 import com.schoolkiller.presentation.common.AlertDialog
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.UniversalButton
@@ -122,8 +123,7 @@ fun ResultScreen(
             */
 
             LazyColumn(
-                modifier = modifier
-                    .fillMaxHeight(0.65f),
+                modifier = modifier,
                 state = responseListState,
                 content = {
 
@@ -150,9 +150,12 @@ fun ResultScreen(
                                 }
                             )
                         } else {
+
                             SelectionContainer {
                                 OutlinedTextField(
                                     modifier = modifier
+                                        .padding(0.dp, 10.dp)
+                                        .fillMaxHeight(0.7f)
                                         .fillMaxWidth(),
                                     value = resultText,
                                     onValueChange = {},
@@ -163,6 +166,8 @@ fun ResultScreen(
                                     readOnly = true
                                 )
                             }
+
+                            BannerAdContainer(adView = viewModel.getMediumBannerAd())
                         }
                     }
                 }

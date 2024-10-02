@@ -9,7 +9,6 @@ import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.schoolkiller.data.Constants
 import com.schoolkiller.presentation.screens.home.HomeViewModel
-import com.schoolkiller.presentation.screens.home_loading.HomeLoadingViewModel
 
 /*@Deprecated("Replaced with OpenAdUseCase")
 @Composable

@@ -16,7 +16,7 @@ import javax.inject.Singleton
 @Singleton
 class OpenAdUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
-) : AdUseCase {
+) : AdUseCase() {
 
     var appOpenAd: AppOpenAd? = null
 
@@ -24,20 +24,7 @@ class OpenAdUseCase @Inject constructor(
     var openAdLastAdShownTime: Long = 0L
     var isOpenAdLoading: Boolean = false
 
-    fun loadA() {
-        loadAd(onLoaded = {
-            Timber.d("Successfully loaded Open App Ad")
-        },
-            onFailedError = {
-                Timber.d("Open App Ad server is not available ${it.message}")
-            })
-    }
-
-    fun loadAd(
-        onLoaded: (AppOpenAd) -> Unit,
-        onFailedError: (LoadAdError) -> Unit
-    ) {
-        shouldShowAdsCheck()
+    override fun load() {
 
         if (isOpenAdLoading && appOpenAd != null) return
 
@@ -53,8 +40,6 @@ class OpenAdUseCase @Inject constructor(
                     appOpenAd = ad
                     openAdLoadTime = System.currentTimeMillis()
                     isOpenAdLoading = false
-
-                    onLoaded(ad)
                 }
 
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {
@@ -62,7 +47,7 @@ class OpenAdUseCase @Inject constructor(
                     isOpenAdLoading = false
                     appOpenAd = null
 
-                    onFailedError(loadAdError)
+                    getOnFailedAction().invoke(loadAdError)
                 }
             }
         )
@@ -83,7 +68,7 @@ class OpenAdUseCase @Inject constructor(
         appOpenAd!!.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
                 appOpenAd = null
-                loadA()
+                loadAdWithNoAdsCheck()
             }
 
             override fun onAdFailedToShowFullScreenContent(adError: AdError) {

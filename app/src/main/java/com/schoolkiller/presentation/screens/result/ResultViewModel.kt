@@ -4,8 +4,10 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.ads.AdView
 import com.schoolkiller.data.network.api.GeminiApiService
 import com.schoolkiller.data.network.response.GeminiResponse
+import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
 import com.schoolkiller.domain.usecases.ads.InterstitialAdUseCase
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
@@ -25,7 +27,8 @@ class ResultViewModel @Inject constructor(
     private val geminiApiService: GeminiApiService,
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
-    private val interstitialAdUseCase: InterstitialAdUseCase
+    private val interstitialAdUseCase: InterstitialAdUseCase,
+    private val bannerAdUseCase: BannerAdUseCase
 ) : ViewModel() {
 
     private val _textGenerationResult = MutableStateFlow("")
@@ -50,8 +53,12 @@ class ResultViewModel @Inject constructor(
         error?.let { err -> _error.update { err } }
     }
 
-    fun showInterstitialAd(context: Context){
+    fun showInterstitialAd(context: Context) {
         interstitialAdUseCase.show(context)
+    }
+
+    fun getMediumBannerAd(): AdView? {
+       return bannerAdUseCase.getSMediumBannerAdView()
     }
 
     fun fetchGeminiResponse(
