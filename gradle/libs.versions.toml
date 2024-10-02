@@ -40,12 +40,14 @@ common = "0.10.0"
 secretsGradlePlugin = "2.0.1"
 timber = "5.0.1"
 playServicesAdsLite = "23.3.0"
+workRuntimeKtx = "2.9.1"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 analytics = { module = "io.appmetrica.analytics:analytics", version.ref = "analytics" }
 androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraCamera2" }
 androidx-legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "legacySupportV4Version" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 langchain4j = { module = "dev.langchain4j:langchain4j", version.ref = "devLangchain4jOpenAi" }
 dev-langchain4j-langchain4j-open-ai = { module = "dev.langchain4j:langchain4j-open-ai", version.ref = "devLangchain4jOpenAi" }

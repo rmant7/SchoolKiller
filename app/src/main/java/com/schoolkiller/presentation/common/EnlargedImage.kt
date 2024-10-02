@@ -32,8 +32,8 @@ fun EnlargedImage(
     isImageEnlarged: Boolean,
     image: Uri,
     onDismiss: () -> Unit,
-
-    ) {
+) {
+    
     if (isImageEnlarged) {
         Dialog(
             onDismissRequest = { onDismiss() },
@@ -71,6 +71,7 @@ fun EnlargedImage(
             )
         )
     }
-
 }
+
+
 

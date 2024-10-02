@@ -1,141 +1,231 @@
 package com.schoolkiller.presentation.common
 
 import android.Manifest
-import android.app.Activity
+import android.content.ContentValues
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.lifecycle.LifecycleOwner
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.schoolkiller.domain.UploadFileMethodOptions
-import java.io.File
-import java.io.FileOutputStream
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
-//lateinit var cameraLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>
 
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-fun ImageCapture(
-    context: Context,
-    cameraLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>,
-    selectedUploadMethodOption: UploadFileMethodOptions,
-    onBackPress: (UploadFileMethodOptions) -> Unit,
-    onPictureCapture: (Uri) -> Unit,
-    returnToNoOption: (UploadFileMethodOptions) -> Unit
-) {
-    var capturedImage by remember { mutableStateOf<Uri?>(null) }
+/**
+ *  Going to be deleted
+ */
 
-//    cameraLauncher =
-//        rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
-//            val imageUri = result.data?.data
-//            if (imageUri != null) {
-//                capturedImage = imageUri
+//@OptIn(ExperimentalPermissionsApi::class)
+//@Composable
+//fun ImageCapture(
+//    modifier: Modifier = Modifier,
+//    context: Context,
+//    lifecycleOwner: LifecycleOwner,
+//    selectedUploadMethodOption: UploadFileMethodOptions,
+//    onPictureCapture: (Uri) -> Unit,
+//    returnToNoOption: (UploadFileMethodOptions) -> Unit,
+//    onBackPress: (UploadFileMethodOptions) -> Unit
+//) {
+//
+//    val permissionsState =
+//        /* Even thought camera will save the image to the device storage,
+//        extra permissions don`t needed and also they caused troubles showing an empty screen */
+//        when {
+//            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> {
+//                rememberMultiplePermissionsState(
+//                    listOf(
+//                        Manifest.permission.CAMERA,
+////                        Manifest.permission.READ_MEDIA_IMAGES,
+////                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
+//                    )
+//                )
+//            }
+//
+//            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+//                rememberMultiplePermissionsState(
+//                    listOf(
+//                        Manifest.permission.CAMERA,
+////                        Manifest.permission.READ_MEDIA_IMAGES
+//                    )
+//                )
+//            }
+//
+//            else -> {
+//                rememberMultiplePermissionsState(
+//                    listOf(
+//                        Manifest.permission.CAMERA,
+////                        Manifest.permission.READ_EXTERNAL_STORAGE,
+////                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+//                    )
+//                )
 //            }
 //        }
-
-    var requestPermissionsState by remember { mutableStateOf(false) }
-
-    val permissionsState =
-        /* Even thought camera will save the image to the device storage,
-        extra permissions don`t needed and also they caused troubles showing an empty screen */
-        when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> {
-                rememberMultiplePermissionsState(
-                    listOf(
-                        Manifest.permission.CAMERA,
-                        Manifest.permission.READ_MEDIA_IMAGES,
-//                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
-                    )
-                )
-            }
-
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
-                rememberMultiplePermissionsState(
-                    listOf(
-                        Manifest.permission.CAMERA,
-                        Manifest.permission.READ_MEDIA_IMAGES
-                    )
-                )
-            }
-
-            else -> {
-                rememberMultiplePermissionsState(
-                    listOf(
-                        Manifest.permission.CAMERA,
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    )
-                )
-            }
-        }
-
-
-    BackHandler(enabled = selectedUploadMethodOption == UploadFileMethodOptions.TAKE_A_PICTURE) {
-        onBackPress(UploadFileMethodOptions.NO_OPTION)
-//        (context as? Activity)?.finish()
-    }
-
-    LaunchedEffect(requestPermissionsState) {
-        if (!permissionsState.allPermissionsGranted) {
-            permissionsState.launchMultiplePermissionRequest()
-        }
-        requestPermissionsState = false
-    }
-
-    if (permissionsState.allPermissionsGranted) {
-        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        // Create a file in the app's private storage
-        val imagesDir = context.filesDir.resolve("images")
-        imagesDir.mkdirs()
-        val photoFile = File(imagesDir, "SchoolKillerImage_${System.currentTimeMillis()}.jpeg")
-
-        // Get a content URI using FileProvider
-        val photoUri = FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            photoFile
-        )
-        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
-        if (takePictureIntent.resolveActivity(context.packageManager) != null) {
-            cameraLauncher.launch(takePictureIntent)
-            onPictureCapture(photoUri)
-        } else {
-            Toast.makeText(context, "No camera app found", Toast.LENGTH_SHORT).show()
-        }
-    } else {
-        requestPermissionsState = true
-    }
-}
-
-
-private fun captureImage(
-    imageUri: Uri,
-    onPictureCapture: (Uri) -> Unit,
-    returnToNoOption: (UploadFileMethodOptions) -> Unit
-) {
-    onPictureCapture(imageUri)
-    returnToNoOption(UploadFileMethodOptions.NO_OPTION)
-}
+//
+//    val lensFacing = CameraSelector.LENS_FACING_BACK
+//    val preview = Preview.Builder().build()
+//    val previewView = remember { PreviewView(context) }
+//    val cameraxSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+//    val imageCapture = remember { ImageCapture.Builder().build() }
+//    var requestPermissionsState by remember { mutableStateOf(false) }
+//
+//
+//    BackHandler(enabled = selectedUploadMethodOption == UploadFileMethodOptions.TAKE_A_PICTURE) {
+//        onBackPress(UploadFileMethodOptions.NO_OPTION)
+//    }
+//
+//    LaunchedEffect(requestPermissionsState) {
+//        permissionsState.launchMultiplePermissionRequest()
+//        requestPermissionsState = false
+//    }
+//
+//    LaunchedEffect(lensFacing) {
+//        val cameraProvider = context.getCameraProvider()
+//        cameraProvider.unbindAll()
+//        cameraProvider.bindToLifecycle(lifecycleOwner, cameraxSelector, preview, imageCapture)
+//        preview.setSurfaceProvider(previewView.surfaceProvider)
+//    }
+//
+//    if (permissionsState.allPermissionsGranted) {
+//        Box(
+//            modifier
+//                .fillMaxSize(),
+//            contentAlignment = Alignment.BottomCenter,
+//            content = {
+//                AndroidView(factory = { previewView }, modifier = modifier.fillMaxSize())
+//                IconButton(
+//                    modifier = modifier
+//                        .size(90.dp),
+//                    onClick = { }
+//                ) {
+//                    Box(
+//                        modifier = modifier
+//                            .size(120.dp)
+//                            .clickable {
+//                                captureImage(
+//                                    imageCapture,
+//                                    context,
+//                                    onPictureCapture,
+//                                    returnToNoOption
+//                                )
+//                            },
+//                        contentAlignment = Alignment.Center,
+//                        content = {
+//                            Canvas(
+//                                modifier = modifier
+//                                    .size(120.dp)
+//                            ) {
+//                                drawCircle(
+//                                    color = Color.White,
+//                                    radius = size.minDimension / 2,
+//                                    center = center
+//                                )
+//                            }
+//                            Canvas(
+//                                modifier = modifier
+//                                    .size(83.dp)
+//                            ) {
+//                                drawCircle(
+//                                    color = Color.Black,
+//                                    radius = size.minDimension / 2,
+//                                    center = center
+//                                )
+//                            }
+//
+//                            Canvas(
+//                                modifier = modifier
+//                                    .size(70.dp)
+//                            ) {
+//                                drawCircle(
+//                                    color = Color.White,
+//                                    radius = size.minDimension / 2,
+//                                    center = center
+//                                )
+//                            }
+//                        }
+//                    )
+//                }
+//            }
+//        )
+//    } else {
+//        requestPermissionsState = true
+//    }
+//
+//
+//}
+//
+//private suspend fun Context.getCameraProvider(): ProcessCameraProvider =
+//    suspendCoroutine { continuation ->
+//        ProcessCameraProvider.getInstance(this).also { cameraProvider ->
+//            cameraProvider.addListener({
+//                continuation.resume(cameraProvider.get())
+//            }, ContextCompat.getMainExecutor(this))
+//        }
+//    }
+//
+//
+//private fun captureImage(
+//    imageCapture: ImageCapture,
+//    context: Context,
+//    onPictureCapture: (Uri) -> Unit,
+//    returnToNoOption: (UploadFileMethodOptions) -> Unit
+//) {
+//    var currentUri: Uri? = null
+//
+//    val name = "SchoolKillerImage_${System.currentTimeMillis()}.jpeg"
+//    val contentValues = ContentValues().apply {
+//        put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+//        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+//        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+//            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/SchoolKiller_Images")
+//        }
+//    }
+//    val outputOptions = ImageCapture.OutputFileOptions
+//        .Builder(
+//            context.contentResolver,
+//            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+//            contentValues
+//        )
+//        .build()
+//    imageCapture.takePicture(
+//        outputOptions,
+//        ContextCompat.getMainExecutor(context),
+//        object : ImageCapture.OnImageSavedCallback {
+//            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+//                val savedUri = outputFileResults.savedUri
+//                savedUri?.let { uri ->
+//                    onPictureCapture(uri)
+//                        currentUri = uri
+//                }
+//                returnToNoOption(UploadFileMethodOptions.NO_OPTION)
+//            }
+//
+//            override fun onError(exception: ImageCaptureException) {
+//                Toast.makeText(context, "Failed $exception", Toast.LENGTH_SHORT).show()
+//                // TODO { handle error case }
+//            }
+//        }
+//    )
+//}

@@ -1,11 +1,12 @@
 package com.schoolkiller.presentation.navigation
 
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -17,11 +18,11 @@ import com.schoolkiller.presentation.screens.result.ResultScreen
 import kotlinx.serialization.Serializable
 
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun NavigationController() {
     val navController = rememberNavController()
     val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
     val listOfImages = remember { mutableStateListOf<Uri>() }
 
     NavHost(navController = navController, startDestination = Screens.HomeScreen) {
@@ -30,7 +31,6 @@ fun NavigationController() {
 
             HomeScreen(
                 context = context,
-                lifecycleOwner = lifecycleOwner,
                 listOfImages = listOfImages,
                 onNavigateToParametersScreen = { selectedImageUri ->
                     navController.navigate(
@@ -53,6 +53,7 @@ fun NavigationController() {
             val args = it.toRoute<Screens.ParametersScreen>()
             ParametersScreen(
                 context = context,
+                selectedImageUri = args.selectedImageUri,
                 onNavigateToResultScreen = { originalPrompt ->
                     navController.navigate(
                         Screens.ResultScreen(
@@ -68,6 +69,7 @@ fun NavigationController() {
             val args = it.toRoute<Screens.CheckSolutionInformationScreen>()
             CheckSolutionScreen(
                 context = context,
+                selectedImageUri = args.selectedImageUri,
                 onNavigateToResultScreen = { originalPrompt ->
                     navController.navigate(
                         Screens.ResultScreen(

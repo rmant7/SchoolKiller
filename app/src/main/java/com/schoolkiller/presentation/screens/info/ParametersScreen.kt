@@ -12,7 +12,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -34,21 +33,28 @@ import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
 import com.schoolkiller.presentation.common.getSystemLocale
+import com.schoolkiller.presentation.screens.home.HomeViewModel
 import com.schoolkiller.presentation.screens.result.ResultViewModel
 
 @Composable
 fun ParametersScreen(
     modifier: Modifier = Modifier,
     context: Context,
+    selectedImageUri: String, // Received argument
     onNavigateToResultScreen: (String) -> Unit
 ) {
     val viewModel: ParametersViewModel = hiltViewModel()
     val resultViewModel: ResultViewModel = hiltViewModel()
-    val selectedGrade = viewModel.selectedGradeOption.collectAsState()
-    val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption.collectAsState()
-    val selectedExplanationLevel = viewModel.selectedExplanationLevelOption.collectAsState()
-    val descriptionText: String by viewModel.descriptionText.collectAsState()
+    val homeViewModel: HomeViewModel = hiltViewModel()
+    val imageUri = homeViewModel.selectedUri
+    val parameterScreenProperties = viewModel.parameterPropertiesState.collectAsState().value
+//    val selectedGrade = viewModel.selectedGradeOption.collectAsState()
+//    val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption.collectAsState()
+//    val selectedExplanationLevel = viewModel.selectedExplanationLevelOption.collectAsState()
+//    val descriptionText: String by viewModel.descriptionText.collectAsState()
     val systemLocale = getSystemLocale()
+
+
 
 
     ApplicationScaffold(
@@ -77,7 +83,7 @@ fun ParametersScreen(
                 maxHeightIn = 200.dp,
                 context = context,
                 label = R.string.grade_label,
-                selectedOption = selectedGrade.value,
+                selectedOption = parameterScreenProperties.grade,
                 options = GradeOption.entries.toList(),
                 onOptionSelected = {
                     viewModel.updateSelectedGradeOption(it)
@@ -89,7 +95,7 @@ fun ParametersScreen(
                 maxHeightIn = 200.dp,
                 context = context,
                 label = R.string.solution_language_label,
-                selectedOption = selectedSolutionLanguage.value,
+                selectedOption = parameterScreenProperties.language,
                 options = SolutionLanguageOption.entries.toList(),
                 onOptionSelected = {
                     viewModel.updateSelectedLanguageOption(it)
@@ -101,7 +107,7 @@ fun ParametersScreen(
                 maxHeightIn = 200.dp,
                 context = context,
                 label = R.string.explanations_label,
-                selectedOption = selectedExplanationLevel.value,
+                selectedOption = parameterScreenProperties.explanationLevel,
                 options = ExplanationLevelOption.entries.toList(),
                 onOptionSelected = {
                     viewModel.updateSelectedExplanationLevelOption(it)
@@ -109,7 +115,7 @@ fun ParametersScreen(
                 optionToString = { option, context -> option.getString(context) }
             )
 
-            val textColor = if (descriptionText.isEmpty())
+            val textColor = if (parameterScreenProperties.description.isEmpty())
                 MaterialTheme.colorScheme.secondary
             else MaterialTheme.colorScheme.primary
 
@@ -128,7 +134,7 @@ fun ParametersScreen(
                     }
                     .fillMaxWidth()
                     .heightIn(max = 200.dp),
-                value = descriptionText,
+                value = parameterScreenProperties.description,
                 onValueChange = {
                     viewModel.updateDescriptionText(it)
                 },
@@ -140,7 +146,7 @@ fun ParametersScreen(
                     )
                 },
                 //added for label always be visible
-                visualTransformation = if (descriptionText.isEmpty())
+                visualTransformation = if (parameterScreenProperties.description.isEmpty())
                     PlaceholderTransformation(placeholder = placeHolder.value)
                 else VisualTransformation.None,
                 textStyle = TextStyle(color = textColor)
@@ -160,15 +166,19 @@ fun ParametersScreen(
                     label = R.string.solve_button_label,
                 ) {
 
-                    viewModel.buildPropertiesPrompt()
 
-                    // on back press from ResultScreen we have to restore requestGeminiResponse back to true
-                    resultViewModel.updateRequestGeminiResponse(true)
+                        viewModel.buildPropertiesPrompt()
 
-                    // reset TextGenerationResult to initialize the loading indicator
-                    resultViewModel.updateTextGenerationResult("")
+                        // on back press from ResultScreen we have to restore requestGeminiResponse back to true
+                        resultViewModel.updateRequestGeminiResponse(true)
 
-                    onNavigateToResultScreen(viewModel.originalPrompt.value)
+                        // reset TextGenerationResult to initialize the loading indicator
+                        resultViewModel.updateTextGenerationResult("")
+
+                        onNavigateToResultScreen(viewModel.originalPrompt.value)
+
+
+
                 }
             }
         }

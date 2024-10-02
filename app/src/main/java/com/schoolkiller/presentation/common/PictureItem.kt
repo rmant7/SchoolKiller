@@ -1,12 +1,9 @@
 package com.schoolkiller.presentation.common
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,17 +15,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,10 +30,11 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
 import coil.request.ImageRequest
 import coil.request.SuccessResult
 import com.schoolkiller.R
-import com.schoolkiller.data.Constants
+import com.schoolkiller.presentation.toast.ShowToastMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -52,11 +45,9 @@ import java.util.Locale
 fun PictureItem(
     modifier: Modifier = Modifier,
     imageModifier: Modifier = Modifier,
-    context: Context,
     imageUri: Uri,
     onRemove: () -> Unit,
     onEnlarge: () -> Unit,
-    onDeleteFromStorage: () -> Unit
 ) {
 
     val buttonColor = Color.Black
@@ -82,8 +73,8 @@ fun PictureItem(
                     .matchParentSize(),
                 model = imageUri,
                 contentDescription = "Picture",  // TODO { hardcoded string }
-                error = painterResource(id = R.drawable.upload_to_school_assistant), // TODO { import an error image }
-                placeholder = painterResource(id = R.drawable.ai_school_assistant), // TODO { import a placeholder image }
+                error = painterResource(id = R.drawable.corrupted),
+                placeholder = painterResource(id = R.drawable.loading_circle),
                 contentScale = ContentScale.Crop,
             )
 
@@ -132,47 +123,6 @@ fun PictureItem(
             )
         }
     }
-}
-
-
-/**
- * function to delete image from the storage not only the list
- * but we have to use with a condition that the list don`t have
- * the same uri image loaded more than once
- */
-fun deleteImageFromStorage(
-    context: Context,
-    activity: Activity,
-    imageUri: Uri
-) {
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        // For Android 10 and above, use createDeleteRequest
-        val pendingIntent = MediaStore.createDeleteRequest(
-            context.contentResolver,
-            listOf(imageUri)
-        )
-        activity.startIntentSenderForResult(
-            pendingIntent.intentSender,
-            Constants.DELETE_REQUEST_CODE,
-            null,
-            0,
-            0,
-            0,
-            null
-        )
-
-    } else {
-        // For older Android versions, use contentResolver.delete
-        imageUri?.let {
-            context.contentResolver.delete(
-                it,
-                null,
-                null
-            )
-        }
-    }
-
 }
 
 
