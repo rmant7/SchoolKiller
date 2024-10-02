@@ -1,20 +1,27 @@
 package com.schoolkiller.presentation.screens.info
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.schoolkiller.data.RequestDataState
+import com.schoolkiller.data.repositories.DataStoreRepository
 import com.schoolkiller.domain.ExplanationLevelOption
 import com.schoolkiller.domain.GradeOption
 import com.schoolkiller.domain.PromptText
 import com.schoolkiller.domain.SolutionLanguageOption
 import com.schoolkiller.domain.model.ParameterProperties
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ParametersViewModel @Inject constructor() : ViewModel() {
+class ParametersViewModel @Inject constructor(
+    private val dataStoreRepository: DataStoreRepository
+) : ViewModel() {
 
 
     private val _parameterPropertiesState = MutableStateFlow(ParameterProperties())
@@ -136,4 +143,56 @@ class ParametersViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
+
+
+    fun persistGradeOptionState(gradeOption: GradeOption) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStoreRepository.persistGradeOptionState(gradeOption = gradeOption)
+        }
+    }
+
+    fun persistLanguageOptionState(solutionLanguageOption: SolutionLanguageOption) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStoreRepository.persistLanguageOptionState(languageOption = solutionLanguageOption)
+        }
+    }
+
+    fun persistExplanationLevelOptionState(explanationLevelOption: ExplanationLevelOption) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStoreRepository.persistExplanationLevelOptionState(explanationLevelOption = explanationLevelOption)
+        }
+    }
+
+    fun persistDescriptionState(description: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStoreRepository.persistDescriptionState(description = description)
+        }
+    }
+
+    private fun readPrioritySortState() {
+        
+        updateTaskState(UpdateTaskState.PrioritySortState(prioritySortState = RequestDataState.Loading))
+        updateTaskState(UpdateTaskState.UiState(uiState = UiState.Loading))
+        try {
+            viewModelScope.launch {
+                dataStoreRepository.readPrioritySortState.map { TaskPriority.valueOf(it) }
+                    .collect { priorityOrder ->
+                        updateTaskState(
+                            UpdateTaskState.PrioritySortState(
+                                RequestState.Success(
+                                    priorityOrder
+                                )
+                            )
+                        )
+                        updateTaskState(UpdateTaskState.UiState(uiState = UiState.Success))
+                    }
+            }
+        } catch (e: Exception) {
+            updateTaskState(UpdateTaskState.PrioritySortState(RequestDataState.Error(e)))
+            updateTaskState(UpdateTaskState.UiState(uiState = UiState.Error))
+        }
+    }
+
+
+    
 }

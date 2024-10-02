@@ -224,7 +224,7 @@ import kotlin.coroutines.suspendCoroutine
 //
 //            override fun onError(exception: ImageCaptureException) {
 //                Toast.makeText(context, "Failed $exception", Toast.LENGTH_SHORT).show()
-//                // TODO { handle error case }
+//
 //            }
 //        }
 //    )

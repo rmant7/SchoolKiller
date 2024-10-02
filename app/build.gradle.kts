@@ -75,7 +75,7 @@ dependencies {
     // AdMob advertisement
     implementation(libs.play.services.ads)
     // Added dependency on Guava to avoid conflicts with CameraX and AdMob
-    implementation(libs.guava)
+    implementation(libs.guava)/** CameraX not used anymore */
     // Process Lifecycle Owner
     //implementation("androidx.lifecycle:lifecycle-process:2.6.1")
 
