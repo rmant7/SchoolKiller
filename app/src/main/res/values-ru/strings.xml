@@ -76,12 +76,31 @@
     </string-array>
     <string name="rating_TextField_label">Оценка</string>
     <string name="additional_info_TextField_placeholder_text">Реши только задачу 5</string>
+
+    // Dialog text messages
+    <string name="invalid_images_message">Похоже, вы удалили некоторые изображения из хранилища каталога приложения SchoolKiller. SchoolKiller попытается очистить эти изображения одно за другим из кеша приложения. Пожалуйста, подтвердите удаление каждого изображения, если это необходимо. Любое изображение, которое отображается без картинки, является поврежденным. Вы хотите продолжить?</string>
+
+
+
     //Error
     <string name="error_service_not_available">Извините, сервис не доступен на территории РФ и Белорусии, пожалуйста, используйте vpn.</string>
     <string name="error_service_not_available_title">Сервис недоступен</string>
     <string name="error_common_title">Ошибка</string>
     <string name="error_common_message">Во вреремя работы приложения произошла ошибка. Попробуйте обновить приложение или повторить попытку позднее</string>
+
     // Toast
+    <string name="something_went_wrong">Упс! Что-то пошло не так. Пожалуйста, попробуйте еще раз!</string>
+    <string name="fail_to_load_Uri">Не удалось загрузить изображение в список. Пожалуйста, попробуйте загрузить его вручную!</string>
+    <string name="corrupted_loaded_file">Вы загрузили поврежденный файл!</string>
+    <string name="camera_fail_to_open">Упс! Что-то пошло не так с камерой. Пожалуйста, попробуйте еще раз!</string>
+    <string name="permanent_denied_camera_permission_explanation">Упс! Кажется, для этой функции нужен доступ к камере. Зайдите в настройки устройства, найдите SchoolKiller в списке приложений и предоставьте разрешение на использование камеры, чтобы раскрыть всю магию!</string>
+    <string name="permanent_denied_read_media_permission_explanation">Упс! Чтобы использовать изображения из вашей галереи, SchoolKiller нуждается в разрешении на чтение ваших фотографий. Зайдите в настройки устройства, найдите SchoolKiller в списке приложений и предоставьте доступ к фотографиям, чтобы раскрыть всю магию!</string>
+    <string name="permanent_denied_write_storage_permission_explanation">Упс! Чтобы сохранять файлы на ваше устройство, SchoolKiller нуждается в разрешении на запись в ваше хранилище. Зайдите в настройки устройства, найдите SchoolKiller в списке приложений и предоставьте доступ к хранилищу, чтобы раскрыть всю магию!</string>
+    <string name="permanent_denied_read_storage_permission_explanation">Упс! Чтобы получить доступ к файлам на вашем устройстве, SchoolKiller нуждается в разрешении на чтение вашего хранилища. Зайдите в настройки устройства, найдите SchoolKiller в списке приложений и предоставьте доступ к хранилищу, чтобы раскрыть всю магию!</string>
+    <string name="camera_permission_rationale">SchoolKiller нуждается в доступе к вашей камере, чтобы вы могли мгновенно фотографировать свои школьные задания!</string>
+    <string name="read_media_permission_rationale">Предоставление доступа к вашим фотографиям позволяет вам выбирать изображения из галереи для использования в приложении SchoolKiller!</string>
+    <string name="write_storage_permission_rationale">Разрешение на запись в ваше хранилище позволяет приложению SchoolKiller сохранять файлы, такие как сделанные вами фотографии, прямо на ваше устройство!</string>
+    <string name="read_storage_permission_rationale">SchoolKiller нуждается в доступе к хранилищу вашего устройства для чтения файлов, таких как фотографии или документы, которые вы можете захотеть использовать в приложении</string>
     <string name="upload_image_warning">Пожалуйста, загрузите изображение с устройства.</string>
     <string name="select_image_warning">Пожалуйста, выберите изображение с устройства</string>
     <string name="upload_picture">Загрузить картинку</string>

@@ -2,12 +2,12 @@ package com.schoolkiller.presentation.screens.checking
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.ads.AdView
 import com.schoolkiller.domain.GradeOption
 import com.schoolkiller.domain.PromptText
+import com.schoolkiller.domain.model.SolutionProperties
 import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,12 +32,17 @@ class SolutionCheckingViewModel @Inject constructor(
         return bannerAdUseCase.getBannerAdView()
     }
 
+
+    private val _solutionPropertiesState = MutableStateFlow(SolutionProperties())
+    val solutionPropertiesState: StateFlow<SolutionProperties> = _solutionPropertiesState.asStateFlow()
+
+
     private var _originalPromptText = MutableStateFlow("")
     val originalPrompt: StateFlow<String> = _originalPromptText
 
-    private var _selectedGradeOption by mutableStateOf(GradeOption.NONE)
-    val selectedGradeOption: GradeOption
-        get() = _selectedGradeOption
+//    private var _selectedGradeOption by mutableStateOf(GradeOption.NONE)
+//    val selectedGradeOption: GradeOption
+//        get() = _selectedGradeOption
 
     private var _selectedRateMax by mutableIntStateOf(100)
     val selectedRateMax: Int
@@ -51,7 +56,9 @@ class SolutionCheckingViewModel @Inject constructor(
         get() = _error.asStateFlow()
 
     fun updateSelectedGradeOption(newClassSelection: GradeOption) {
-        _selectedGradeOption = newClassSelection
+        _solutionPropertiesState.update { currentState ->
+            currentState.copy(grade = newClassSelection)
+        }
     }
 
     fun updatePrompt(convertedPrompt: String) {
@@ -76,7 +83,8 @@ class SolutionCheckingViewModel @Inject constructor(
     }
 
     private fun getGradePrompt(): String {
-        val selectedGradeStr = " ${_selectedGradeOption.arrayIndex}"
+//        val selectedGradeStr = " ${_selectedGradeOption.arrayIndex}"
+        val selectedGradeStr = " ${solutionPropertiesState.value.grade.arrayIndex}"
 
         return if (_originalPromptText.value.contains("(as grade+th grader)")) {
             _originalPromptText

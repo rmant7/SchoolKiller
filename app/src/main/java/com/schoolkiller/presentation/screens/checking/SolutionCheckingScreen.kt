@@ -12,7 +12,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -20,14 +19,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
 import com.schoolkiller.domain.GradeOption
 import com.schoolkiller.presentation.ads.BannerAdContainer
 import com.schoolkiller.presentation.common.ApplicationScaffold
-import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
 import com.schoolkiller.presentation.common.getSystemLocale
 import com.schoolkiller.presentation.screens.result.ResultViewModel
@@ -36,11 +33,13 @@ import com.schoolkiller.presentation.screens.result.ResultViewModel
 fun CheckSolutionScreen(
     modifier: Modifier = Modifier,
     context: Context,
+    selectedImageUri: String, // Received argument
     onNavigateToResultScreen: (String) -> Unit
 ) {
     val viewModel: SolutionCheckingViewModel = hiltViewModel()
     val resultViewModel: ResultViewModel = hiltViewModel()
-    val selectedGrade = viewModel.selectedGradeOption
+    val solutionProperties = viewModel.solutionPropertiesState.collectAsState().value
+//    val selectedGrade = viewModel.selectedGradeOption
     val adView = viewModel.adview.collectAsState()
     val systemLocale = getSystemLocale()
 
@@ -65,7 +64,7 @@ fun CheckSolutionScreen(
                 maxHeightIn = 200.dp,
                 context = context,
                 label = R.string.grade_label,
-                selectedOption = selectedGrade,
+                selectedOption = solutionProperties.grade,
                 options = GradeOption.entries.toList(),
                 onOptionSelected = {
                     viewModel.updateSelectedGradeOption(it)
@@ -120,15 +119,17 @@ fun CheckSolutionScreen(
                         )
                     )*/
 
-                    viewModel.buildPropertiesPrompt()
 
-                    // on back press from ResultScreen we have to restore requestGeminiResponse back to true
-                    resultViewModel.updateRequestGeminiResponse(true)
+                        viewModel.buildPropertiesPrompt()
 
-                    // reset TextGenerationResult to initialize the loading indicator
-                    viewModel.updateTextGenerationResult("")
+                        // on back press from ResultScreen we have to restore requestGeminiResponse back to true
+                        resultViewModel.updateRequestGeminiResponse(true)
 
-                    onNavigateToResultScreen(viewModel.originalPrompt.value)
+                        // reset TextGenerationResult to initialize the loading indicator
+                        viewModel.updateTextGenerationResult("")
+
+                        onNavigateToResultScreen(viewModel.originalPrompt.value)
+
                 }
             }
         })

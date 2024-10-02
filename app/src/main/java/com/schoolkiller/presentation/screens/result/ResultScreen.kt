@@ -33,9 +33,10 @@ import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
 import com.schoolkiller.presentation.ads.InterstitialAdPresenter
-import com.schoolkiller.presentation.common.AlertDialog
+import com.schoolkiller.presentation.common.ErrorAlertDialog
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.UniversalButton
+import com.schoolkiller.presentation.common.getSystemLocale
 import io.ktor.client.plugins.ServerResponseException
 
 
@@ -43,8 +44,8 @@ import io.ktor.client.plugins.ServerResponseException
 fun ResultScreen(
     modifier: Modifier = Modifier,
     context: Context,
-    originalPrompt: String,
-    selectedImageUri: String,
+    originalPrompt: String, // Received argument
+    selectedImageUri: String, // Received argument
     onNavigateToHomeScreen: () -> Unit,
 ) {
     val viewModel: ResultViewModel = hiltViewModel()
@@ -54,6 +55,7 @@ fun ResultScreen(
     val responseListState = rememberLazyListState()
     val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState()
     val openAlertDialog = remember { mutableStateOf(resultError != null) }
+    val systemLocale = getSystemLocale()
 
     val interstitialAd = viewModel.interstitialAd.collectAsState()
     val isResultFetched = viewModel.isResultFetchedStatus.collectAsState()
@@ -86,7 +88,7 @@ fun ResultScreen(
 
                 val dialogData = getAlertWindowData(resultError)
 
-                AlertDialog(
+                ErrorAlertDialog(
                     onDismissRequest = { openAlertDialog.value = false },
                     onConfirmation = {
                         openAlertDialog.value = false

@@ -2,10 +2,13 @@ package com.schoolkiller.presentation.screens.home
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,33 +38,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.viewModelScope
 import com.schoolkiller.R
 import com.schoolkiller.domain.UploadFileMethodOptions
 import com.schoolkiller.presentation.ads.AppOpenAdHandler
 import com.schoolkiller.presentation.common.ApplicationScaffold
-import com.schoolkiller.presentation.common.DeleteGhostImagesButton
+import com.schoolkiller.presentation.common.AttentionAlertDialog
 import com.schoolkiller.presentation.common.EnlargedImage
-import com.schoolkiller.presentation.common.ImageCapture
-import com.schoolkiller.presentation.common.ImagePicker
+import com.schoolkiller.presentation.common.OpenCamera
+import com.schoolkiller.presentation.common.OpenGallery
 import com.schoolkiller.presentation.common.PictureItem
 import com.schoolkiller.presentation.common.RoundIconButton
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
-import com.schoolkiller.presentation.common.deleteImageFromStorage
-import com.schoolkiller.presentation.common.deleteSchoolKillerImagesFromMediaStore
+import com.schoolkiller.presentation.permissions.RequestMultiplePermissions
+import com.schoolkiller.presentation.permissions.RequestMultiplePermissionsGallery
+import com.schoolkiller.presentation.toast.ShowToastMessage
+import kotlinx.coroutines.launch
 
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     context: Context,
-    lifecycleOwner: LifecycleOwner,
     listOfImages: SnapshotStateList<Uri>,
     onNavigateToParametersScreen: (Uri) -> Unit,
     onNavigateToCheckSolutionOptionsScreen: (Uri) -> Unit
 ) {
-
 
 //    val pictures by viewModel.allPictures.collectAsState(initial = emptyList())
 
@@ -75,34 +79,72 @@ fun HomeScreen(
     var isImageEnlarged by remember { mutableStateOf(false) }
     val state = rememberLazyListState()
     //val systemLocale = getSystemLocale()
+    var invalidImagesPlaceholder by remember { mutableStateOf<List<Uri>>(emptyList()) }
+    var isAttentionDialogShowed by remember { mutableStateOf(false) }
 
 
-    // Launcher for the ImagePicker
-    val pickMultipleMediaLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(),
-        onResult = { uris ->
-            if (uris.isNotEmpty()) {
-                viewModel.insertImagesOnTheList(uris)
-                viewModel.updateSelectedUploadMethodOption(UploadFileMethodOptions.NO_OPTION)
+    AttentionAlertDialog(
+        isShowed = isAttentionDialogShowed,
+        message = stringResource(R.string.invalid_images_message),
+        icon = R.drawable.attention,
+        onDismiss = { isAttentionDialogShowed = false },
+        onCancel = { isAttentionDialogShowed = false },
+        onConfirm = {
+            isAttentionDialogShowed = false
+            viewModel.cleanInvalidImages(context as Activity, invalidImagesPlaceholder)
 
-            } else {
-                viewModel.updateSelectedUploadMethodOption(UploadFileMethodOptions.NO_OPTION)
-            }
         }
     )
 
 
+    // Launcher for the ImagePicker (must be in the screen that is being called)
+    val pickMultipleMediaLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(),
+        onResult = { uris ->
+            try {
+                viewModel.insertImagesOnTheList(uris)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
+            }
+        }
+    )
+
+    // Launcher for the Camera (must be in the screen that is being called)
+    val cameraLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val bitmap = result.data?.extras?.get("data") as? Bitmap
+                bitmap?.let {
+                    viewModel.viewModelScope.launch {
+                        viewModel.saveImage(it) // save bitmap to storage
+                        val getBitmapUri =
+                            viewModel.getSavedImageUri() // load bitmap uri to the list
+                        getBitmapUri?.let { viewModel.insertImagesOnTheList(listOf(it)) } ?: run {
+                            ShowToastMessage.IMAGE_FAIL__TO_LOAD_TO_THE_LIST.showToast()
+                        }
+                    }
+                }
+            }
+        }
+
 
     if (isImageEnlarged) {
-        if (selectedImageUri != null) {
+        val isUriValid = selectedImageUri?.let { viewModel.checkUriValidity(selectedImageUri) }
+        if (isUriValid == true) {
             EnlargedImage(
                 context = context,
                 image = selectedImageUri,
                 isImageEnlarged = isImageEnlarged,
                 onDismiss = { isImageEnlarged = false }
             )
+        } else {
+            isImageEnlarged = false
+            ShowToastMessage.CORRUPTED_LOADED_FILE.showToast()
         }
     }
+
+
 
 
     ApplicationScaffold(
@@ -116,22 +158,37 @@ fun HomeScreen(
 
 
             when (selectedUploadFileMethod) {
+
                 UploadFileMethodOptions.TAKE_A_PICTURE -> {
-                    ImageCapture(
-                        context = context,
-                        lifecycleOwner = lifecycleOwner,
-                        selectedUploadMethodOption = selectedUploadFileMethod,
-                        onPictureCapture = { viewModel.insertImagesOnTheList(listOf(it)) },
-                        onBackPress = { viewModel.updateSelectedUploadMethodOption(it) },
-                        returnToNoOption = { viewModel.updateSelectedUploadMethodOption(it) }
+
+                    RequestMultiplePermissions(
+                        functionOnPermissionGranted = {},
+                        composableOnPermissionGranted = {
+                            OpenCamera(
+                                cameraLauncher = cameraLauncher
+                            )
+                        }
                     )
+                    viewModel.updateSelectedUploadMethodOption(UploadFileMethodOptions.NO_OPTION)
                 }
 
                 UploadFileMethodOptions.UPLOAD_AN_IMAGE -> {
-                    ImagePicker(
-                        selectedUploadMethodOption = selectedUploadFileMethod,
-                        pickMultipleMediaLauncher = pickMultipleMediaLauncher,
+
+                    RequestMultiplePermissionsGallery(
+                        functionOnPermissionGranted = {},
+                        composableOnPermissionGranted = {
+
+                            invalidImagesPlaceholder = viewModel.getInvalidImageUris()
+
+                            if (invalidImagesPlaceholder.isNotEmpty()) {
+                                isAttentionDialogShowed = true
+                            } else {
+                                OpenGallery(pickMultipleMediaLauncher)
+                            }
+                        }
                     )
+                    viewModel.updateSelectedUploadMethodOption(UploadFileMethodOptions.NO_OPTION)
+
                 }
 
                 UploadFileMethodOptions.UPLOAD_A_FILE -> {
@@ -153,6 +210,7 @@ fun HomeScreen(
                 }
 
                 UploadFileMethodOptions.NO_OPTION -> {
+
                     ScreenImage(
                         modifier = modifier
                             .fillMaxHeight(0.35f), // adjust the height of the image from here
@@ -197,53 +255,6 @@ fun HomeScreen(
                                             UploadFileMethodOptions.TAKE_A_PICTURE
                                         )
                                     }
-
-                                    /**
-                                     * Solves the problem with the ghost images leftover bug taken from the app camera
-                                     * Need to implement it in a menu, this is not a suitable place
-                                     * Delete all camera Images taken from the app
-                                     * Request permission
-                                     * if permission denied permanently we have an empty screen
-                                     */
-                                    // Don't remove, hid fow now
-                                    // because of warning issue
-                                    /*
-                                    DeleteGhostImagesButton(
-                                        modifier = Modifier.size(60.dp),
-                                        icon = R.drawable.ic_delete_media_storage,
-                                        showRationale = {
-                                            Toast.makeText(
-                                                context,
-                                                "In order the app work as intended you must accept the permission", // TODO { hardcode string }
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        },
-                                        onPermissionDeniedPermanently = {
-                                            Toast.makeText(
-                                                context,
-                                                "You denied the permission, in order to accepted it you can go to the app settings", // TODO { hardcode string }
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                            return@DeleteGhostImagesButton
-                                        },
-                                        onButtonClick = {
-                                            if (images.value.isNotEmpty()) {
-                                                Toast.makeText(
-                                                    context,
-                                                    "Remove the images from the list first", // TODO { hardcode string }
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            } else {
-                                                deleteSchoolKillerImagesFromMediaStore(
-                                                    context,
-                                                    context as Activity
-                                                )
-                                            }
-                                        }
-                                    )
-                                    */
-
-
                                 }
                             )
                         }
@@ -274,7 +285,6 @@ fun HomeScreen(
                                 PictureItem(
                                     imageModifier = imageModifier,
                                     imageUri = imageUri,
-                                    context = context,
                                     onEnlarge = {
                                         selectedImageIndex.value = index
                                         isImageEnlarged = true
@@ -284,32 +294,11 @@ fun HomeScreen(
                                         if (selectedImageIndex.value == index) {
                                             selectedImageIndex.value = null
                                         }
-                                    },
-                                    onDeleteFromStorage = {
-                                        /** Not implement an Icon in PictureItem for Using it yet
-                                         * lets see if we will keep it
-                                         * check PictureItem composable
-                                         */
-                                        if (images.value.contains(imageUri)) {
-                                            Toast.makeText(
-                                                context,
-                                                "Image is more than one time on the list", // TODO { hardcode string }
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        } else {
-                                            deleteImageFromStorage(
-                                                context,
-                                                context as Activity,
-                                                imageUri
-                                            )
-                                        }
                                     }
                                 )
                             }
-
                         }
                     )
-
                 }
             }
         },
@@ -320,16 +309,18 @@ fun HomeScreen(
 
                 //Cheat sheet button, can be removed (?)
                 /* UniversalButton(
-                 modifier = modifier
-                     .fillMaxWidth()
-                     .padding(horizontal = 8.dp)
-                     .weight(1f),
-                 label = R.string.cheat_sheet_button_label
-             ) {
-                 onNavigateToResultScreen()
-             }*/
-                val uploadImageWarningMessage = stringResource(R.string.upload_image_warning)
-                val selectImageWarningMessage = stringResource(R.string.select_image_warning)
+         modifier = modifier
+             .fillMaxWidth()
+             .padding(horizontal = 8.dp)
+             .weight(1f),
+         label = R.string.cheat_sheet_button_label
+        ) {
+         onNavigateToResultScreen()
+        }*/
+                val uploadImageWarningMessage =
+                    stringResource(R.string.upload_image_warning)
+                val selectImageWarningMessage =
+                    stringResource(R.string.select_image_warning)
 
 
                 UniversalButton(
@@ -355,8 +346,14 @@ fun HomeScreen(
                         }
 
                         else -> {
-                            viewModel.updateSelectedUri(selectedImageUri)
-                            onNavigateToCheckSolutionOptionsScreen(selectedImageUri)
+                            val isUriValid = viewModel.checkUriValidity(selectedImageUri)
+                            if (isUriValid) {
+                                viewModel.updateSelectedUri(selectedImageUri)
+                                onNavigateToCheckSolutionOptionsScreen(selectedImageUri)
+                            } else {
+                                ShowToastMessage.CORRUPTED_LOADED_FILE.showToast()
+                            }
+
                         }
                     }
                 }
@@ -375,8 +372,13 @@ fun HomeScreen(
                         }
 
                         selectedImageUri != null -> {
-                            viewModel.updateSelectedUri(selectedImageUri)
-                            onNavigateToParametersScreen(selectedImageUri)
+                            val isUriValid = viewModel.checkUriValidity(selectedImageUri)
+                            if (isUriValid) {
+                                viewModel.updateSelectedUri(selectedImageUri)
+                                onNavigateToParametersScreen(selectedImageUri)
+                            } else {
+                                ShowToastMessage.CORRUPTED_LOADED_FILE.showToast()
+                            }
                         }
 
                         else -> {
@@ -392,6 +394,7 @@ fun HomeScreen(
         }
     )
 }
+
 
 /*
     val systemLocale = getSystemLocale()

@@ -71,6 +71,7 @@ android {
 
 dependencies {
 
+
     // AdMob advertisement
     implementation(libs.play.services.ads)
     // Added dependency on Guava to avoid conflicts with CameraX and AdMob
@@ -88,11 +89,11 @@ dependencies {
     implementation (libs.dev.langchain4j.langchain4j.open.ai)
     implementation (libs.langchain4j)
 
-    // CameraX
-    implementation (libs.androidx.camera.core)
-    implementation (libs.androidx.camera.camera2)
-    implementation (libs.androidx.camera.lifecycle)
-    implementation (libs.androidx.camera.view)
+    // CameraX (not in use anymore)
+//    implementation (libs.androidx.camera.core)
+//    implementation (libs.androidx.camera.camera2)
+//    implementation (libs.androidx.camera.lifecycle)
+//    implementation (libs.androidx.camera.view)
 
     // Coil
     implementation(libs.coil.compose)
