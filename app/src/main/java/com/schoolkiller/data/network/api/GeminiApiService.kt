@@ -103,7 +103,7 @@ class GeminiApiService @Inject constructor(
 
         return try {
             val response: HttpResponse = client.post(
-                "${HttpRoutes.MODELS}/gemini-1.5-flash:generateContent?key=${BuildConfig.gemini_api_key}"
+                "${HttpRoutes.MODELS}/gemini-1.5-flash-002:generateContent?key=${BuildConfig.gemini_api_key}"
             ) {
                 contentType(ContentType.Application.Json)
                 setBody(
