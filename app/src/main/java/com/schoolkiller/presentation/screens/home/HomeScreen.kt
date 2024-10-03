@@ -74,7 +74,7 @@ fun HomeScreen(
     val viewModel: HomeViewModel = hiltViewModel()
 
     /** Updating viewmodel with previous uploaded pictures,
-    * for some reason list of images resets every time without this code line,
+     * for some reason list of images resets every time without this code line,
      * even though we have viewModel.insertImagesOnTheList(uris) in this screen
      */
     viewModel.updateListOfImages(listOfImages)
@@ -201,7 +201,6 @@ fun HomeScreen(
                     ).show()
                 }
 
-
                 UploadFileMethodOptions.PROVIDE_A_LINK -> {
                     viewModel.updateSelectedUploadMethodOption(UploadFileMethodOptions.NO_OPTION)
                     Toast.makeText(
@@ -210,13 +209,6 @@ fun HomeScreen(
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-
-                LazyColumn(
-                    modifier = modifier
-                        .fillMaxHeight(0.75f),
-                    state = state,
-                    content = {
-
 
                 UploadFileMethodOptions.NO_OPTION -> {
 
@@ -279,34 +271,6 @@ fun HomeScreen(
 
                                 val isSelected = index == selectedImageIndex.value
 
-                Row(
-                    modifier = modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    val uploadImageWarningMessage = stringResource(R.string.upload_image_warning)
-                    val selectImageWarningMessage = stringResource(R.string.select_image_warning)
-
-                    UniversalButton(
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp)
-                            .weight(1f),
-                        label = R.string.check_solution_button_label
-                    ) {
-
-                        when {
-                            images.value.isEmpty() -> {
-                                Toast.makeText(
-                                    context,
-                                    uploadImageWarningMessage,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-
-
                                 val imageModifier = Modifier
                                     .clickable {
                                         selectedImageIndex.value = index
@@ -338,7 +302,6 @@ fun HomeScreen(
                         }
                     )
 
-
                 }
             }
         },
@@ -359,23 +322,6 @@ fun HomeScreen(
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
-
-                    UniversalButton(
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp)
-                            .weight(1f),
-                        label = R.string.solve_button_label
-                    ) {
-                        when {
-                            images.value.isEmpty() -> {
-                                Toast.makeText(
-                                    context,
-                                    uploadImageWarningMessage,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-
 
                         selectedImageUri != null -> {
                             val isUriValid = viewModel.checkUriValidity(selectedImageUri)
@@ -419,10 +365,6 @@ fun HomeScreen(
         }
     )
 }
-
-
-
-
 
 
 
