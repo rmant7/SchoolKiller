@@ -2,10 +2,12 @@ package com.schoolkiller.presentation.screens.checking
 
 import ExposedDropBox
 import android.content.Context
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -31,12 +33,15 @@ import com.schoolkiller.presentation.screens.result.ResultViewModel
 fun CheckSolutionScreen(
     modifier: Modifier = Modifier,
     context: Context,
+    //selectedImageUri: String, // Received argument
     onNavigateToResultScreen: (String) -> Unit
 ) {
     val viewModel: SolutionCheckingViewModel = hiltViewModel()
     val resultViewModel: ResultViewModel = hiltViewModel()
-    val selectedGrade = viewModel.selectedGradeOption
+    val solutionProperties = viewModel.solutionPropertiesState.collectAsState().value
+
     val adView = viewModel.adview.collectAsState()
+
 
 
     ApplicationScaffold(
@@ -47,7 +52,6 @@ fun CheckSolutionScreen(
             // Banner ad
             BannerAdContainer(adView = adView.value)
 
-            // Screen image was changed to big banner
             /*ScreenImage(
                 modifier = modifier
                     .fillMaxHeight(0.35f), // adjust the height of the image from here
@@ -57,11 +61,10 @@ fun CheckSolutionScreen(
 
 
             ExposedDropBox(
-                modifier = modifier.padding(0.dp, 20.dp),
                 maxHeightIn = 200.dp,
                 context = context,
                 label = R.string.grade_label,
-                selectedOption = selectedGrade,
+                selectedOption = solutionProperties.grade,
                 options = GradeOption.entries.toList(),
                 onOptionSelected = {
                     viewModel.updateSelectedGradeOption(it)
@@ -77,7 +80,7 @@ fun CheckSolutionScreen(
             /**
              * PlaceHolder in the screen to place what needed
              */
-            /*Column(
+            Column(
                 modifier = modifier
                     .fillMaxWidth()
                     .fillMaxHeight(0.2f),
@@ -87,7 +90,7 @@ fun CheckSolutionScreen(
                     or you have to play with button adjustments if the screen remains as it is
                      */
                 }
-            )*/
+            )
 
         }, bottomBar = {
             UniversalButton(
@@ -97,14 +100,14 @@ fun CheckSolutionScreen(
                 label = R.string.check_solution_button_label,
             ) {
 
-                //Updating rating scale in prompt, don't remove.
-                /*val originalPrompt = viewModel.originalPrompt.value
-                val selectedMaxRate = viewModel.selectedRateMax
-                viewModel.updatePrompt(
-                    originalPrompt.replace(
-                        "(1–100)", selectedMaxRate.toString()
-                    )
-                )*/
+                    //Updating rating scale in prompt, don't remove.
+                    /*val originalPrompt = viewModel.originalPrompt.value
+                    val selectedMaxRate = viewModel.selectedRateMax
+                    viewModel.updatePrompt(
+                        originalPrompt.replace(
+                            "(1–100)", selectedMaxRate.toString()
+                        )
+                    )*/
 
                 viewModel.buildPropertiesPrompt()
 

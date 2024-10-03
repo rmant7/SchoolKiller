@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
-import com.schoolkiller.presentation.ads.BannerAdContainer
 import com.schoolkiller.presentation.common.AlertDialog
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.UniversalButton
@@ -55,9 +54,8 @@ fun ResultScreen(
     val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState()
     val openAlertDialog = remember { mutableStateOf(resultError != null) }
 
-    //val interstitialAd = viewModel.interstitialAd.collectAsState()
     val isResultFetched = viewModel.isResultFetchedStatus.collectAsState()
-    val adView = viewModel.adview.collectAsState()
+
     /**
      * Attempt to fix following issue:
      * Gemini sometimes fetch 2-3 times with one call
@@ -66,7 +64,6 @@ fun ResultScreen(
     // fetch only when user requested AI response
     // and result wasn't fetched yet
     if (requestGeminiResponse.value && !isResultFetched.value) {
-
         viewModel.fetchGeminiResponse(
             imageUri = selectedImageUri.toUri(),
             fileName = selectedImageUri.toUri().toString(),
@@ -87,7 +84,7 @@ fun ResultScreen(
 
                 val dialogData = getAlertWindowData(resultError)
 
-                AlertDialog(
+                ErrorAlertDialog(
                     onDismissRequest = { openAlertDialog.value = false },
                     onConfirmation = {
                         openAlertDialog.value = false
@@ -154,7 +151,6 @@ fun ResultScreen(
                             SelectionContainer {
                                 OutlinedTextField(
                                     modifier = modifier
-                                        //.fillMaxHeight(0.7f)
                                         .fillMaxWidth(),
                                     value = resultText,
                                     onValueChange = {},
@@ -169,7 +165,7 @@ fun ResultScreen(
                     }
                 }
             )
-            BannerAdContainer(adView = adView.value)
+
         },
         bottomBar = {
             Column(
