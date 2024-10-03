@@ -32,11 +32,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
-import com.schoolkiller.presentation.ads.InterstitialAdPresenter
-import com.schoolkiller.presentation.common.ErrorAlertDialog
+import com.schoolkiller.presentation.ads.BannerAdContainer
 import com.schoolkiller.presentation.common.ApplicationScaffold
+import com.schoolkiller.presentation.common.ErrorAlertDialog
 import com.schoolkiller.presentation.common.UniversalButton
-import com.schoolkiller.presentation.common.getSystemLocale
 import io.ktor.client.plugins.ServerResponseException
 
 
@@ -44,8 +43,8 @@ import io.ktor.client.plugins.ServerResponseException
 fun ResultScreen(
     modifier: Modifier = Modifier,
     context: Context,
-    originalPrompt: String, // Received argument
-    selectedImageUri: String, // Received argument
+    originalPrompt: String,
+    selectedImageUri: String,
     onNavigateToHomeScreen: () -> Unit,
 ) {
     val viewModel: ResultViewModel = hiltViewModel()
@@ -55,15 +54,9 @@ fun ResultScreen(
     val responseListState = rememberLazyListState()
     val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState()
     val openAlertDialog = remember { mutableStateOf(resultError != null) }
-    val systemLocale = getSystemLocale()
 
-    val interstitialAd = viewModel.interstitialAd.collectAsState()
     val isResultFetched = viewModel.isResultFetchedStatus.collectAsState()
-
-    /**
-     * Attempt to fix following issue:
-     * Gemini sometimes fetch 2-3 times with one call
-     */
+    val adView = viewModel.adview.collectAsState()
 
     // fetch only when user requested AI response
     // and result wasn't fetched yet
@@ -123,7 +116,8 @@ fun ResultScreen(
 
             LazyColumn(
                 modifier = modifier
-                    .fillMaxHeight(0.65f),
+                    .fillMaxHeight(0.65f)
+                    .padding(0.dp, 10.dp),
                 state = responseListState,
                 content = {
 
@@ -139,30 +133,17 @@ fun ResultScreen(
                                     .padding(top = 32.dp),
                                 contentAlignment = Alignment.Center,
                                 content = {
-                                    if (interstitialAd.value != null && requestGeminiResponse.value) {
-                                        InterstitialAdPresenter(
-                                            context = context,
-                                            interstitialAd = interstitialAd.value!!,
-                                            viewModel = viewModel,
-                                            showAd = true
-                                        ).apply {
-                                            viewModel.updateRequestGeminiResponse(false)
 
-                                            /**
-                                             * Load new ad only when user dismisses it
-                                             * this logic was moved to InterstitialAdPresenter:
-                                             * viewModel.loadInterstitialAd()
-                                             */
-                                        }
+                                    if (requestGeminiResponse.value) {
+                                       viewModel.showInterstitialAd(context)
+                                       viewModel.updateRequestGeminiResponse(false)
                                     } else {
-                                        println("NO AI RESPONSE YET")
                                         CircularProgressIndicator(modifier = modifier.size(80.dp))
                                     }
 
                                 }
                             )
                         } else {
-                            println("AI RESPONSE FETCHED")
 
                             SelectionContainer {
                                 OutlinedTextField(
@@ -181,7 +162,7 @@ fun ResultScreen(
                     }
                 }
             )
-
+            BannerAdContainer(adView = adView.value)
         },
         bottomBar = {
             Column(

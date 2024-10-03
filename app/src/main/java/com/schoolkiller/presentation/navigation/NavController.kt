@@ -25,10 +25,11 @@ fun NavigationController() {
     val context = LocalContext.current
     val listOfImages = remember { mutableStateListOf<Uri>() }
 
-    NavHost(navController = navController, startDestination = Screens.HomeScreen) {
-
+    NavHost(
+        navController = navController,
+        startDestination = Screens.HomeScreen
+    ) {
         composable<Screens.HomeScreen> {
-
             HomeScreen(
                 context = context,
                 listOfImages = listOfImages,
@@ -53,7 +54,7 @@ fun NavigationController() {
             val args = it.toRoute<Screens.ParametersScreen>()
             ParametersScreen(
                 context = context,
-                selectedImageUri = args.selectedImageUri,
+                //selectedImageUri = args.selectedImageUri,
                 onNavigateToResultScreen = { originalPrompt ->
                     navController.navigate(
                         Screens.ResultScreen(
@@ -69,7 +70,7 @@ fun NavigationController() {
             val args = it.toRoute<Screens.CheckSolutionInformationScreen>()
             CheckSolutionScreen(
                 context = context,
-                selectedImageUri = args.selectedImageUri,
+               // selectedImageUri = args.selectedImageUri,
                 onNavigateToResultScreen = { originalPrompt ->
                     navController.navigate(
                         Screens.ResultScreen(
@@ -96,10 +97,12 @@ fun NavigationController() {
     }
 }
 
+
 @Serializable
 sealed class Screens {
+
     @Serializable
-    data object HomeScreen : Screens()
+    data object HomeScreen: Screens()
 
     @Serializable
     data class ParametersScreen(

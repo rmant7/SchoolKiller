@@ -1,12 +1,13 @@
 package com.schoolkiller.presentation.screens.result
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.schoolkiller.data.Constants
+import com.google.android.gms.ads.AdView
 import com.schoolkiller.data.network.api.GeminiApiService
 import com.schoolkiller.data.network.response.GeminiResponse
+import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
 import com.schoolkiller.domain.usecases.ads.InterstitialAdUseCase
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
@@ -26,24 +27,13 @@ class ResultViewModel @Inject constructor(
     private val geminiApiService: GeminiApiService,
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
-    private val interstitialAdUseCase: InterstitialAdUseCase
+    private val interstitialAdUseCase: InterstitialAdUseCase,
+    private val bannerAdUseCase: BannerAdUseCase
 ) : ViewModel() {
 
-    // InterstitialAd State
-    private var _interstitialAd = MutableStateFlow<InterstitialAd?>(null)
-    val interstitialAd: StateFlow<InterstitialAd?> = _interstitialAd
-
-    fun updateInterstitialAd(newAd: InterstitialAd?) {
-        _interstitialAd.update { newAd }
-    }
-
-    fun loadInterstitialAd() {
-        interstitialAdUseCase.loadAd(
-            adUnitId = Constants.INTERSTITIAL_AD_ID,
-            viewModel = this@ResultViewModel
-        )
-    }
-
+    // Medium Banner State
+    private var _adview = MutableStateFlow<AdView?>(null)
+    val adview: StateFlow<AdView?> = _adview
 
     private val _textGenerationResult = MutableStateFlow("")
     val textGenerationResult = _textGenerationResult.asStateFlow()
@@ -67,6 +57,13 @@ class ResultViewModel @Inject constructor(
         error?.let { err -> _error.update { err } }
     }
 
+    init {
+        _adview.update { bannerAdUseCase.getMediumBannerAdView() }
+    }
+
+    fun showInterstitialAd(context: Context) {
+        interstitialAdUseCase.show(context)
+    }
 
     fun fetchGeminiResponse(
         imageUri: Uri,
@@ -125,10 +122,65 @@ class ResultViewModel @Inject constructor(
         _error.value = null
     }
 
+    //Don't remove, for future development
+    /*
+       fun fetchAIResponse(
+           imageUri: Uri,
+           fileName: String,
+           context: Context
+           aiModelOption: AiModelOptions
+       ) {
 
+           when (aiModelOption) {
+             AiModelOptions.MODEL_ONE -> fetchOpenAiResponse(imageUri)
+               AiModelOptions.MODEL_TWO -> fetchGeminiResponse(
+                   imageUri, fileName, ""
+               )
+           }
+       }
+   */
 
-    init {
-        loadInterstitialAd()
+    //Don't remove, for future development
+    /*
+       private fun convertToBase64(selectedUri: Uri, context: Context): String {
+           val bitmap = MediaStore.Images.Media.getBitmap(
+               context.contentResolver,
+               selectedUri
+           )
+           val outputStream = ByteArrayOutputStream()
+           bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+           val byteArray = outputStream.toByteArray()
+
+           val encodedString: String = Base64.encodeToString(
+               byteArray, Base64.DEFAULT
+           )
+           return encodedString
+       }
+   */
+
+    //Don't remove, for future development
+    /*
+    fun fetchOpenAiResponse(imageUri: Uri, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val key = "API_KEY"
+
+            val model: OpenAiChatModel = OpenAiChatModel.builder()
+                .apiKey(key)
+                .modelName("gpt-4o")
+                .build()
+
+            val userMessage: UserMessage = UserMessage.from(
+                TextContent.from("What is in this picture?"),
+                ImageContent.from(
+                    convertToBase64(imageUri, context), "image/png",
+                    ImageContent.DetailLevel.LOW
+                )
+            )
+            val response: Response<AiMessage> = model.generate(userMessage)
+
+            updateTextGenerationResult(response.content().text())
+        }
     }
+*/
 
 }

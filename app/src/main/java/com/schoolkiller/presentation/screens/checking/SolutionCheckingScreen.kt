@@ -2,11 +2,10 @@ package com.schoolkiller.presentation.screens.checking
 
 import ExposedDropBox
 import android.content.Context
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -28,22 +27,21 @@ import com.schoolkiller.presentation.ads.BannerAdContainer
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.AttentionAlertDialog
 import com.schoolkiller.presentation.common.UniversalButton
-import com.schoolkiller.presentation.common.getSystemLocale
 import com.schoolkiller.presentation.screens.result.ResultViewModel
 
 @Composable
 fun CheckSolutionScreen(
     modifier: Modifier = Modifier,
     context: Context,
-    selectedImageUri: String, // Received argument
+    //selectedImageUri: String, // Received argument
     onNavigateToResultScreen: (String) -> Unit
 ) {
     val viewModel: SolutionCheckingViewModel = hiltViewModel()
     val resultViewModel: ResultViewModel = hiltViewModel()
     val solutionProperties = viewModel.solutionPropertiesState.collectAsState().value
-//    val selectedGrade = viewModel.selectedGradeOption
+
     val adView = viewModel.adview.collectAsState()
-    val systemLocale = getSystemLocale()
+
 
 
 
@@ -92,10 +90,6 @@ fun CheckSolutionScreen(
             )
 
 
-            /**
-             * what the following Spacer padding parameters are? like vertical, horizontal, top, bottom?
-             */
-//        Spacer(Modifier.padding(0.dp, 20.dp))
             // Rating Slider for max selected rating value, don't remove.
             // Text(stringResource(R.string.rating_TextField_label))
             // RatingSlider(viewModel)
@@ -115,19 +109,13 @@ fun CheckSolutionScreen(
                 }
             )
 
-            Row(
+        }, bottomBar = {
+            UniversalButton(
                 modifier = modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                    .navigationBarsPadding()
+                    .fillMaxWidth(),
+                label = R.string.check_solution_button_label,
             ) {
-
-                //Reused Component
-                UniversalButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = R.string.check_solution_button_label,
-                ) {
 
                     //Updating rating scale in prompt, don't remove.
                     /*val originalPrompt = viewModel.originalPrompt.value
