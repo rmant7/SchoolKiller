@@ -21,21 +21,9 @@ class SolutionCheckingViewModel @Inject constructor(
     private val bannerAdUseCase: BannerAdUseCase
 ) : ViewModel() {
 
-    /*init {
-        // additional load in case other ones failed
-        bannerAdUseCase.loadAd()
-    }*/
-
     // BannerAd State
     private var _adview = MutableStateFlow<AdView?>(null)
     val adview: StateFlow<AdView?> = _adview
-    private fun updateAdview(newAd: AdView?) {
-        _adview.update { newAd }
-    }
-
-    fun getBannerAdView(): AdView? {
-        return bannerAdUseCase.getStretchedBannerAdView()
-    }
 
     private var _originalPromptText = MutableStateFlow("")
     val originalPrompt: StateFlow<String> = _originalPromptText
@@ -99,7 +87,7 @@ class SolutionCheckingViewModel @Inject constructor(
     }
 
     init {
-        updateAdview(getBannerAdView())
+        _adview.update { bannerAdUseCase.getStretchedBannerAdView() }
     }
 
 }

@@ -47,6 +47,7 @@ fun CheckSolutionScreen(
             // Banner ad
             BannerAdContainer(adView = adView.value)
 
+            // Screen image was changed to big banner
             /*ScreenImage(
                 modifier = modifier
                     .fillMaxHeight(0.35f), // adjust the height of the image from here

@@ -33,7 +33,6 @@ import com.schoolkiller.domain.SolutionLanguageOption
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
-import com.schoolkiller.presentation.common.getSystemLocale
 import com.schoolkiller.presentation.screens.result.ResultViewModel
 
 @Composable
@@ -48,7 +47,6 @@ fun ParametersScreen(
     val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption.collectAsState()
     val selectedExplanationLevel = viewModel.selectedExplanationLevelOption.collectAsState()
     val descriptionText: String by viewModel.descriptionText.collectAsState()
-    val systemLocale = getSystemLocale()
 
 
     ApplicationScaffold(

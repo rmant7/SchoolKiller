@@ -18,13 +18,21 @@ class BannerAdUseCase @Inject constructor(
 ) : AdUseCase() {
 
     private var stretchedBanner: AdView? = null
-    private var mediumBanner: AdView? = null
+
+    private var mediumBanner: AdView? = AdView(context).apply {
+        this.adUnitId = Constants.BANNER_AD_ID
+        this.setAdSize(AdSize.MEDIUM_RECTANGLE)
+    }
 
     override fun load() {
 
         if (stretchedBanner == null) {
             val adSize = AdSize(AdSize.FULL_WIDTH, 650)
-            //val adaptiveSize = AdSize.getInlineAdaptiveBannerAdSize(AdSize.FULL_WIDTH, 700)
+
+           /* val adaptiveSize = AdSize.getInlineAdaptiveBannerAdSize(
+                AdSize.FULL_WIDTH,
+                (maxScreenHeight * 0.2).roundToInt()
+            )*/
 
             stretchedBanner = AdView(context).apply {
                 this.adUnitId = Constants.BANNER_AD_ID
@@ -32,18 +40,13 @@ class BannerAdUseCase @Inject constructor(
             }
         }
 
-        if (mediumBanner == null) {
-            mediumBanner = AdView(context).apply {
-                this.adUnitId = Constants.BANNER_AD_ID
-                this.setAdSize(AdSize.MEDIUM_RECTANGLE)
-            }
-        }
-
         loadBanner(stretchedBanner)
         loadBanner(mediumBanner)
     }
 
-    private fun loadBanner(adView: AdView?) {
+    private fun loadBanner(
+        adView: AdView?
+    ) {
 
         adView?.apply {
             adListener = object : AdListener() {
@@ -61,12 +64,11 @@ class BannerAdUseCase @Inject constructor(
         adView?.loadAd(AdRequest.Builder().build())
     }
 
-
     fun getStretchedBannerAdView(): AdView? {
         return stretchedBanner
     }
 
-    fun getSMediumBannerAdView(): AdView? {
+    fun getMediumBannerAdView(): AdView? {
         return mediumBanner
     }
 

@@ -57,7 +57,7 @@ fun ResultScreen(
 
     //val interstitialAd = viewModel.interstitialAd.collectAsState()
     val isResultFetched = viewModel.isResultFetchedStatus.collectAsState()
-
+    val adView = viewModel.adview.collectAsState()
     /**
      * Attempt to fix following issue:
      * Gemini sometimes fetch 2-3 times with one call
@@ -66,7 +66,6 @@ fun ResultScreen(
     // fetch only when user requested AI response
     // and result wasn't fetched yet
     if (requestGeminiResponse.value && !isResultFetched.value) {
-        //viewModel.showInterstitialAd(context)
 
         viewModel.fetchGeminiResponse(
             imageUri = selectedImageUri.toUri(),
@@ -75,7 +74,6 @@ fun ResultScreen(
         )
         // result is fetched and this block wouldn't run
         // until new try request from user
-        //viewModel.updateRequestGeminiResponse(false)
         viewModel.updateResultFetchedStatus(true)
     }
 
@@ -123,7 +121,9 @@ fun ResultScreen(
             */
 
             LazyColumn(
-                modifier = modifier,
+                modifier = modifier
+                    .fillMaxHeight(0.65f)
+                    .padding(0.dp, 10.dp),
                 state = responseListState,
                 content = {
 
@@ -154,8 +154,7 @@ fun ResultScreen(
                             SelectionContainer {
                                 OutlinedTextField(
                                     modifier = modifier
-                                        .padding(0.dp, 10.dp)
-                                        .fillMaxHeight(0.7f)
+                                        //.fillMaxHeight(0.7f)
                                         .fillMaxWidth(),
                                     value = resultText,
                                     onValueChange = {},
@@ -166,13 +165,11 @@ fun ResultScreen(
                                     readOnly = true
                                 )
                             }
-
-                            BannerAdContainer(adView = viewModel.getMediumBannerAd())
                         }
                     }
                 }
             )
-
+            BannerAdContainer(adView = adView.value)
         },
         bottomBar = {
             Column(

@@ -31,6 +31,10 @@ class ResultViewModel @Inject constructor(
     private val bannerAdUseCase: BannerAdUseCase
 ) : ViewModel() {
 
+    // Medium Banner State
+    private var _adview = MutableStateFlow<AdView?>(null)
+    val adview: StateFlow<AdView?> = _adview
+
     private val _textGenerationResult = MutableStateFlow("")
     val textGenerationResult = _textGenerationResult.asStateFlow()
 
@@ -53,12 +57,12 @@ class ResultViewModel @Inject constructor(
         error?.let { err -> _error.update { err } }
     }
 
-    fun showInterstitialAd(context: Context) {
-        interstitialAdUseCase.show(context)
+    init {
+        _adview.update { bannerAdUseCase.getMediumBannerAdView() }
     }
 
-    fun getMediumBannerAd(): AdView? {
-       return bannerAdUseCase.getSMediumBannerAdView()
+    fun showInterstitialAd(context: Context) {
+        interstitialAdUseCase.show(context)
     }
 
     fun fetchGeminiResponse(

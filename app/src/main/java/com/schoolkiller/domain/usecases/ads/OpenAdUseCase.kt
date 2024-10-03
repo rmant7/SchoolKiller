@@ -24,6 +24,12 @@ class OpenAdUseCase @Inject constructor(
     var openAdLastAdShownTime: Long = 0L
     var isOpenAdLoading: Boolean = false
 
+    var onAppOpenAdLoaded: (AppOpenAd?) -> Unit = {}
+
+    fun setOnLoaded(onLoaded: (AppOpenAd?) -> Unit) {
+        this.onAppOpenAdLoaded = onLoaded
+    }
+
     override fun load() {
 
         if (isOpenAdLoading && appOpenAd != null) return
@@ -40,6 +46,7 @@ class OpenAdUseCase @Inject constructor(
                     appOpenAd = ad
                     openAdLoadTime = System.currentTimeMillis()
                     isOpenAdLoading = false
+                    onAppOpenAdLoaded(ad)
                 }
 
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {

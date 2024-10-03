@@ -101,12 +101,12 @@ fun HomeScreen(
         }
     }
 
+    // Show App Open Ad
+    viewModel.showAppOpenAd(context)
+
 
     ApplicationScaffold(
         content = {
-
-           // Show App Open Ad
-           viewModel.showAppOpenAd(context)
 
             when (selectedUploadFileMethod) {
                 UploadFileMethodOptions.TAKE_A_PICTURE -> {
@@ -310,54 +310,10 @@ fun HomeScreen(
             Column(
                 modifier = Modifier.navigationBarsPadding()
             ) {
-
-                //Cheat sheet button, can be removed (?)
-                /* UniversalButton(
-                 modifier = modifier
-                     .fillMaxWidth()
-                     .padding(horizontal = 8.dp)
-                     .weight(1f),
-                 label = R.string.cheat_sheet_button_label
-             ) {
-                 onNavigateToResultScreen()
-             }*/
                 val uploadImageWarningMessage = stringResource(R.string.upload_image_warning)
                 val selectImageWarningMessage = stringResource(R.string.select_image_warning)
 
-
-                UniversalButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = R.string.check_solution_button_label
-                ) {
-
-                    when {
-                        images.value.isEmpty() -> {
-                            Toast.makeText(
-                                context,
-                                uploadImageWarningMessage,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-
-                        selectedImageUri == null -> {
-                            Toast.makeText(
-                                context,
-                                selectImageWarningMessage,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-
-                        else -> {
-                            viewModel.updateSelectedUri(selectedImageUri)
-                            onNavigateToCheckSolutionOptionsScreen(selectedImageUri)
-                        }
-                    }
-                }
-
-                UniversalButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = R.string.solve_button_label
-                ) {
+                fun onNextClick(onNavigate: () -> Unit) {
                     when {
                         images.value.isEmpty() -> {
                             Toast.makeText(
@@ -369,7 +325,7 @@ fun HomeScreen(
 
                         selectedImageUri != null -> {
                             viewModel.updateSelectedUri(selectedImageUri)
-                            onNavigateToParametersScreen(selectedImageUri)
+                            onNavigate()
                         }
 
                         else -> {
@@ -381,34 +337,33 @@ fun HomeScreen(
                         }
                     }
                 }
+
+                UniversalButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = R.string.check_solution_button_label
+                ) {
+                    onNextClick {
+                        onNavigateToCheckSolutionOptionsScreen(selectedImageUri!!)
+                    }
+                }
+
+                UniversalButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = R.string.solve_button_label,
+                    onButtonClicked = {
+                        onNextClick {
+                            onNavigateToParametersScreen(selectedImageUri!!)
+                        }
+                    }
+                )
+
             }
         }
     )
 }
 
-/*
-    val systemLocale = getSystemLocale()
 
-    when(systemLocale.language) {
-        "iw" -> {
-            modifier
-                .weight(1f)
-                .fillMaxHeight(0.4f)
-        }
 
-        "ru" -> {
-            modifier
-                .weight(1f)
-                .fillMaxHeight(0.4f)
-        }
-
-        else -> {
-            modifier
-                .weight(1f)
-                .fillMaxHeight(0.4f)
-        }
-    }
-     */
 
 
 
