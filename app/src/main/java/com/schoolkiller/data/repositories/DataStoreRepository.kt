@@ -10,6 +10,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.schoolkiller.data.Constants
 import com.schoolkiller.domain.ExplanationLevelOption
 import com.schoolkiller.domain.GradeOption
+import com.schoolkiller.domain.PromptText
 import com.schoolkiller.domain.SolutionLanguageOption
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
@@ -29,9 +30,12 @@ class DataStoreRepository @Inject constructor(
 
     private object PreferenceKeys {
         val gradeOptionState = stringPreferencesKey(name = Constants.GRADE_OPTION)
+        val solutionGradeOptionState = stringPreferencesKey(name = Constants.SOLUTION_GRADE_OPTION)
         val languageOptionState = stringPreferencesKey(name = Constants.LANGUAGE_OPTION)
         val explanationLevelOptionState = stringPreferencesKey(name = Constants.EXPLANATION_LEVEL_OPTION)
         val descriptionState = stringPreferencesKey(name = Constants.DESCRIPTION)
+        val solvePromptState = stringPreferencesKey(name = Constants.SOLVE_PROMPT)
+        val solutionPromptState = stringPreferencesKey(name = Constants.SOLUTION_PROMPT)
     }
 
     private val dataStore = context.dataStore
@@ -40,6 +44,12 @@ class DataStoreRepository @Inject constructor(
     suspend fun persistGradeOptionState(gradeOption: GradeOption) {
         dataStore.edit { preference ->
             preference[PreferenceKeys.gradeOptionState] = gradeOption.name
+        }
+    }
+
+    suspend fun persistSolutionGradeOptionState(solutionGradeOption: GradeOption) {
+        dataStore.edit { preference ->
+            preference[PreferenceKeys.solutionGradeOptionState] = solutionGradeOption.name
         }
     }
 
@@ -61,6 +71,18 @@ class DataStoreRepository @Inject constructor(
         }
     }
 
+    suspend fun persistSolvePromptState(solvePrompt : String) {
+        dataStore.edit { preference ->
+            preference[PreferenceKeys.solvePromptState] = solvePrompt
+        }
+    }
+
+    suspend fun persistSolutionPromptState(solutionPrompt : String) {
+        dataStore.edit { preference ->
+            preference[PreferenceKeys.solutionPromptState] = solutionPrompt
+        }
+    }
+
     val readGradeOptionState: Flow<String> = dataStore.data
         .catch { exception ->
             if (exception is IOException) {
@@ -71,6 +93,18 @@ class DataStoreRepository @Inject constructor(
         }.map { preferences ->
             val gradeOptionState = preferences[PreferenceKeys.gradeOptionState] ?: GradeOption.NONE.name
             gradeOptionState
+        }
+
+    val readSolutionGradeOptionState: Flow<String> = dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map { preferences ->
+            val solutionGradeOptionState = preferences[PreferenceKeys.solutionGradeOptionState] ?: GradeOption.NONE.name
+            solutionGradeOptionState
         }
 
     val readLanguageOptionState: Flow<String> = dataStore.data
@@ -107,6 +141,31 @@ class DataStoreRepository @Inject constructor(
         }.map { preferences ->
             val descriptionState = preferences[PreferenceKeys.descriptionState] ?: ""
             descriptionState
+        }
+
+    val readSolvePromptState: Flow<String> = dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map { preferences ->
+            val solvePromptState = preferences[PreferenceKeys.solvePromptState] ?: PromptText.SOLVE_PROMPT.promptText
+            solvePromptState
+        }
+
+
+    val readSolutionPromptState: Flow<String> = dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map { preferences ->
+            val solutionPromptState = preferences[PreferenceKeys.solutionPromptState] ?: PromptText.CHECK_SOLUTION_PROMPT.promptText
+            solutionPromptState
         }
 
 }

@@ -1,6 +1,7 @@
 package com.schoolkiller
 
 import android.app.Application
+import com.google.ai.client.generativeai.BuildConfig
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.MobileAds
 import com.schoolkiller.data.Constants
@@ -10,6 +11,7 @@ import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -37,6 +39,11 @@ class SchoolKillerApplication : Application(){
             adUnitId = Constants.BANNER_AD_ID,
             adSize = AdSize.MEDIUM_RECTANGLE
         )
+
+        // Take out logs of the release version with this set
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
 
     }
 }

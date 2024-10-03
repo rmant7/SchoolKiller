@@ -12,8 +12,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -25,11 +27,13 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
 import com.schoolkiller.domain.ExplanationLevelOption
 import com.schoolkiller.domain.GradeOption
 import com.schoolkiller.domain.SolutionLanguageOption
 import com.schoolkiller.presentation.common.ApplicationScaffold
+import com.schoolkiller.presentation.common.AttentionAlertDialog
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
 import com.schoolkiller.presentation.common.getSystemLocale
@@ -48,11 +52,22 @@ fun ParametersScreen(
     val homeViewModel: HomeViewModel = hiltViewModel()
     val imageUri = homeViewModel.selectedUri
     val parameterScreenProperties = viewModel.parameterPropertiesState.collectAsState().value
-//    val selectedGrade = viewModel.selectedGradeOption.collectAsState()
-//    val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption.collectAsState()
-//    val selectedExplanationLevel = viewModel.selectedExplanationLevelOption.collectAsState()
-//    val descriptionText: String by viewModel.descriptionText.collectAsState()
     val systemLocale = getSystemLocale()
+
+
+    /** testing the prompt check also the solve button*/
+    var isAttentionDialogShowed by remember { mutableStateOf(false) }
+    var proceedToResultScreen by remember { mutableStateOf(false) }
+    AttentionAlertDialog(
+        isShowed = isAttentionDialogShowed,
+        message = parameterScreenProperties.solvePromptText,
+        onDismiss = { isAttentionDialogShowed = false },
+        onCancel = { isAttentionDialogShowed = false },
+        onConfirm = {
+            isAttentionDialogShowed = false
+            proceedToResultScreen = true
+        }
+    )
 
 
 
@@ -167,17 +182,23 @@ fun ParametersScreen(
                 ) {
 
 
-                        viewModel.buildPropertiesPrompt()
+                    viewModel.buildSolvingPrompt()
+
+                    isAttentionDialogShowed = true // testing the prompt
+
+                    if (proceedToResultScreen) {    // testing the prompt
+
+                        isAttentionDialogShowed = false
 
                         // on back press from ResultScreen we have to restore requestGeminiResponse back to true
-                        resultViewModel.updateRequestGeminiResponse(true)
+//                        resultViewModel.updateRequestGeminiResponse(true)
 
                         // reset TextGenerationResult to initialize the loading indicator
-                        resultViewModel.updateTextGenerationResult("")
+//                        resultViewModel.updateTextGenerationResult("")
 
-                        onNavigateToResultScreen(viewModel.originalPrompt.value)
+                        onNavigateToResultScreen(parameterScreenProperties.solvePromptText)
 
-
+                    } // testing the prompt
 
                 }
             }

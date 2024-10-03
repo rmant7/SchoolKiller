@@ -2,7 +2,6 @@ package com.schoolkiller.presentation.screens.info
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.schoolkiller.data.RequestDataState
 import com.schoolkiller.data.repositories.DataStoreRepository
 import com.schoolkiller.domain.ExplanationLevelOption
 import com.schoolkiller.domain.GradeOption
@@ -14,8 +13,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,28 +24,26 @@ class ParametersViewModel @Inject constructor(
     private val dataStoreRepository: DataStoreRepository
 ) : ViewModel() {
 
-
     private val _parameterPropertiesState = MutableStateFlow(ParameterProperties())
-    val parameterPropertiesState: StateFlow<ParameterProperties> = _parameterPropertiesState.asStateFlow()
+    val parameterPropertiesState: StateFlow<ParameterProperties> =
+        _parameterPropertiesState.asStateFlow()
+    /*   Thinking of this approach, need more testing
+    private val _parameterPropertiesState = MutableStateFlow(ParameterProperties())
+    val parameterPropertiesState = _parameterPropertiesState
+       .onStart {
+           readSolvePromptState()
+           readGradeOptionState()
+           readLanguageOptionState()
+           readExplanationLevelOptionState()
+           readDescriptionOptionState()
+       }
+       .stateIn(
+           viewModelScope,
+           SharingStarted.WhileSubscribed(5000L),
+           _parameterPropertiesState.value
+       )
+     */
 
-    private var _originalPrompt = MutableStateFlow(PromptText.SOLVE_PROMPT.promptText)
-    val originalPrompt: StateFlow<String> = _originalPrompt.asStateFlow()
-
-//    private var _selectedGrade = MutableStateFlow(GradeOption.NONE)
-//    val selectedGradeOption: StateFlow<GradeOption>
-//        get() = _selectedGrade.asStateFlow()
-//
-//    private var _selectedLanguage = MutableStateFlow(SolutionLanguageOption.ORIGINAL_TASK_LANGUAGE)
-//    val selectedSolutionLanguageOption: StateFlow<SolutionLanguageOption>
-//        get() = _selectedLanguage.asStateFlow()
-//
-//    private var _selectedExplanationLevel =
-//        MutableStateFlow(ExplanationLevelOption.SHORT_EXPLANATION)
-//    val selectedExplanationLevelOption: StateFlow<ExplanationLevelOption>
-//        get() = _selectedExplanationLevel.asStateFlow()
-//
-//    private var _descriptionText = MutableStateFlow("")
-//    val descriptionText: StateFlow<String> = _descriptionText.asStateFlow()
 
     private var _error = MutableStateFlow<Throwable?>(null)
     val error: StateFlow<Throwable?>
@@ -54,145 +53,179 @@ class ParametersViewModel @Inject constructor(
         _parameterPropertiesState.update { currentState ->
             currentState.copy(grade = newClassSelection)
         }
+        persistGradeOptionState(newClassSelection)
     }
 
     fun updateSelectedLanguageOption(newLanguageSelection: SolutionLanguageOption) {
         _parameterPropertiesState.update { currentState ->
             currentState.copy(language = newLanguageSelection)
         }
+        persistLanguageOptionState(newLanguageSelection)
     }
 
     fun updateSelectedExplanationLevelOption(newExplanationLevelSelection: ExplanationLevelOption) {
         _parameterPropertiesState.update { currentState ->
             currentState.copy(explanationLevel = newExplanationLevelSelection)
         }
+        persistExplanationLevelOptionState(newExplanationLevelSelection)
     }
 
     fun updateDescriptionText(addedText: String) {
         _parameterPropertiesState.update { currentState ->
             currentState.copy(description = addedText)
         }
+        persistDescriptionState(addedText)
     }
 
-    fun buildPropertiesPrompt() {
-        // reset
-        _originalPrompt.update { PromptText.SOLVE_PROMPT.promptText }
-
-        updateGradePrompt()
-        updateLanguagePrompt()
-        updateExplanationPrompt()
-        _originalPrompt.update {
-//            "${_originalPrompt.value} ${descriptionText.value}"
-            "${_originalPrompt.value} ${parameterPropertiesState.value.description}"
+    private fun updateSolvePromptText(newSolvePromptText: String) {
+        _parameterPropertiesState.update { currentState ->
+            currentState.copy(solvePromptText = newSolvePromptText)
         }
+        persistSolvePromptTextState(newSolvePromptText)
     }
 
-    private fun updateGradePrompt() {
 
-        _originalPrompt.update {
-//            val selectedGradeStr = " ${_selectedGrade.value.arrayIndex}"
-            val selectedGradeStr = " ${parameterPropertiesState.value.grade.arrayIndex}"
-            return@update if (_originalPrompt.value.contains("(as grade+th grader)")) {
-                _originalPrompt
-                    .value
-                    .replace(
-                        "(as grade+th grader)",
-                        "as ${selectedGradeStr}th grader"
-                    )
-            } else {
-                _originalPrompt
-                    .value
-                    .plus(" Explain as ${selectedGradeStr}th grader.")
-            }
+    fun buildSolvingPrompt() {
+        val originalPrompt = PromptText.SOLVE_PROMPT.promptText
+        val selectedGradeStr = "${parameterPropertiesState.value.grade.arrayIndex}"
+        val selectedLanguageStr = "${parameterPropertiesState.value.language.languageName}"
+        val selectedExplanationStr = "${parameterPropertiesState.value.explanationLevel.code}"
+        val description = " ${parameterPropertiesState.value.description}"
+
+        val promptWithGradeOption = if (originalPrompt.contains("(as grade+th grader)")) {
+            originalPrompt.replace("(as grade+th grader)", "as ${selectedGradeStr}th grader")
+        } else {
+            originalPrompt
         }
-    }
-
-    private fun updateLanguagePrompt() {
-        val defaultLanguagePrompt = "(language shown on this picture)"
-
-        _originalPrompt.update {
-//            val selectedLanguageStr = " ${_selectedLanguage.value.languageName}"
-            val selectedLanguageStr = " ${parameterPropertiesState.value.language.languageName}"
-            return@update if (_originalPrompt.value.contains(defaultLanguagePrompt)) {
-                _originalPrompt
-                    .value
-                    .replace(defaultLanguagePrompt, selectedLanguageStr)
-            } else {
-                _originalPrompt
-                    .value
-                    .plus(
-                        " Explain only using ${selectedLanguageStr}."
-                    )
-            }
+        val promptWithLanguageOption = if (promptWithGradeOption.contains("(language shown on this picture)")) {
+            promptWithGradeOption.replace("(language shown on this picture)", selectedLanguageStr)
+        } else {
+            promptWithGradeOption
         }
-
-    }
-
-    private fun updateExplanationPrompt() {
-
-        _originalPrompt.update {
-//            val selectedExplanationStr = " ${_selectedExplanationLevel.value.code}"
-            val selectedExplanationStr = " ${parameterPropertiesState.value.explanationLevel.code}"
-            if (_originalPrompt.value.contains("(briefly)")) {
-                _originalPrompt.value.replace(
-                    "(briefly)",
-                    selectedExplanationStr
-                )
-            } else {
-                _originalPrompt.value.plus(" Explain ${selectedExplanationStr}.")
-            }
+        val promptWithExplanationOption = if (promptWithLanguageOption.contains("(briefly)")) {
+            promptWithLanguageOption.replace("(briefly)", selectedExplanationStr)
+        } else {
+            promptWithLanguageOption
         }
+        val promptWithDescription = promptWithExplanationOption.plus(description)
+
+        updateSolvePromptText(promptWithDescription)
     }
 
 
-    fun persistGradeOptionState(gradeOption: GradeOption) {
+    private fun persistGradeOptionState(gradeOption: GradeOption) {
         viewModelScope.launch(Dispatchers.IO) {
             dataStoreRepository.persistGradeOptionState(gradeOption = gradeOption)
         }
     }
 
-    fun persistLanguageOptionState(solutionLanguageOption: SolutionLanguageOption) {
+    private fun persistLanguageOptionState(solutionLanguageOption: SolutionLanguageOption) {
         viewModelScope.launch(Dispatchers.IO) {
             dataStoreRepository.persistLanguageOptionState(languageOption = solutionLanguageOption)
         }
     }
 
-    fun persistExplanationLevelOptionState(explanationLevelOption: ExplanationLevelOption) {
+    private fun persistExplanationLevelOptionState(explanationLevelOption: ExplanationLevelOption) {
         viewModelScope.launch(Dispatchers.IO) {
             dataStoreRepository.persistExplanationLevelOptionState(explanationLevelOption = explanationLevelOption)
         }
     }
 
-    fun persistDescriptionState(description: String) {
+    private fun persistDescriptionState(description: String) {
         viewModelScope.launch(Dispatchers.IO) {
             dataStoreRepository.persistDescriptionState(description = description)
         }
     }
 
-    private fun readPrioritySortState() {
-        
-        updateTaskState(UpdateTaskState.PrioritySortState(prioritySortState = RequestDataState.Loading))
-        updateTaskState(UpdateTaskState.UiState(uiState = UiState.Loading))
-        try {
-            viewModelScope.launch {
-                dataStoreRepository.readPrioritySortState.map { TaskPriority.valueOf(it) }
-                    .collect { priorityOrder ->
-                        updateTaskState(
-                            UpdateTaskState.PrioritySortState(
-                                RequestState.Success(
-                                    priorityOrder
-                                )
-                            )
-                        )
-                        updateTaskState(UpdateTaskState.UiState(uiState = UiState.Success))
-                    }
-            }
-        } catch (e: Exception) {
-            updateTaskState(UpdateTaskState.PrioritySortState(RequestDataState.Error(e)))
-            updateTaskState(UpdateTaskState.UiState(uiState = UiState.Error))
+    private fun persistSolvePromptTextState(newSolvePromptText: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStoreRepository.persistSolvePromptState(solvePrompt = newSolvePromptText)
         }
     }
 
 
-    
+    private fun readGradeOptionState() {
+        try {
+            viewModelScope.launch {
+                dataStoreRepository.readGradeOptionState.map { GradeOption.valueOf(it) }
+                    .collect { gradeOption ->
+                        updateSelectedGradeOption(gradeOption)
+                    }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error reading grade option state")
+            updateSelectedGradeOption(GradeOption.NONE)
+        }
+    }
+
+    private fun readLanguageOptionState() {
+        try {
+            viewModelScope.launch {
+                dataStoreRepository.readLanguageOptionState.map { SolutionLanguageOption.valueOf(it) }
+                    .collect { languageOption ->
+                        updateSelectedLanguageOption(languageOption)
+                    }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error reading language option state")
+            updateSelectedLanguageOption(SolutionLanguageOption.ORIGINAL_TASK_LANGUAGE)
+        }
+    }
+
+
+    private fun readExplanationLevelOptionState() {
+        try {
+            viewModelScope.launch {
+                dataStoreRepository.readExplanationLevelOptionState.map {
+                    ExplanationLevelOption.valueOf(
+                        it
+                    )
+                }
+                    .collect { explanationLevelOption ->
+                        updateSelectedExplanationLevelOption(explanationLevelOption)
+                    }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error reading explanation level option state")
+            updateSelectedExplanationLevelOption(ExplanationLevelOption.SHORT_EXPLANATION)
+        }
+    }
+
+    private fun readDescriptionOptionState() {
+        try {
+            viewModelScope.launch {
+                dataStoreRepository.readDescriptionState.collect { description ->
+                    updateDescriptionText(description)
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error reading description state")
+            updateDescriptionText("")
+        }
+    }
+
+    private fun readSolvePromptState() {
+        try {
+            viewModelScope.launch {
+                dataStoreRepository.readSolvePromptState.collect { solvePromptText ->
+                    updateSolvePromptText(solvePromptText)
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error reading solve prompt text state")
+            updateSolvePromptText(PromptText.SOLVE_PROMPT.promptText)
+        }
+    }
+
+
+
+
+    init {
+        readSolvePromptState()
+        readDescriptionOptionState()
+        readGradeOptionState()
+        readLanguageOptionState()
+        readExplanationLevelOptionState()
+    }
+
 }

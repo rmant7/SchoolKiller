@@ -125,6 +125,8 @@ class ResultViewModel @Inject constructor(
         _error.value = null
     }
 
+
+
     init {
         loadInterstitialAd()
     }

@@ -30,7 +30,7 @@ fun AttentionAlertDialog(
     modifier: Modifier = Modifier,
     isShowed: Boolean,
     message: String,
-    icon: Int,
+    icon: Int? = null,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     onCancel: () -> Unit

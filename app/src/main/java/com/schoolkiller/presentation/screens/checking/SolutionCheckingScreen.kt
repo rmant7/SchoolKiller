@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -25,6 +26,7 @@ import com.schoolkiller.R
 import com.schoolkiller.domain.GradeOption
 import com.schoolkiller.presentation.ads.BannerAdContainer
 import com.schoolkiller.presentation.common.ApplicationScaffold
+import com.schoolkiller.presentation.common.AttentionAlertDialog
 import com.schoolkiller.presentation.common.UniversalButton
 import com.schoolkiller.presentation.common.getSystemLocale
 import com.schoolkiller.presentation.screens.result.ResultViewModel
@@ -42,6 +44,23 @@ fun CheckSolutionScreen(
 //    val selectedGrade = viewModel.selectedGradeOption
     val adView = viewModel.adview.collectAsState()
     val systemLocale = getSystemLocale()
+
+
+
+    /** testing the prompt check also the checkSolution button*/
+    var isAttentionDialogShowed by remember { mutableStateOf(false) }
+    var proceedToResultScreen by remember { mutableStateOf(false) }
+//    val prompt = viewModel.originalPrompt.collectAsState().value
+    AttentionAlertDialog(
+        isShowed = isAttentionDialogShowed,
+        message = solutionProperties.solutionPromptText,
+        onDismiss = { isAttentionDialogShowed = false },
+        onCancel = { isAttentionDialogShowed = false },
+        onConfirm = {
+            isAttentionDialogShowed = false
+            proceedToResultScreen = true
+        }
+    )
 
 
     ApplicationScaffold(
@@ -118,17 +137,22 @@ fun CheckSolutionScreen(
                             "(1–100)", selectedMaxRate.toString()
                         )
                     )*/
+                    viewModel.buildSolutionPrompt()
 
+                    isAttentionDialogShowed = true // testing the prompt
 
-                        viewModel.buildPropertiesPrompt()
+                if (proceedToResultScreen){    // testing the prompt
 
-                        // on back press from ResultScreen we have to restore requestGeminiResponse back to true
-                        resultViewModel.updateRequestGeminiResponse(true)
+                    isAttentionDialogShowed = false
 
-                        // reset TextGenerationResult to initialize the loading indicator
-                        viewModel.updateTextGenerationResult("")
+                    // on back press from ResultScreen we have to restore requestGeminiResponse back to true
+//                    resultViewModel.updateRequestGeminiResponse(true)
 
-                        onNavigateToResultScreen(viewModel.originalPrompt.value)
+                    // reset TextGenerationResult to initialize the loading indicator
+//                    viewModel.updateTextGenerationResult("")
+
+                    onNavigateToResultScreen(solutionProperties.solutionPromptText)
+                } // testing the prompt
 
                 }
             }
