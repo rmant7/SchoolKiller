@@ -24,13 +24,6 @@ class SolutionCheckingViewModel @Inject constructor(
     // BannerAd State
     private var _adview = MutableStateFlow<AdView?>(null)
     val adview: StateFlow<AdView?> = _adview
-    private fun updateAdview(newAd: AdView?) {
-        _adview.update { newAd }
-    }
-
-    fun getBannerAdView(): AdView? {
-        return bannerAdUseCase.getBannerAdView()
-    }
 
 
     private val _solutionPropertiesState = MutableStateFlow(SolutionProperties())
@@ -102,7 +95,7 @@ class SolutionCheckingViewModel @Inject constructor(
     }
 
     init {
-        updateAdview(getBannerAdView())
+        _adview.update { bannerAdUseCase.getStretchedBannerAdView() }
     }
 
 }

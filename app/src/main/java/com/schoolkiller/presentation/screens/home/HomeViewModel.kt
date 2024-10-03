@@ -1,6 +1,7 @@
 package com.schoolkiller.presentation.screens.home
 
 import android.app.Activity
+import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.runtime.getValue
@@ -32,42 +33,9 @@ class HomeViewModel @Inject constructor(
     private val deleteFileRepository: DeleteFileRepository
 ) : ViewModel() {
 
-
-
     // OpenAd State
     private var _appOpenAd = MutableStateFlow<AppOpenAd?>(null)
     val appOpenAd: StateFlow<AppOpenAd?> = _appOpenAd
-    private var _isOpenAdLoading = MutableStateFlow<Boolean>(false)
-    val isOpenAdLoading: StateFlow<Boolean> = _isOpenAdLoading
-    private var _openAdLoadTime = MutableStateFlow<Long>(0L)
-    val openAdLoadTime: StateFlow<Long> = _openAdLoadTime
-    private var _openAdLastAdShownTime = MutableStateFlow<Long>(0L)
-    val openAdLastAdShownTime: StateFlow<Long> = _openAdLastAdShownTime
-
-
-    fun updateAppOpenAd(newAd: AppOpenAd?) {
-        _appOpenAd.update { newAd }
-    }
-
-    fun updateIsOpenAdLoading(isLoading: Boolean) {
-        _isOpenAdLoading.update { isLoading }
-    }
-
-    fun updateOpenAdLoadTime(newAdLoadTime: Long) {
-        _openAdLoadTime.update { newAdLoadTime }
-    }
-
-    fun updateOpenAdLastAdShownTime(newLastAdShowTime: Long) {
-        _openAdLastAdShownTime.update { newLastAdShowTime }
-    }
-
-
-    fun loadOpenAd() = viewModelScope.launch {
-        openAdUseCase.loadOpenAd(
-            adUnitId = Constants.OPEN_AD_ID,
-            viewModel = this@HomeViewModel
-        )
-    }
 
 
     private var _listOfImages = MutableStateFlow(mutableStateListOf<Uri>())
@@ -80,7 +48,9 @@ class HomeViewModel @Inject constructor(
     private var _selectedImageUri = MutableStateFlow<Uri?>(null)
     val selectedUri: StateFlow<Uri?> = _selectedImageUri
 
-
+    fun showAppOpenAd(context: Context) {
+        openAdUseCase.showOpenAppAd(context)
+    }
 
     fun clearImagesOnTheList() {
         _listOfImages.update { it.apply { clear() } }
@@ -132,7 +102,9 @@ class HomeViewModel @Inject constructor(
 
 
     init {
-        loadOpenAd()
+        openAdUseCase.setOnLoaded { ad ->
+            _appOpenAd.update { ad }
+        }
     }
 
 }

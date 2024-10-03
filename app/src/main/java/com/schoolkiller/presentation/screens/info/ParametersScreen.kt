@@ -32,29 +32,20 @@ import com.schoolkiller.domain.SolutionLanguageOption
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
-import com.schoolkiller.presentation.common.getSystemLocale
-import com.schoolkiller.presentation.screens.home.HomeViewModel
 import com.schoolkiller.presentation.screens.result.ResultViewModel
 
 @Composable
 fun ParametersScreen(
     modifier: Modifier = Modifier,
     context: Context,
-    selectedImageUri: String, // Received argument
+    //selectedImageUri: String, // Received argument
     onNavigateToResultScreen: (String) -> Unit
 ) {
     val viewModel: ParametersViewModel = hiltViewModel()
     val resultViewModel: ResultViewModel = hiltViewModel()
-    val homeViewModel: HomeViewModel = hiltViewModel()
-    val imageUri = homeViewModel.selectedUri
+    //val homeViewModel: HomeViewModel = hiltViewModel()
+    //val imageUri = homeViewModel.selectedUri
     val parameterScreenProperties = viewModel.parameterPropertiesState.collectAsState().value
-//    val selectedGrade = viewModel.selectedGradeOption.collectAsState()
-//    val selectedSolutionLanguage = viewModel.selectedSolutionLanguageOption.collectAsState()
-//    val selectedExplanationLevel = viewModel.selectedExplanationLevelOption.collectAsState()
-//    val descriptionText: String by viewModel.descriptionText.collectAsState()
-    val systemLocale = getSystemLocale()
-
-
 
 
     ApplicationScaffold(
@@ -166,19 +157,15 @@ fun ParametersScreen(
                     label = R.string.solve_button_label,
                 ) {
 
+                    viewModel.buildPropertiesPrompt()
 
-                        viewModel.buildPropertiesPrompt()
+                    // on back press from ResultScreen we have to restore requestGeminiResponse back to true
+                    resultViewModel.updateRequestGeminiResponse(true)
 
-                        // on back press from ResultScreen we have to restore requestGeminiResponse back to true
-                        resultViewModel.updateRequestGeminiResponse(true)
+                    // reset TextGenerationResult to initialize the loading indicator
+                    resultViewModel.updateTextGenerationResult("")
 
-                        // reset TextGenerationResult to initialize the loading indicator
-                        resultViewModel.updateTextGenerationResult("")
-
-                        onNavigateToResultScreen(viewModel.originalPrompt.value)
-
-
-
+                    onNavigateToResultScreen(viewModel.originalPrompt.value)
                 }
             }
         }

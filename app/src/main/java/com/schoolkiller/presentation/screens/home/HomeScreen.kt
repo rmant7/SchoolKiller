@@ -41,7 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import com.schoolkiller.R
 import com.schoolkiller.domain.UploadFileMethodOptions
-import com.schoolkiller.presentation.ads.AppOpenAdHandler
+
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.AttentionAlertDialog
 import com.schoolkiller.presentation.common.EnlargedImage
@@ -67,10 +67,15 @@ fun HomeScreen(
     onNavigateToCheckSolutionOptionsScreen: (Uri) -> Unit
 ) {
 
+
 //    val pictures by viewModel.allPictures.collectAsState(initial = emptyList())
 
     val viewModel: HomeViewModel = hiltViewModel()
-    // updating viewmodel with previous uploaded pictures
+
+    /** Updating viewmodel with previous uploaded pictures,
+    * for some reason list of images resets every time without this code line,
+     * even though we have viewModel.insertImagesOnTheList(uris) in this screen
+     */
     viewModel.updateListOfImages(listOfImages)
     val selectedUploadFileMethod = viewModel.selectedUploadMethodOption
     val images = viewModel.listOfImages.collectAsState()
@@ -78,7 +83,7 @@ fun HomeScreen(
     val selectedImageUri = selectedImageIndex.value?.let { images.value[it] }
     var isImageEnlarged by remember { mutableStateOf(false) }
     val state = rememberLazyListState()
-    //val systemLocale = getSystemLocale()
+
     var invalidImagesPlaceholder by remember { mutableStateOf<List<Uri>>(emptyList()) }
     var isAttentionDialogShowed by remember { mutableStateOf(false) }
 
@@ -145,17 +150,12 @@ fun HomeScreen(
     }
 
 
+    // Show App Open Ad
+    viewModel.showAppOpenAd(context)
 
 
     ApplicationScaffold(
         content = {
-
-            // App Open Ad
-            AppOpenAdHandler(
-                context = context,
-                viewModel = viewModel,
-            )
-
 
             when (selectedUploadFileMethod) {
 
@@ -297,8 +297,10 @@ fun HomeScreen(
                                     }
                                 )
                             }
+
                         }
                     )
+
                 }
             }
         },
@@ -307,61 +309,10 @@ fun HomeScreen(
                 modifier = Modifier.navigationBarsPadding()
             ) {
 
-                //Cheat sheet button, can be removed (?)
-                /* UniversalButton(
-         modifier = modifier
-             .fillMaxWidth()
-             .padding(horizontal = 8.dp)
-             .weight(1f),
-         label = R.string.cheat_sheet_button_label
-        ) {
-         onNavigateToResultScreen()
-        }*/
-                val uploadImageWarningMessage =
-                    stringResource(R.string.upload_image_warning)
-                val selectImageWarningMessage =
-                    stringResource(R.string.select_image_warning)
+                val uploadImageWarningMessage = stringResource(R.string.upload_image_warning)
+                val selectImageWarningMessage = stringResource(R.string.select_image_warning)
 
-
-                UniversalButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = R.string.check_solution_button_label
-                ) {
-
-                    when {
-                        images.value.isEmpty() -> {
-                            Toast.makeText(
-                                context,
-                                uploadImageWarningMessage,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-
-                        selectedImageUri == null -> {
-                            Toast.makeText(
-                                context,
-                                selectImageWarningMessage,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-
-                        else -> {
-                            val isUriValid = viewModel.checkUriValidity(selectedImageUri)
-                            if (isUriValid) {
-                                viewModel.updateSelectedUri(selectedImageUri)
-                                onNavigateToCheckSolutionOptionsScreen(selectedImageUri)
-                            } else {
-                                ShowToastMessage.CORRUPTED_LOADED_FILE.showToast()
-                            }
-
-                        }
-                    }
-                }
-
-                UniversalButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = R.string.solve_button_label
-                ) {
+                fun onNextClick(onNavigate: () -> Unit) {
                     when {
                         images.value.isEmpty() -> {
                             Toast.makeText(
@@ -375,7 +326,7 @@ fun HomeScreen(
                             val isUriValid = viewModel.checkUriValidity(selectedImageUri)
                             if (isUriValid) {
                                 viewModel.updateSelectedUri(selectedImageUri)
-                                onNavigateToParametersScreen(selectedImageUri)
+                                onNavigate()
                             } else {
                                 ShowToastMessage.CORRUPTED_LOADED_FILE.showToast()
                             }
@@ -390,35 +341,31 @@ fun HomeScreen(
                         }
                     }
                 }
+
+                UniversalButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = R.string.check_solution_button_label
+                ) {
+                    onNextClick {
+                        onNavigateToCheckSolutionOptionsScreen(selectedImageUri!!)
+                    }
+                }
+
+                UniversalButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = R.string.solve_button_label,
+                    onButtonClicked = {
+                        onNextClick {
+                            onNavigateToParametersScreen(selectedImageUri!!)
+                        }
+                    }
+                )
             }
         }
     )
 }
 
 
-/*
-    val systemLocale = getSystemLocale()
-
-    when(systemLocale.language) {
-        "iw" -> {
-            modifier
-                .weight(1f)
-                .fillMaxHeight(0.4f)
-        }
-
-        "ru" -> {
-            modifier
-                .weight(1f)
-                .fillMaxHeight(0.4f)
-        }
-
-        else -> {
-            modifier
-                .weight(1f)
-                .fillMaxHeight(0.4f)
-        }
-    }
-     */
 
 
 
