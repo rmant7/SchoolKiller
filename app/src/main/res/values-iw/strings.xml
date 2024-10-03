@@ -5,6 +5,7 @@
     // Content Descriptions
     <string name="ai_school_assistant_image_content_description">AI School Assistant Image</string>
     <string name="upload_to_ai_school_image_assistant_content_description">העלה ל AI School Assistant Image</string>
+    <string name="check_solution_ai_school_image_assistant_content_description">בדוק את תמונת העוזר של בית הספר לפתרון </string>
     <string name="ArrowDropDown_icon_content_description">פותח תפריט משנה</string>
     <string name="add_image">הוסף עבודה</string>
 
@@ -83,6 +84,9 @@
         <item>ספק קישור</item>
     </string-array>
 
+    // Dialog text messages
+    <string name="invalid_images_message">נראה שמחקת כמה תמונות מאחסון הספריות של אפליקציית SchoolKiller. SchoolKiller ינסה לנקות תמונות אלה אחת אחת מהמטמון של האפליקציה. אנא אשר מחיקה של כל תמונה, במידת הצורך. כל תמונה שמופיעה ללא תמונה בה, היא פגומה. האם אתה רוצה להמשיך?</string>
+
     //Errors
     <string name="error_service_not_available">מצטערים, השירות אינו זמין ברוסיה ובבלרוס, אנא השתמש ב-vpn</string>
     <string name="error_service_not_available_title">השירות אינו זמין</string>
@@ -90,6 +94,18 @@
     <string name="error_common_message">אירעה שגיאה בזמן שהאפליקציה פעלה. נסה לעדכן את האפליקציה או נסה שוב מאוחר יותר</string>
 
     // Toast
+    <string name="something_went_wrong">אופס! משהו השתבש. בבקשה נסה שוב!</string>
+    <string name="fail_to_load_Uri">טעינת התמונה לרשימה נכשלה. אנא נסה לטעון אותה ידנית!</string>
+    <string name="corrupted_loaded_file">העלית קובץ פגום!</string>
+    <string name="camera_fail_to_open">אופס! משהו השתבש במצלמה. בבקשה נסה שוב!</string>
+    <string name="permanent_denied_camera_permission_explanation">אופס! נראה שגישה למצלמה נחוצה עבור תכונה זו. עבור להגדרות המכשיר שלך, מצא את SchoolKiller ברשימת האפליקציות שלך, והענק הרשאת מצלמה כדי לפתוח את הקסם!</string>
+    <string name="permanent_denied_read_media_permission_explanation">אופס! כדי להשתמש בתמונות מהגלריה שלך, SchoolKiller זקוקה להרשאה לקרוא את התמונות שלך. עבור להגדרות המכשיר שלך, מצא את SchoolKiller ברשימת האפליקציות שלך, והענק גישה לתמונות כדי לפתוח את הקסם!</string>
+    <string name="permanent_denied_write_storage_permission_explanation">אופס! כדי לשמור קבצים במכשיר שלך, SchoolKiller זקוקה להרשאה לכתוב לאחסון שלך. עבור להגדרות המכשיר שלך, מצא את SchoolKiller ברשימת האפליקציות שלך, והענק גישה לאחסון כדי לפתוח את הקסם!</string>
+    <string name="permanent_denied_read_storage_permission_explanation">אופס! כדי לגשת לקבצים במכשיר שלך, SchoolKiller זקוקה להרשאה לקרוא את האחסון שלך. עבור להגדרות המכשיר שלך, מצא את SchoolKiller ברשימת האפליקציות שלך, והענק גישה לאחסון כדי לפתוח את הקסם!</string>
+    <string name="camera_permission_rationale">SchoolKiller זקוקה לגישה למצלמה שלך כדי שתוכל לצלם תמונות של תרגילי בית הספר שלך באופן מיידי!</string>
+    <string name="read_media_permission_rationale">מתן גישה לתמונות שלך מאפשר לך לבחור תמונות מהגלריה שלך לשימוש בתוך אפליקציית SchoolKiller!</string>
+    <string name="write_storage_permission_rationale">הרשאה לכתיבה לאחסון שלך מאפשרת לאפליקציית SchoolKiller לשמור קבצים, כמו תמונות שצילמת, ישירות למכשיר שלך!</string>
+    <string name="read_storage_permission_rationale">SchoolKiller זקוקה לגישה לאחסון של המכשיר שלך כדי לקרוא קבצים, כמו תמונות או מסמכים, שאתה עשוי לרצות להשתמש בהם באפליקציה</string>
     <string name="upload_image_warning">אנא העלה את התמונה מהמכשיר.</string>
     <string name="select_image_warning">אנא בחר תמונה מהמכשיר</string>
     <string name="upload_picture">להעלות תמונה</string>

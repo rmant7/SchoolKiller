@@ -8,10 +8,15 @@ class ExtractGeminiResponseUseCase @Inject constructor(
 
 ) {
 
+    // @OptIn(ExperimentalSerializationApi::class)
     fun invoke(jsonResponse: String): String {
-        val json = Json { ignoreUnknownKeys = true }
+        val json = Json {
+            ignoreUnknownKeys = true
+            //isLenient = true
+            //explicitNulls = false
+        }
         val geminiResponse = json.decodeFromString<GeminiResponse>(jsonResponse)
-        return geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text
+        return geminiResponse.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
             ?: "No content available"  // TODO { hardcode string }
     }
 }
@@ -19,7 +24,7 @@ class ExtractGeminiResponseUseCase @Inject constructor(
 
 @Serializable
 data class GeminiResponse(
-    val candidates: List<Candidate>
+    val candidates: List<Candidate?>? = null
 )
 
 /**
@@ -33,10 +38,10 @@ data class Candidate(
 
 @Serializable
 data class Content(
-    val parts: List<Part>
+    val parts: List<Part>? = null
 )
 
 @Serializable
 data class Part(
-    val text: String
+    val text: String? = null
 )

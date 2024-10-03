@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 fun RoundIconButton(
     modifier: Modifier = Modifier,
     icon: Int,
-    onButtonClick: () -> Unit
+    onButtonClick: () -> Unit,
 ) {
     IconButton(
         modifier = modifier
@@ -27,7 +27,7 @@ fun RoundIconButton(
     ) {
         Icon(
             painter = painterResource(icon),
-            contentDescription = "Информация о приложении",
+            contentDescription = "Информация о приложении",  // TODO { hardcode string }
             modifier = Modifier
                 .size(30.dp)
                 .clip(CircleShape),

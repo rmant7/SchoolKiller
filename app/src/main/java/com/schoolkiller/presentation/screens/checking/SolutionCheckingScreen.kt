@@ -2,58 +2,67 @@ package com.schoolkiller.presentation.screens.checking
 
 import ExposedDropBox
 import android.content.Context
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
 import com.schoolkiller.domain.GradeOption
+import com.schoolkiller.presentation.ads.BannerAdContainer
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.UniversalButton
+import com.schoolkiller.presentation.screens.result.ResultViewModel
 
 @Composable
 fun CheckSolutionScreen(
+    modifier: Modifier = Modifier,
     context: Context,
+    //selectedImageUri: String, // Received argument
     onNavigateToResultScreen: (String) -> Unit
 ) {
     val viewModel: SolutionCheckingViewModel = hiltViewModel()
-    val selectedGrade = viewModel.selectedGradeOption
+    val resultViewModel: ResultViewModel = hiltViewModel()
+    val solutionProperties = viewModel.solutionPropertiesState.collectAsState().value
 
-    LaunchedEffect(true) {
-        viewModel.updatePrompt(
-            context.getString(R.string.check_solution_text)
-        )
-    }
+    val adView = viewModel.adview.collectAsState()
 
-    ApplicationScaffold {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize()
-        )
+
+
+    ApplicationScaffold(
+        columnHorizontalAlignment = Alignment.CenterHorizontally,
+        content =
         {
+
+            // Banner ad
+            BannerAdContainer(adView = adView.value)
+
+            /*ScreenImage(
+                modifier = modifier
+                    .fillMaxHeight(0.35f), // adjust the height of the image from here
+                image = R.drawable.check_solution_assistant,
+                contentDescription = R.string.check_solution_ai_school_image_assistant_content_description
+            )*/
+
+
             ExposedDropBox(
                 maxHeightIn = 200.dp,
                 context = context,
                 label = R.string.grade_label,
-                selectedOption = selectedGrade,
+                selectedOption = solutionProperties.grade,
                 options = GradeOption.entries.toList(),
                 onOptionSelected = {
                     viewModel.updateSelectedGradeOption(it)
@@ -61,32 +70,57 @@ fun CheckSolutionScreen(
                 optionToString = { option, context -> option.getString(context) }
             )
 
-            Spacer(Modifier.padding(0.dp, 20.dp))
+
             // Rating Slider for max selected rating value, don't remove.
             // Text(stringResource(R.string.rating_TextField_label))
             // RatingSlider(viewModel)
-            val gradeArray: Array<String> = stringArrayResource(R.array.grades)
-            //Reused Component
+
+            /**
+             * PlaceHolder in the screen to place what needed
+             */
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.2f),
+                content = {
+                    /* you can use here your composables or create
+                    what has to be presented here but try to keep the height to 0.2f
+                    or you have to play with button adjustments if the screen remains as it is
+                     */
+                }
+            )
+
+        }, bottomBar = {
             UniversalButton(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = modifier
+                    .navigationBarsPadding()
+                    .fillMaxWidth(),
                 label = R.string.check_solution_button_label,
             ) {
+
+                    //Updating rating scale in prompt, don't remove.
+                    /*val originalPrompt = viewModel.originalPrompt.value
+                    val selectedMaxRate = viewModel.selectedRateMax
+                    viewModel.updatePrompt(
+                        originalPrompt.replace(
+                            "(1–100)", selectedMaxRate.toString()
+                        )
+                    )*/
+
+                viewModel.buildPropertiesPrompt()
+
+                // on back press from ResultScreen we have to restore requestGeminiResponse back to true
+                resultViewModel.updateRequestGeminiResponse(true)
+
+                // reset TextGenerationResult to initialize the loading indicator
                 viewModel.updateTextGenerationResult("")
 
-                //Updating rating scale in prompt, don't remove.
-                /*val originalPrompt = viewModel.originalPrompt.value
-                val selectedMaxRate = viewModel.selectedRateMax
-                viewModel.updatePrompt(
-                    originalPrompt.replace(
-                        "(1–100)", selectedMaxRate.toString()
-                    )
-                )*/
-                viewModel.buildPropertiesPrompt()
                 onNavigateToResultScreen(viewModel.originalPrompt.value)
             }
         }
-    }
+    )
 }
+
 
 @Composable
 fun RatingSlider(viewModel: SolutionCheckingViewModel) {
@@ -113,3 +147,5 @@ fun RatingSlider(viewModel: SolutionCheckingViewModel) {
         Text(text = sliderPosition.toString())
     }
 }
+
+
