@@ -24,10 +24,16 @@ class BannerAdUseCase @Inject constructor(
         this.setAdSize(AdSize.MEDIUM_RECTANGLE)
     }
 
+    private var  maxHeight = 200
+
+    fun setMaxHeight(max : Int){
+        this.maxHeight = max
+    }
+
     override fun load() {
 
         if (stretchedBanner == null) {
-            val adSize = AdSize(AdSize.FULL_WIDTH, 650)
+            val adSize = AdSize(AdSize.FULL_WIDTH, (maxHeight * 0.3).toInt())
 
            /* val adaptiveSize = AdSize.getInlineAdaptiveBannerAdSize(
                 AdSize.FULL_WIDTH,

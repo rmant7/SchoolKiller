@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -86,6 +87,8 @@ fun HomeScreen(
 
     var invalidImagesPlaceholder by remember { mutableStateOf<List<Uri>>(emptyList()) }
     var isAttentionDialogShowed by remember { mutableStateOf(false) }
+
+    val appOpenAd = viewModel.appOpenAd.collectAsState()
 
 
     AttentionAlertDialog(
@@ -151,8 +154,9 @@ fun HomeScreen(
 
 
     // Show App Open Ad
-    viewModel.showAppOpenAd(context)
-
+    LaunchedEffect (appOpenAd.value){
+        viewModel.showAppOpenAd(context)
+    }
 
     ApplicationScaffold(
         content = {
@@ -177,14 +181,14 @@ fun HomeScreen(
                     RequestMultiplePermissionsGallery(
                         functionOnPermissionGranted = {},
                         composableOnPermissionGranted = {
-
-                            invalidImagesPlaceholder = viewModel.getInvalidImageUris()
+                            OpenGallery(pickMultipleMediaLauncher)
+                            /*invalidImagesPlaceholder = viewModel.getInvalidImageUris()
 
                             if (invalidImagesPlaceholder.isNotEmpty()) {
                                 isAttentionDialogShowed = true
                             } else {
                                 OpenGallery(pickMultipleMediaLauncher)
-                            }
+                            }*/
                         }
                     )
                     viewModel.updateSelectedUploadMethodOption(UploadFileMethodOptions.NO_OPTION)

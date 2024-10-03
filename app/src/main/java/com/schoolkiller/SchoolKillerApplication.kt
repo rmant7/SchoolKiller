@@ -1,6 +1,9 @@
 package com.schoolkiller
 
 import android.app.Application
+import android.os.Build
+import android.view.WindowManager
+import androidx.annotation.RequiresApi
 import com.google.android.gms.ads.MobileAds
 import com.schoolkiller.domain.usecases.ads.AdUseCase
 import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
@@ -28,6 +31,7 @@ class SchoolKillerApplication : Application(){
 
     private val mainScope = CoroutineScope(Dispatchers.Main)
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate() {
         super.onCreate()
 
@@ -41,8 +45,14 @@ class SchoolKillerApplication : Application(){
             MobileAds.setAppMuted(true)
         }
 
-        // apply reload every 5 seconds on fail to load
+        val metrics = this.getSystemService(
+            WindowManager::class.java
+        ).currentWindowMetrics
+        val height = metrics.bounds.height()
+        //val density = metrics.density
+        bannerAdUseCase.setMaxHeight(height)
 
+        // apply reload every 5 seconds on fail to load
         openAppAdUseCase.apply {
             setOnFailedAction { onReload(this) }
         }
