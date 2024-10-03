@@ -54,7 +54,7 @@ fun NavigationController() {
             val args = it.toRoute<Screens.ParametersScreen>()
             ParametersScreen(
                 context = context,
-                selectedImageUri = args.selectedImageUri,
+                //selectedImageUri = args.selectedImageUri,
                 onNavigateToResultScreen = { originalPrompt ->
                     navController.navigate(
                         Screens.ResultScreen(
@@ -70,7 +70,7 @@ fun NavigationController() {
             val args = it.toRoute<Screens.CheckSolutionInformationScreen>()
             CheckSolutionScreen(
                 context = context,
-                selectedImageUri = args.selectedImageUri,
+               // selectedImageUri = args.selectedImageUri,
                 onNavigateToResultScreen = { originalPrompt ->
                     navController.navigate(
                         Screens.ResultScreen(
@@ -96,22 +96,6 @@ fun NavigationController() {
         }
     }
 }
-
-/*inline fun <reified T : AppOpenAd> navTypeOf(
-    isNullableAllowed: Boolean = false,
-    json: Json = Json,
-) = object : NavType<T>(isNullableAllowed = isNullableAllowed) {
-    override fun get(bundle: Bundle, key: String): T? =
-        bundle.getString(key)?.let(json::decodeFromString)
-
-    override fun parseValue(value: String): T = json.decodeFromString(Uri.decode(value))
-
-    override fun serializeAsValue(value: T): String = Uri.encode(json.encodeToString(value))
-
-    override fun put(bundle: Bundle, key: String, value: T) =
-        bundle.putString(key, json.encodeToString(value))
-
-}*/
 
 
 @Serializable

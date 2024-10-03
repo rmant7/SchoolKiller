@@ -25,7 +25,7 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
     <!-- For apps targeting Android 13 or higher & GMA SDK version 20.3.0 or lower -->
-    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" 
     android:maxSdkVersion="28" />
 
 

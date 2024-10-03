@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
-import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -72,7 +71,11 @@ fun HomeScreen(
 //    val pictures by viewModel.allPictures.collectAsState(initial = emptyList())
 
     val viewModel: HomeViewModel = hiltViewModel()
-    // updating viewmodel with previous uploaded pictures
+
+    /** Updating viewmodel with previous uploaded pictures,
+    * for some reason list of images resets every time without this code line,
+     * even though we have viewModel.insertImagesOnTheList(uris) in this screen
+     */
     viewModel.updateListOfImages(listOfImages)
     val selectedUploadFileMethod = viewModel.selectedUploadMethodOption
     val images = viewModel.listOfImages.collectAsState()
@@ -282,7 +285,6 @@ fun HomeScreen(
                                 PictureItem(
                                     imageModifier = imageModifier,
                                     imageUri = imageUri,
-                                    context = context,
                                     onEnlarge = {
                                         selectedImageIndex.value = index
                                         isImageEnlarged = true

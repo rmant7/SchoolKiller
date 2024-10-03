@@ -11,6 +11,7 @@ object Constants {
     // Gemini Models
     const val GEMINI_FLASH_1_5 = "gemini-1.5-flash:generateContent"
     const val GEMINI_FLASH_1_5_002 = "gemini-1.5-flash-002:generateContent"
+    const val GEMINI_FLASH_LATEST="gemini-1.5-flash-latest:generateContent"
 
     // Adds IDs
     const val OPEN_AD_SAMPLE_ID = "ca-app-pub-3940256099942544/9257395921"

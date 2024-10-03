@@ -30,11 +30,11 @@ fun EnlargedImage(
     modifier: Modifier = Modifier,
     context: Context,
     isImageEnlarged: Boolean,
-    image: Uri,
+    image: Uri?,
     onDismiss: () -> Unit,
 ) {
     
-    if (isImageEnlarged) {
+    if (isImageEnlarged && image!=null) {
         Dialog(
             onDismissRequest = { onDismiss() },
             content = {

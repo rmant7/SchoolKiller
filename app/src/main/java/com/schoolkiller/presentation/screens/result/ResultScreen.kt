@@ -32,8 +32,9 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
-import com.schoolkiller.presentation.common.AlertDialog
+import com.schoolkiller.presentation.ads.BannerAdContainer
 import com.schoolkiller.presentation.common.ApplicationScaffold
+import com.schoolkiller.presentation.common.ErrorAlertDialog
 import com.schoolkiller.presentation.common.UniversalButton
 import io.ktor.client.plugins.ServerResponseException
 
@@ -55,11 +56,7 @@ fun ResultScreen(
     val openAlertDialog = remember { mutableStateOf(resultError != null) }
 
     val isResultFetched = viewModel.isResultFetchedStatus.collectAsState()
-
-    /**
-     * Attempt to fix following issue:
-     * Gemini sometimes fetch 2-3 times with one call
-     */
+    val adView = viewModel.adview.collectAsState()
 
     // fetch only when user requested AI response
     // and result wasn't fetched yet
@@ -165,7 +162,7 @@ fun ResultScreen(
                     }
                 }
             )
-
+            BannerAdContainer(adView = adView.value)
         },
         bottomBar = {
             Column(
