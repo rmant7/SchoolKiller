@@ -27,7 +27,6 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
 import com.schoolkiller.domain.ExplanationLevelOption
 import com.schoolkiller.domain.GradeOption
@@ -50,10 +49,8 @@ fun ParametersScreen(
     //val homeViewModel: HomeViewModel = hiltViewModel()
     //val imageUri = homeViewModel.selectedUri
     val parameterScreenProperties = viewModel.parameterPropertiesState.collectAsState().value
-    val systemLocale = getSystemLocale()
 
-
-    /** testing the prompt check also the solve button*/
+    /** Testing the prompt in a dialog if the values are correct. Check also the solve button*/
     var isAttentionDialogShowed by remember { mutableStateOf(false) }
     var proceedToResultScreen by remember { mutableStateOf(false) }
     AttentionAlertDialog(
@@ -66,6 +63,7 @@ fun ParametersScreen(
             proceedToResultScreen = true
         }
     )
+
 
 
 
@@ -178,15 +176,13 @@ fun ParametersScreen(
                     modifier = Modifier.fillMaxWidth(),
                     label = R.string.solve_button_label,
                 ) {
-
-
                     viewModel.buildSolvingPrompt()
-
-                    isAttentionDialogShowed = true // testing the prompt
-
-                    if (proceedToResultScreen) {    // testing the prompt
-
-                        isAttentionDialogShowed = false
+                    /** testing the prompt : uncomment */
+//                    isAttentionDialogShowed = true
+                    /** testing the prompt : uncomment */
+//                    if (proceedToResultScreen) {
+                        /** testing the prompt : uncomment */
+//                        isAttentionDialogShowed = false
 
                         // on back press from ResultScreen we have to restore requestGeminiResponse back to true
 //                        resultViewModel.updateRequestGeminiResponse(true)
@@ -195,8 +191,8 @@ fun ParametersScreen(
 //                        resultViewModel.updateTextGenerationResult("")
 
                         onNavigateToResultScreen(parameterScreenProperties.solvePromptText)
-
-                    } // testing the prompt
+                    /** testing the prompt : uncomment */
+//                    }
 
                 }
             }

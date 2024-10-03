@@ -2,7 +2,6 @@ package com.schoolkiller
 
 import android.app.Application
 import com.google.ai.client.generativeai.BuildConfig
-import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.MobileAds
 import com.schoolkiller.domain.usecases.ads.AdUseCase
 import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
@@ -34,6 +33,11 @@ class SchoolKillerApplication : Application(){
     override fun onCreate() {
         super.onCreate()
 
+        // Take out logs of the release version with this set. logs decrease performance
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
+
         // initialize early the context of showToast function
         ShowToastMessage.init(this@SchoolKillerApplication)
 
@@ -50,10 +54,6 @@ class SchoolKillerApplication : Application(){
             setOnFailedAction { onReload(this) }
         }
 
-        // Take out logs of the release version with this set
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        }
 
         interstitialAdUseCase.apply {
             setOnFailedAction { onReload(this) }

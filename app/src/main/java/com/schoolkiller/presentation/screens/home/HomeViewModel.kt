@@ -20,7 +20,11 @@ import com.schoolkiller.domain.usecases.ads.OpenAdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,7 +43,9 @@ class HomeViewModel @Inject constructor(
 
 
     private var _listOfImages = MutableStateFlow(mutableStateListOf<Uri>())
-    var listOfImages: StateFlow<SnapshotStateList<Uri>> = _listOfImages
+    var listOfImages: StateFlow<SnapshotStateList<Uri>> = _listOfImages.asStateFlow()
+
+
 
     private var _selectedUploadMethodOption by mutableStateOf(UploadFileMethodOptions.NO_OPTION)
     val selectedUploadMethodOption: UploadFileMethodOptions
@@ -72,6 +78,7 @@ class HomeViewModel @Inject constructor(
         _selectedImageUri.value = newUri
     }
 
+
     fun updateListOfImages(listOfImages: SnapshotStateList<Uri>) {
         _listOfImages.value = listOfImages
     }
@@ -81,7 +88,8 @@ class HomeViewModel @Inject constructor(
             saveFileRepository.saveImage(bitmap)
         }
     }
-    fun getSavedImageUri() : Uri? {
+
+    fun getSavedImageUri(): Uri? {
         return saveFileRepository.getSavedImageUri()
     }
 
@@ -93,14 +101,13 @@ class HomeViewModel @Inject constructor(
         return deleteFileRepository.getInvalidImageUris()
     }
 
-    fun cleanInvalidImages(activity: Activity, invalidUris: List<Uri?>){
+    fun cleanInvalidImages(activity: Activity, invalidUris: List<Uri?>) {
         deleteFileRepository.cleanInvalidImages(activity, invalidUris)
     }
-    fun deleteImageFromStorage(activity: Activity, imageUri: Uri){
+
+    fun deleteImageFromStorage(activity: Activity, imageUri: Uri) {
         deleteFileRepository.deleteImageFromStorage(activity, imageUri)
     }
-
-
 
 
     init {

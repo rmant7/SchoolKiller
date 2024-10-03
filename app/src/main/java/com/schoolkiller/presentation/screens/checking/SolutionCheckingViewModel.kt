@@ -30,19 +30,18 @@ class SolutionCheckingViewModel @Inject constructor(
 
     // BannerAd State
     private var _adview = MutableStateFlow<AdView?>(null)
-    val adview: StateFlow<AdView?> = _adview
     val adview: StateFlow<AdView?> = _adview.asStateFlow()
     private fun updateAdview(newAd: AdView?) {
         _adview.update { newAd }
     }
 
-    fun getBannerAdView(): AdView? {
-        return bannerAdUseCase.getBannerAdView()
-    }
+//    fun getBannerAdView(): AdView? {
+//        return bannerAdUseCase.getBannerAdView()  // TODO { merge }
+//    }
 
 
     private val _solutionPropertiesState = MutableStateFlow(SolutionProperties())
-    val solutionPropertiesState:StateFlow<SolutionProperties> = _solutionPropertiesState.asStateFlow()
+    val solutionPropertiesState: StateFlow<SolutionProperties> = _solutionPropertiesState.asStateFlow()
      /*   Thinking of this approach, need more testing
     private val _solutionPropertiesState = MutableStateFlow(SolutionProperties())
     val solutionPropertiesState = _solutionPropertiesState
@@ -154,7 +153,7 @@ class SolutionCheckingViewModel @Inject constructor(
         _adview.update { bannerAdUseCase.getStretchedBannerAdView() }
         readSolutionPromptTextState()
         readSolutionGradeOptionState()
-        updateAdview(getBannerAdView())
+//        updateAdview(getBannerAdView())  // TODO { merge }
     }
 
 }

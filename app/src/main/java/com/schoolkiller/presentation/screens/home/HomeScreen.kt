@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
-
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -39,10 +38,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.schoolkiller.R
 import com.schoolkiller.domain.UploadFileMethodOptions
-
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.AttentionAlertDialog
 import com.schoolkiller.presentation.common.EnlargedImage
@@ -73,15 +72,21 @@ fun HomeScreen(
 
     val viewModel: HomeViewModel = hiltViewModel()
 
-    /** Updating viewmodel with previous uploaded pictures,
-     * for some reason list of images resets every time without this code line,
-     * even though we have viewModel.insertImagesOnTheList(uris) in this screen
+    /*
+     Updating viewmodel with previous uploaded pictures,
+     for some reason list of images resets every time without this code line,
+     even though we have viewModel.insertImagesOnTheList(uris) in this screen
+     */
+    /**
+     * I will change the states variables so i will work on it then
+     * it is bad practice but leave it for now.
+     * i will work on it with the settings changes.
      */
     viewModel.updateListOfImages(listOfImages)
     val selectedUploadFileMethod = viewModel.selectedUploadMethodOption
-    val images = viewModel.listOfImages.collectAsState()
+    val images = viewModel.listOfImages.collectAsState().value
     val selectedImageIndex = remember { mutableStateOf<Int?>(null) }
-    val selectedImageUri = selectedImageIndex.value?.let { images.value[it] }
+    val selectedImageUri = selectedImageIndex.value?.let { images[it] }
     var isImageEnlarged by remember { mutableStateOf(false) }
     val state = rememberLazyListState()
 
@@ -151,6 +156,10 @@ fun HomeScreen(
     }
 
 
+    /** This is not in a good place, like just as a raw call. Every time screen load or refresh will call this function.
+     * This brings unnecessary calls because of the cooldown and will impact performance.
+     * Try to condition it with the cooldown.
+     */
     // Show App Open Ad
     viewModel.showAppOpenAd(context)
 
@@ -265,9 +274,7 @@ fun HomeScreen(
                         modifier = modifier.fillMaxHeight(),
                         state = state,
                         content = {
-
-                            itemsIndexed(images.value) { index, imageUri ->
-                                var offset by remember { mutableFloatStateOf(0f) }
+                            itemsIndexed(images) { index, imageUri ->
 
                                 val isSelected = index == selectedImageIndex.value
 
@@ -315,7 +322,7 @@ fun HomeScreen(
 
                 fun onNextClick(onNavigate: () -> Unit) {
                     when {
-                        images.value.isEmpty() -> {
+                        images.isEmpty() -> {
                             Toast.makeText(
                                 context,
                                 uploadImageWarningMessage,

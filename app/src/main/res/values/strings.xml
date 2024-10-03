@@ -87,7 +87,7 @@
     </string-array>
 
     // Dialog text messages
-    <string name="invalid_images_message">Seems that you have deleted some images of the SchoolKiller app directory storage. SchoolKiller will attempt to clear these images one by one from the application cache. Please confirm each image deletion if needed. Any image that appear with no picture in it, is a corrupted one. Are you want to proceed?</string>
+    <string name="invalid_images_message">It seems you have deleted some images from the SchoolKiller app\'s directory storage. Not to worry, SchoolKiller will attempt to clear these images one by one from the application cache. Please confirm each image deletion, if needed. Any image that appears blank is a corrupted one. Do you want to proceed?</string>
 
 
     // Errors

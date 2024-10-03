@@ -31,7 +31,7 @@ composableOnPermissionGranted: @Composable () -> Unit
                     listOf(
                         Manifest.permission.CAMERA,
                         Manifest.permission.READ_MEDIA_IMAGES,
-//                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
+                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
                     )
                 )
             }

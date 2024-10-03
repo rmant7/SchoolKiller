@@ -85,7 +85,7 @@
     </string-array>
 
     // Dialog text messages
-    <string name="invalid_images_message">נראה שמחקת כמה תמונות מאחסון הספריות של אפליקציית SchoolKiller. SchoolKiller ינסה לנקות תמונות אלה אחת אחת מהמטמון של האפליקציה. אנא אשר מחיקה של כל תמונה, במידת הצורך. כל תמונה שמופיעה ללא תמונה בה, היא פגומה. האם אתה רוצה להמשיך?</string>
+    <string name="invalid_images_message">נראה שמחקת כמה תמונות מאחסון הספריות של אפליקציית SchoolKiller. אל דאגה, SchoolKiller ינסה לנקות תמונות אלה אחת אחת מהמטמון של האפליקציה. אנא אשר מחיקה של כל תמונה, במידת הצורך. כל תמונה שמופיעה ריקה היא פגומה. האם אתה רוצה להמשיך?</string>
 
     //Errors
     <string name="error_service_not_available">מצטערים, השירות אינו זמין ברוסיה ובבלרוס, אנא השתמש ב-vpn</string>

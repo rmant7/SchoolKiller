@@ -43,12 +43,9 @@ fun CheckSolutionScreen(
     val adView = viewModel.adview.collectAsState()
 
 
-
-
-    /** testing the prompt check also the checkSolution button*/
+    /** Testing the prompt in a dialog if the values are correct. Check also the solve button*/
     var isAttentionDialogShowed by remember { mutableStateOf(false) }
     var proceedToResultScreen by remember { mutableStateOf(false) }
-//    val prompt = viewModel.originalPrompt.collectAsState().value
     AttentionAlertDialog(
         isShowed = isAttentionDialogShowed,
         message = solutionProperties.solutionPromptText,
@@ -117,21 +114,21 @@ fun CheckSolutionScreen(
                 label = R.string.check_solution_button_label,
             ) {
 
-                    //Updating rating scale in prompt, don't remove.
-                    /*val originalPrompt = viewModel.originalPrompt.value
-                    val selectedMaxRate = viewModel.selectedRateMax
-                    viewModel.updatePrompt(
-                        originalPrompt.replace(
-                            "(1–100)", selectedMaxRate.toString()
-                        )
-                    )*/
-                    viewModel.buildSolutionPrompt()
-
-                    isAttentionDialogShowed = true // testing the prompt
-
-                if (proceedToResultScreen){    // testing the prompt
-
-                    isAttentionDialogShowed = false
+                //Updating rating scale in prompt, don't remove.
+                /*val originalPrompt = viewModel.originalPrompt.value
+                val selectedMaxRate = viewModel.selectedRateMax
+                viewModel.updatePrompt(
+                    originalPrompt.replace(
+                        "(1–100)", selectedMaxRate.toString()
+                    )
+                )*/
+                viewModel.buildSolutionPrompt()
+                /** testing the prompt : uncomment */
+//                isAttentionDialogShowed = true
+                /** testing the prompt : uncomment */
+//                if (proceedToResultScreen) {
+                    /** testing the prompt : uncomment */
+//                    isAttentionDialogShowed = false
 
                     // on back press from ResultScreen we have to restore requestGeminiResponse back to true
 //                    resultViewModel.updateRequestGeminiResponse(true)
@@ -140,11 +137,12 @@ fun CheckSolutionScreen(
 //                    viewModel.updateTextGenerationResult("")
 
                     onNavigateToResultScreen(solutionProperties.solutionPromptText)
-                } // testing the prompt
+                    /** testing the prompt : uncomment */
+//                }
 
-                }
             }
-        })
+        }
+    )
 }
 
 
