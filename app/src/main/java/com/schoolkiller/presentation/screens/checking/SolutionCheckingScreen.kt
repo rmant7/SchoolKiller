@@ -1,7 +1,6 @@
 package com.schoolkiller.presentation.screens.checking
 
 import ExposedDropBox
-import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
@@ -27,19 +27,15 @@ import com.schoolkiller.presentation.ads.BannerAdContainer
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.AttentionAlertDialog
 import com.schoolkiller.presentation.common.UniversalButton
-import com.schoolkiller.presentation.screens.result.ResultViewModel
 
 @Composable
 fun CheckSolutionScreen(
     modifier: Modifier = Modifier,
-    context: Context,
-    //selectedImageUri: String, // Received argument
     onNavigateToResultScreen: (String) -> Unit
 ) {
     val viewModel: SolutionCheckingViewModel = hiltViewModel()
-    val resultViewModel: ResultViewModel = hiltViewModel()
     val solutionProperties = viewModel.solutionPropertiesState.collectAsState().value
-
+    val context = LocalContext.current
     val adView = viewModel.adview.collectAsState()
 
 
@@ -59,6 +55,7 @@ fun CheckSolutionScreen(
 
 
     ApplicationScaffold(
+        isShowed = true,
         columnHorizontalAlignment = Alignment.CenterHorizontally,
         content =
         {
@@ -76,7 +73,6 @@ fun CheckSolutionScreen(
 
             ExposedDropBox(
                 maxHeightIn = 200.dp,
-                context = context,
                 label = R.string.grade_label,
                 selectedOption = solutionProperties.grade,
                 options = GradeOption.entries.toList(),
@@ -106,7 +102,8 @@ fun CheckSolutionScreen(
                 }
             )
 
-        }, bottomBar = {
+        },
+        bottomBar = {
             UniversalButton(
                 modifier = modifier
                     .navigationBarsPadding()

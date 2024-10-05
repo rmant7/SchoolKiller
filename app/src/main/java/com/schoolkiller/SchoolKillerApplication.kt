@@ -11,6 +11,7 @@ import com.schoolkiller.presentation.toast.ShowToastMessage
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -28,7 +29,7 @@ class SchoolKillerApplication : Application(){
     @Inject
     lateinit var interstitialAdUseCase: InterstitialAdUseCase
 
-    private val mainScope = CoroutineScope(Dispatchers.Main)
+    private val adsScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override fun onCreate() {
         super.onCreate()
@@ -41,8 +42,8 @@ class SchoolKillerApplication : Application(){
         // initialize early the context of showToast function
         ShowToastMessage.init(this@SchoolKillerApplication)
 
-        val backgroundScope = CoroutineScope(Dispatchers.IO)
-        backgroundScope.launch {
+
+        adsScope.launch(Dispatchers.IO) {
             // Initialize the Google Mobile Ads SDK on a background thread.
             MobileAds.initialize(this@SchoolKillerApplication) {}
             MobileAds.setAppMuted(true)
@@ -50,18 +51,18 @@ class SchoolKillerApplication : Application(){
 
         // apply reload every 5 seconds on fail to load
 
-        openAppAdUseCase.apply {
-            setOnFailedAction { onReload(this) }
-        }
-
-
-        interstitialAdUseCase.apply {
-            setOnFailedAction { onReload(this) }
-        }
-
-        bannerAdUseCase.apply {
-            setOnFailedAction { onReload(this) }
-        }
+//        openAppAdUseCase.apply {
+//            setOnFailedAction { onReload(this) }
+//        }
+//
+//
+//        interstitialAdUseCase.apply {
+//            setOnFailedAction { onReload(this) }
+//        }
+//
+//        bannerAdUseCase.apply {
+//            setOnFailedAction { onReload(this) }
+//        }
 
         // preloading ads
         openAppAdUseCase.loadAdWithNoAdsCheck()
@@ -70,11 +71,18 @@ class SchoolKillerApplication : Application(){
 
     }
 
+
     // all ads loading must be in main thread
-    private fun onReload(adUseCase: AdUseCase) = mainScope.launch(Dispatchers.Main) {
-        delay(5000)
-        adUseCase.loadAdWithNoAdsCheck()
-    }
+    /** no don`t do that, ads are fetched as data and blocking the UI with such a heavy task,
+     * slow down all the app responses to ui and updates of the state properties
+     * we must find another way */
+
+//    private fun onReload(adUseCase: AdUseCase) = adsScope.launch(Dispatchers.Main + SupervisorJob()) {
+//        delay(5000)
+//        adUseCase.loadAdWithNoAdsCheck()
+//    }
+
+
 }
 
 

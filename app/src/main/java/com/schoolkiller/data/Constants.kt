@@ -11,6 +11,8 @@ object Constants {
     const val DESCRIPTION = "description"
     const val SOLVE_PROMPT = "original_solve_prompt"
     const val SOLUTION_PROMPT = "original_solution_prompt"
+    const val IMAGE_LIST = "image_list"
+    const val SELECTED_IMAGE_URI = "selected_image_uri"
 
 
     // Database

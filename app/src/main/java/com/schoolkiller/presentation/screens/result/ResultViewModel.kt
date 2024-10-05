@@ -7,10 +7,12 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.ads.AdView
 import com.schoolkiller.data.network.api.GeminiApiService
 import com.schoolkiller.data.network.response.GeminiResponse
+import com.schoolkiller.data.repositories.DataStoreRepository
 import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
 import com.schoolkiller.domain.usecases.ads.InterstitialAdUseCase
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
+import com.schoolkiller.presentation.toast.ShowToastMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,6 +22,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,25 +31,53 @@ class ResultViewModel @Inject constructor(
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
     private val interstitialAdUseCase: InterstitialAdUseCase,
-    private val bannerAdUseCase: BannerAdUseCase
+    private val bannerAdUseCase: BannerAdUseCase,
+    private val dataStoreRepository: DataStoreRepository
 ) : ViewModel() {
 
+
+    private val _passedConvertedSolvePrompt = MutableStateFlow("")
+    val passedConvertedSolvePrompt: StateFlow<String> = _passedConvertedSolvePrompt.asStateFlow()
+
+    private val _passedConvertedSolutionPrompt = MutableStateFlow("")
+    val passedConvertedSolutionPrompt: StateFlow<String> = _passedConvertedSolutionPrompt.asStateFlow()
+
+    private val _passedImageUri = MutableStateFlow<Uri?>(null)
+    val passedImageUri: StateFlow<Uri?> = _passedImageUri.asStateFlow()
+
     // Medium Banner State
-    private var _adview = MutableStateFlow<AdView?>(null)
-    val adview: StateFlow<AdView?> = _adview
+    private val _adview = MutableStateFlow<AdView?>(null)
+    val adview: StateFlow<AdView?> = _adview.asStateFlow()
 
     private val _textGenerationResult = MutableStateFlow("")
-    val textGenerationResult = _textGenerationResult.asStateFlow()
+    val textGenerationResult: StateFlow<String> = _textGenerationResult.asStateFlow()
 
-    private var _error = MutableStateFlow<Throwable?>(null)
-    val error: StateFlow<Throwable?>
-        get() = _error.asStateFlow()
+    private val _error = MutableStateFlow<Throwable?>(null)
+    val error: StateFlow<Throwable?> = _error.asStateFlow()
 
-    private var _requestGeminiResponse = MutableStateFlow(true)
-    val requestGeminiResponse: StateFlow<Boolean> = _requestGeminiResponse
+    private val _requestGeminiResponse = MutableStateFlow(true)
+    val requestGeminiResponse: StateFlow<Boolean> = _requestGeminiResponse.asStateFlow()
 
-    private var _isResultFetchedStatus = MutableStateFlow(false)
-    val isResultFetchedStatus: StateFlow<Boolean> = _isResultFetchedStatus
+    private val _isResultFetchedStatus = MutableStateFlow(false)
+    val isResultFetchedStatus: StateFlow<Boolean> = _isResultFetchedStatus.asStateFlow()
+
+    init {
+        _adview.update { bannerAdUseCase.getMediumBannerAdView() }
+        readImageState()
+    }
+
+    private fun readImageState() {
+        viewModelScope.launch {
+            try {
+                dataStoreRepository.readImageState.collect { imageUri ->
+                        updatePassedImageUri(imageUri)
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Error reading image state")
+                updatePassedImageUri(null)
+            }
+        }
+    }
 
     fun updateResultFetchedStatus(isResultFetchedStatus: Boolean) {
         _isResultFetchedStatus.update { isResultFetchedStatus }
@@ -57,9 +88,19 @@ class ResultViewModel @Inject constructor(
         error?.let { err -> _error.update { err } }
     }
 
-    init {
-        _adview.update { bannerAdUseCase.getMediumBannerAdView() }
+   fun updatePassedImageUri(uri: Uri?) {
+        _passedImageUri.update { uri }
     }
+
+    fun updatePassedConvertedSolutionPrompt(solutionPrompt: String) {
+        _passedConvertedSolutionPrompt.update { solutionPrompt }
+    }
+
+    fun updatePassedConvertedSolvePrompt(solvePrompt: String) {
+        _passedConvertedSolvePrompt.update { solvePrompt }
+    }
+
+
 
     fun showInterstitialAd(context: Context) {
         interstitialAdUseCase.show(context)
@@ -119,8 +160,12 @@ class ResultViewModel @Inject constructor(
     }
 
     fun clearError() {
-        _error.value = null
+        _error.update { null }
     }
+
+
+
+
 
     //Don't remove, for future development
     /*

@@ -24,7 +24,7 @@ sealed class ShowToastMessage(
     }
 
     data object SOMETHING_WENT_WRONG : ShowToastMessage(stringMessage = R.string.something_went_wrong)
-    data object IMAGE_FAIL__TO_LOAD_TO_THE_LIST : ShowToastMessage(stringMessage = R.string.fail_to_load_Uri)
+    data object IMAGE_FAIL_TO_LOAD_TO_THE_LIST : ShowToastMessage(stringMessage = R.string.fail_to_load_Uri)
     data object CORRUPTED_LOADED_FILE : ShowToastMessage(stringMessage = R.string.corrupted_loaded_file)
     data object CAMERA_FAIL_TO_OPEN : ShowToastMessage(stringMessage = R.string.camera_fail_to_open)
     data object DENIED_CAMERA_PERMISSION : ShowToastMessage(stringMessage = R.string.permanent_denied_camera_permission_explanation)
