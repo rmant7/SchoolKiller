@@ -55,9 +55,9 @@ fun HomeScreen(
     var launchCamera by remember { mutableStateOf<Boolean?>(null) }
 
 
-    /** Invalid images auto cleaned on HomeScreen disposal*/
+    /** Invalid images auto cleaned on every HomeScreen creation*/
     LaunchedEffect(Unit) {
-//        onDispose {
+        if (PermissionSet().isCleanInvalidImagesActive(context)) {
             viewModel.viewModelScope.launch(Dispatchers.IO + SupervisorJob()) {
                 invalidImagesPlaceholder = viewModel.getInvalidImageUris()
                 if (invalidImagesPlaceholder.isNotEmpty()) {
@@ -67,7 +67,7 @@ fun HomeScreen(
                     }
                 }
             }
-//        }
+        }
     }
 
     /** Pop up dialog for deleting invalid images */

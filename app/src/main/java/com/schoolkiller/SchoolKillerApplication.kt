@@ -1,12 +1,19 @@
 package com.schoolkiller
 
+import android.app.Activity
 import android.app.Application
+import android.view.View
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.ai.client.generativeai.BuildConfig
 import com.google.android.gms.ads.MobileAds
 import com.schoolkiller.domain.usecases.ads.AdUseCase
 import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
 import com.schoolkiller.domain.usecases.ads.InterstitialAdUseCase
 import com.schoolkiller.domain.usecases.ads.OpenAdUseCase
+import com.schoolkiller.presentation.permissions.PermissionSet
+import com.schoolkiller.presentation.screens.home.HomeViewModel
 import com.schoolkiller.presentation.toast.ShowToastMessage
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -28,6 +35,7 @@ class SchoolKillerApplication : Application(){
 
     @Inject
     lateinit var interstitialAdUseCase: InterstitialAdUseCase
+
 
     private val adsScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -81,7 +89,6 @@ class SchoolKillerApplication : Application(){
 //        delay(5000)
 //        adUseCase.loadAdWithNoAdsCheck()
 //    }
-
 
 }
 
