@@ -1,6 +1,6 @@
 package com.schoolkiller.presentation.screens.result
 
-import android.content.Context
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,60 +19,65 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
 import com.schoolkiller.presentation.ads.BannerAdContainer
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.ErrorAlertDialog
 import com.schoolkiller.presentation.common.UniversalButton
+import com.schoolkiller.presentation.toast.ShowToastMessage
 import io.ktor.client.plugins.ServerResponseException
 
 
 @Composable
 fun ResultScreen(
     modifier: Modifier = Modifier,
-    context: Context,
-    originalPrompt: String,
-    selectedImageUri: String,
+    originalPrompt: String, // will be changed also
+    passedImageUri: Uri?,
     onNavigateToHomeScreen: () -> Unit,
 ) {
     val viewModel: ResultViewModel = hiltViewModel()
-    val resultText: String by viewModel.textGenerationResult.collectAsState()
-    val resultError: Throwable? by viewModel.error.collectAsState()
+    val resultText: String = viewModel.textGenerationResult.collectAsState().value
+    val context = LocalContext.current
+    val resultError: Throwable? = viewModel.error.collectAsState().value
 
     val responseListState = rememberLazyListState()
-    val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState()
+    val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState().value
     val openAlertDialog = remember { mutableStateOf(resultError != null) }
 
-    val isResultFetched = viewModel.isResultFetchedStatus.collectAsState()
-    val adView = viewModel.adview.collectAsState()
+    val isResultFetched = viewModel.isResultFetchedStatus.collectAsState().value
+    val adView = viewModel.adview.collectAsState().value
 
     // fetch only when user requested AI response
     // and result wasn't fetched yet
-    if (requestGeminiResponse.value && !isResultFetched.value) {
-        viewModel.fetchGeminiResponse(
-            imageUri = selectedImageUri.toUri(),
-            fileName = selectedImageUri.toUri().toString(),
-            prompt = originalPrompt
-        )
+    if (requestGeminiResponse && !isResultFetched) {
+        if (passedImageUri != null){
+            viewModel.fetchGeminiResponse(
+                imageUri = passedImageUri!!,
+                fileName = passedImageUri.toString(),
+                prompt = originalPrompt
+            )
         // result is fetched and this block wouldn't run
         // until new try request from user
         viewModel.updateResultFetchedStatus(true)
+    } else {
+        ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
+    }
     }
 
 
     ApplicationScaffold(
+        isShowed = true,
         content = {
             // only show ad if it's loaded and user requested AI response
 
@@ -134,7 +139,7 @@ fun ResultScreen(
                                 contentAlignment = Alignment.Center,
                                 content = {
 
-                                    if (requestGeminiResponse.value) {
+                                    if (requestGeminiResponse) {
                                        viewModel.showInterstitialAd(context)
                                        viewModel.updateRequestGeminiResponse(false)
                                     } else {
@@ -162,7 +167,7 @@ fun ResultScreen(
                     }
                 }
             )
-            BannerAdContainer(adView = adView.value)
+            BannerAdContainer(adView = adView)
         },
         bottomBar = {
             Column(

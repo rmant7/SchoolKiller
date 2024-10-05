@@ -1,6 +1,7 @@
 package com.schoolkiller.data.repositories
 
 import android.content.Context
+import android.net.Uri
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -14,9 +15,14 @@ import com.schoolkiller.domain.PromptText
 import com.schoolkiller.domain.SolutionLanguageOption
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.IOException
 import javax.inject.Inject
 
@@ -32,10 +38,13 @@ class DataStoreRepository @Inject constructor(
         val gradeOptionState = stringPreferencesKey(name = Constants.GRADE_OPTION)
         val solutionGradeOptionState = stringPreferencesKey(name = Constants.SOLUTION_GRADE_OPTION)
         val languageOptionState = stringPreferencesKey(name = Constants.LANGUAGE_OPTION)
-        val explanationLevelOptionState = stringPreferencesKey(name = Constants.EXPLANATION_LEVEL_OPTION)
+        val explanationLevelOptionState =
+            stringPreferencesKey(name = Constants.EXPLANATION_LEVEL_OPTION)
         val descriptionState = stringPreferencesKey(name = Constants.DESCRIPTION)
         val solvePromptState = stringPreferencesKey(name = Constants.SOLVE_PROMPT)
         val solutionPromptState = stringPreferencesKey(name = Constants.SOLUTION_PROMPT)
+        val selectedImageUri = stringPreferencesKey(name = Constants.SELECTED_IMAGE_URI)
+        val imageList = stringPreferencesKey(name = Constants.IMAGE_LIST)
     }
 
     private val dataStore = context.dataStore
@@ -65,21 +74,37 @@ class DataStoreRepository @Inject constructor(
         }
     }
 
-    suspend fun persistDescriptionState(description : String) {
+    suspend fun persistDescriptionState(description: String) {
         dataStore.edit { preference ->
             preference[PreferenceKeys.descriptionState] = description
         }
     }
 
-    suspend fun persistSolvePromptState(solvePrompt : String) {
+    suspend fun persistSolvePromptState(solvePrompt: String) {
         dataStore.edit { preference ->
             preference[PreferenceKeys.solvePromptState] = solvePrompt
         }
     }
 
-    suspend fun persistSolutionPromptState(solutionPrompt : String) {
+    suspend fun persistSolutionPromptState(solutionPrompt: String) {
         dataStore.edit { preference ->
             preference[PreferenceKeys.solutionPromptState] = solutionPrompt
+        }
+    }
+
+    suspend fun persistImageListState(imageList: List<Uri>) {
+        withContext(Dispatchers.IO) {
+            dataStore.edit { preference ->
+                val wrapper = UriListWrapper(imageList.map { it.toString() })
+                val jsonString = Json.encodeToString(wrapper)
+                preference[PreferenceKeys.imageList] = jsonString
+            }
+        }
+    }
+
+    suspend fun persistImageState(imageUri: Uri) {
+        dataStore.edit { preference ->
+            preference[PreferenceKeys.selectedImageUri] = imageUri.toString()
         }
     }
 
@@ -91,7 +116,8 @@ class DataStoreRepository @Inject constructor(
                 throw exception
             }
         }.map { preferences ->
-            val gradeOptionState = preferences[PreferenceKeys.gradeOptionState] ?: GradeOption.NONE.name
+            val gradeOptionState =
+                preferences[PreferenceKeys.gradeOptionState] ?: GradeOption.NONE.name
             gradeOptionState
         }
 
@@ -103,7 +129,8 @@ class DataStoreRepository @Inject constructor(
                 throw exception
             }
         }.map { preferences ->
-            val solutionGradeOptionState = preferences[PreferenceKeys.solutionGradeOptionState] ?: GradeOption.NONE.name
+            val solutionGradeOptionState =
+                preferences[PreferenceKeys.solutionGradeOptionState] ?: GradeOption.NONE.name
             solutionGradeOptionState
         }
 
@@ -115,7 +142,8 @@ class DataStoreRepository @Inject constructor(
                 throw exception
             }
         }.map { preferences ->
-            val languageOptionState = preferences[PreferenceKeys.languageOptionState] ?: SolutionLanguageOption.ORIGINAL_TASK_LANGUAGE.name
+            val languageOptionState = preferences[PreferenceKeys.languageOptionState]
+                ?: SolutionLanguageOption.ORIGINAL_TASK_LANGUAGE.name
             languageOptionState
         }
 
@@ -127,7 +155,9 @@ class DataStoreRepository @Inject constructor(
                 throw exception
             }
         }.map { preferences ->
-            val explanationLevelOptionState = preferences[PreferenceKeys.explanationLevelOptionState] ?: ExplanationLevelOption.SHORT_EXPLANATION.name
+            val explanationLevelOptionState =
+                preferences[PreferenceKeys.explanationLevelOptionState]
+                    ?: ExplanationLevelOption.SHORT_EXPLANATION.name
             explanationLevelOptionState
         }
 
@@ -151,7 +181,8 @@ class DataStoreRepository @Inject constructor(
                 throw exception
             }
         }.map { preferences ->
-            val solvePromptState = preferences[PreferenceKeys.solvePromptState] ?: PromptText.SOLVE_PROMPT.promptText
+            val solvePromptState =
+                preferences[PreferenceKeys.solvePromptState] ?: PromptText.SOLVE_PROMPT.promptText
             solvePromptState
         }
 
@@ -164,8 +195,41 @@ class DataStoreRepository @Inject constructor(
                 throw exception
             }
         }.map { preferences ->
-            val solutionPromptState = preferences[PreferenceKeys.solutionPromptState] ?: PromptText.CHECK_SOLUTION_PROMPT.promptText
+            val solutionPromptState = preferences[PreferenceKeys.solutionPromptState]
+                ?: PromptText.CHECK_SOLUTION_PROMPT.promptText
             solutionPromptState
         }
 
+    val readImageListState: Flow<List<Uri>> = dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                withContext(Dispatchers.IO) { emit(emptyPreferences()) }
+            } else {
+                throw exception
+            }
+        }.map { preferences ->
+            val jsonString = preferences[PreferenceKeys.imageList] ?: ""
+            try {
+                Json.decodeFromString<UriListWrapper>(jsonString).uris.map { Uri.parse(it) }
+            } catch (e: Exception) {
+                emptyList()
+            }
+        }
+
+
+    val readImageState: Flow<Uri?> = dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }.map { preferences ->
+            val uriString = preferences[PreferenceKeys.selectedImageUri]
+            uriString?.let { Uri.parse(it) }
+        }
+
 }
+
+@Serializable
+data class UriListWrapper(val uris: List<String>)

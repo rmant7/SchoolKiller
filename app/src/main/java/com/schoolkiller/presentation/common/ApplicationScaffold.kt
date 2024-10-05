@@ -13,13 +13,14 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ApplicationScaffold(
     modifier: Modifier = Modifier,
+    isShowed: Boolean,
     columnModifier: Modifier = Modifier,
     columnVerticalArrangement: Arrangement. Vertical = Arrangement.spacedBy(16.dp),
     columnHorizontalAlignment: Alignment. Horizontal = Alignment.Start,
     content: @Composable () -> Unit,
     bottomBar : @Composable () -> Unit = {},
-){
-
+) {
+if (isShowed){
     Scaffold(
         modifier = modifier,
         bottomBar = bottomBar,
@@ -36,4 +37,5 @@ fun ApplicationScaffold(
             }
         }
     )
+}
 }

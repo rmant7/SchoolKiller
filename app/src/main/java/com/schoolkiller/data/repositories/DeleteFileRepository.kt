@@ -11,6 +11,8 @@ import android.provider.MediaStore
 import com.schoolkiller.data.Constants
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -24,44 +26,42 @@ class DeleteFileRepository @Inject constructor(
 ) {
 
 
-
-    fun deleteImageFromStorage(
+     fun deleteImageFromStorage(
         activity: Activity,
         imageUri: Uri
     ) {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // For Android 10 and above, use createDeleteRequest
-            val pendingIntent = MediaStore.createDeleteRequest(
-                context.contentResolver,
-                listOf(imageUri)
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                // For Android 10 and above, use createDeleteRequest
+                val pendingIntent = MediaStore.createDeleteRequest(
+                    context.contentResolver,
+                    listOf(imageUri)
+                )
 //            val activity = context as Activity
-            activity.startIntentSenderForResult(
-                pendingIntent.intentSender,
-                Constants.DELETE_REQUEST_CODE,
-                null,
-                0,
-                0,
-                0,
-                null
-            )
-
-        } else {
-            // For older Android versions, use contentResolver.delete
-            imageUri?.let {
-                context.contentResolver.delete(
-                    it,
+                activity.startIntentSenderForResult(
+                    pendingIntent.intentSender,
+                    Constants.DELETE_REQUEST_CODE,
                     null,
+                    0,
+                    0,
+                    0,
                     null
                 )
+
+            } else {
+                // For older Android versions, use contentResolver.delete
+                imageUri?.let {
+                    context.contentResolver.delete(
+                        it,
+                        null,
+                        null
+                    )
+                }
             }
-        }
     }
 
 
-   fun cleanInvalidImages(
-       activity: Activity,
+    fun cleanInvalidImages(
+        activity: Activity,
         invalidUris: List<Uri?>
     ) {
         invalidUris.forEach { uri ->
@@ -139,7 +139,7 @@ class DeleteFileRepository @Inject constructor(
     }
 
 
-   fun getInvalidImageUris(): List<Uri> {
+    fun getInvalidImageUris(): List<Uri> {
         val inValidUris = mutableListOf<Uri>()
         val cursor: Cursor? = context.contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -162,9 +162,10 @@ class DeleteFileRepository @Inject constructor(
             }
         }
         return inValidUris
+
     }
 
-     fun checkUriValidity(uri: Uri): Boolean {
+    fun checkUriValidity(uri: Uri): Boolean {
         return try {
             val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
             inputStream?.close()
@@ -175,6 +176,7 @@ class DeleteFileRepository @Inject constructor(
             false // Other IO exceptions
         }
     }
+
 }
 
 

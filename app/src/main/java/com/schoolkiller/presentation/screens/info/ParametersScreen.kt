@@ -1,7 +1,6 @@
 package com.schoolkiller.presentation.screens.info
 
 import ExposedDropBox
-import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -35,20 +35,15 @@ import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.AttentionAlertDialog
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
-import com.schoolkiller.presentation.screens.result.ResultViewModel
 
 @Composable
 fun ParametersScreen(
     modifier: Modifier = Modifier,
-    context: Context,
-    //selectedImageUri: String, // Received argument
     onNavigateToResultScreen: (String) -> Unit
 ) {
     val viewModel: ParametersViewModel = hiltViewModel()
-    val resultViewModel: ResultViewModel = hiltViewModel()
-    //val homeViewModel: HomeViewModel = hiltViewModel()
-    //val imageUri = homeViewModel.selectedUri
     val parameterScreenProperties = viewModel.parameterPropertiesState.collectAsState().value
+    val context = LocalContext.current
 
     /** Testing the prompt in a dialog if the values are correct. Check also the solve button*/
     var isAttentionDialogShowed by remember { mutableStateOf(false) }
@@ -66,9 +61,8 @@ fun ParametersScreen(
 
 
 
-
-
     ApplicationScaffold(
+        isShowed = true,
         content = {
 
             ScreenImage(
@@ -92,7 +86,6 @@ fun ParametersScreen(
             //Reused Component
             ExposedDropBox(
                 maxHeightIn = 200.dp,
-                context = context,
                 label = R.string.grade_label,
                 selectedOption = parameterScreenProperties.grade,
                 options = GradeOption.entries.toList(),
@@ -104,7 +97,6 @@ fun ParametersScreen(
 
             ExposedDropBox(
                 maxHeightIn = 200.dp,
-                context = context,
                 label = R.string.solution_language_label,
                 selectedOption = parameterScreenProperties.language,
                 options = SolutionLanguageOption.entries.toList(),
@@ -116,7 +108,6 @@ fun ParametersScreen(
 
             ExposedDropBox(
                 maxHeightIn = 200.dp,
-                context = context,
                 label = R.string.explanations_label,
                 selectedOption = parameterScreenProperties.explanationLevel,
                 options = ExplanationLevelOption.entries.toList(),

@@ -47,7 +47,7 @@ fun PictureItem(
     imageModifier: Modifier = Modifier,
     imageUri: Uri,
     onRemove: () -> Unit,
-    onEnlarge: () -> Unit,
+    onEnlarge: (Uri) -> Unit,
 ) {
 
     val buttonColor = Color.Black
@@ -93,7 +93,7 @@ fun PictureItem(
                                 color = Color.White,
                                 shape = CircleShape
                             ),
-                        onClick = onEnlarge
+                        onClick = { onEnlarge(imageUri) }
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.enlarge_image),
