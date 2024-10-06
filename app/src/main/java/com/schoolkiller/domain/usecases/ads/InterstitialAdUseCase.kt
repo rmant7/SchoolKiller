@@ -27,7 +27,7 @@ class InterstitialAdUseCase @Inject constructor(
         val adRequest = AdRequest.Builder().build()
         InterstitialAd.load(
             context,
-            Constants.INTERSTITIAL_AD_ID,
+            Constants.INTERSTITIAL_AD_SAMPLE_ID,
             adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {

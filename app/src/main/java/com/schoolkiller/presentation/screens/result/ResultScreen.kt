@@ -18,7 +18,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -30,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
 import com.schoolkiller.presentation.ads.BannerAdContainer
 import com.schoolkiller.presentation.common.ApplicationScaffold
@@ -42,37 +42,32 @@ import io.ktor.client.plugins.ServerResponseException
 @Composable
 fun ResultScreen(
     modifier: Modifier = Modifier,
-    originalPrompt: String, // will be changed also
+    passedPrompt: String,
     passedImageUri: Uri?,
     onNavigateToHomeScreen: () -> Unit,
 ) {
     val viewModel: ResultViewModel = hiltViewModel()
-    val resultText: String = viewModel.textGenerationResult.collectAsState().value
+    val resultProperties = viewModel.resultPropertiesState.collectAsStateWithLifecycle().value
     val context = LocalContext.current
-    val resultError: Throwable? = viewModel.error.collectAsState().value
-
     val responseListState = rememberLazyListState()
-    val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState().value
-    val openAlertDialog = remember { mutableStateOf(resultError != null) }
+    val openAlertDialog = remember { mutableStateOf(resultProperties.error != null) }
 
-    val isResultFetched = viewModel.isResultFetchedStatus.collectAsState().value
-    val adView = viewModel.adview.collectAsState().value
 
     // fetch only when user requested AI response
     // and result wasn't fetched yet
-    if (requestGeminiResponse && !isResultFetched) {
-        if (passedImageUri != null){
+    if (resultProperties.requestGeminiResponse && !resultProperties.isResultFetchedStatus) {
+        if (passedImageUri != null) {
             viewModel.fetchGeminiResponse(
                 imageUri = passedImageUri!!,
                 fileName = passedImageUri.toString(),
-                prompt = originalPrompt
+                prompt = passedPrompt
             )
-        // result is fetched and this block wouldn't run
-        // until new try request from user
-        viewModel.updateResultFetchedStatus(true)
-    } else {
-        ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
-    }
+            // result is fetched and this block wouldn't run
+            // until new try request from user
+            viewModel.updateResultFetchedStatus(true)
+        } else {
+            ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
+        }
     }
 
 
@@ -81,10 +76,10 @@ fun ResultScreen(
         content = {
             // only show ad if it's loaded and user requested AI response
 
-            if (resultError != null) {
+            if (resultProperties.error != null) {
                 openAlertDialog.value = true
 
-                val dialogData = getAlertWindowData(resultError)
+                val dialogData = getAlertWindowData(resultProperties.error)
 
                 ErrorAlertDialog(
                     onDismissRequest = { openAlertDialog.value = false },
@@ -131,7 +126,7 @@ fun ResultScreen(
 
 
                     item {
-                        if (resultText.isBlank() && resultError == null) {
+                        if (resultProperties.textGenerationResult.isBlank() && resultProperties.error == null) {
                             Box(
                                 modifier = modifier
                                     .fillMaxWidth()
@@ -139,9 +134,9 @@ fun ResultScreen(
                                 contentAlignment = Alignment.Center,
                                 content = {
 
-                                    if (requestGeminiResponse) {
-                                       viewModel.showInterstitialAd(context)
-                                       viewModel.updateRequestGeminiResponse(false)
+                                    if (resultProperties.requestGeminiResponse) {
+                                        viewModel.showInterstitialAd(context)
+                                        viewModel.updateRequestGeminiResponse(false)
                                     } else {
                                         CircularProgressIndicator(modifier = modifier.size(80.dp))
                                     }
@@ -154,7 +149,7 @@ fun ResultScreen(
                                 OutlinedTextField(
                                     modifier = modifier
                                         .fillMaxWidth(),
-                                    value = resultText,
+                                    value = resultProperties.textGenerationResult,
                                     onValueChange = {},
                                     textStyle = TextStyle(
                                         fontSize = 20.sp,
@@ -167,7 +162,7 @@ fun ResultScreen(
                     }
                 }
             )
-            BannerAdContainer(adView = adView)
+            BannerAdContainer(adView = resultProperties.mediumBannerAdview)
         },
         bottomBar = {
             Column(

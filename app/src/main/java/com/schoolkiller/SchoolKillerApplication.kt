@@ -1,25 +1,16 @@
 package com.schoolkiller
 
-import android.app.Activity
 import android.app.Application
-import android.view.View
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.ai.client.generativeai.BuildConfig
 import com.google.android.gms.ads.MobileAds
-import com.schoolkiller.domain.usecases.ads.AdUseCase
 import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
 import com.schoolkiller.domain.usecases.ads.InterstitialAdUseCase
 import com.schoolkiller.domain.usecases.ads.OpenAdUseCase
-import com.schoolkiller.presentation.permissions.PermissionSet
-import com.schoolkiller.presentation.screens.home.HomeViewModel
 import com.schoolkiller.presentation.toast.ShowToastMessage
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -51,7 +42,7 @@ class SchoolKillerApplication : Application(){
         ShowToastMessage.init(this@SchoolKillerApplication)
 
 
-        adsScope.launch(Dispatchers.IO) {
+        adsScope.launch(Dispatchers.IO + SupervisorJob()) {
             // Initialize the Google Mobile Ads SDK on a background thread.
             MobileAds.initialize(this@SchoolKillerApplication) {}
             MobileAds.setAppMuted(true)

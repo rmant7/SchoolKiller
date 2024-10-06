@@ -12,21 +12,17 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import com.schoolkiller.R
 import com.schoolkiller.domain.UploadFileMethodOptions
-import com.schoolkiller.presentation.common.AttentionAlertDialog
 import com.schoolkiller.presentation.common.EnlargedImage
 import com.schoolkiller.presentation.common.PermissionMessageRationale
 import com.schoolkiller.presentation.common.PermissionRequestDialog
@@ -46,7 +42,7 @@ fun HomeScreen(
 
     val viewModel: HomeViewModel = hiltViewModel()
     val context = LocalContext.current
-    val stateProperties = viewModel.homePropertiesState.collectAsState().value
+    val stateProperties = viewModel.homePropertiesState.collectAsStateWithLifecycle().value
     val dialogQueueList = viewModel.permissionDialogQueueList
     var isHomeScreenUIShowed by remember { mutableStateOf(false) }
     var isAttentionDialogShowed by remember { mutableStateOf(false) }
@@ -62,9 +58,9 @@ fun HomeScreen(
                 invalidImagesPlaceholder = viewModel.getInvalidImageUris()
                 if (invalidImagesPlaceholder.isNotEmpty()) {
                     viewModel.cleanInvalidImages(context as Activity, invalidImagesPlaceholder)
-                    invalidImagesPlaceholder.forEach { uri ->
-                        viewModel.deleteImageFromTheList(uri)
-                    }
+//                    invalidImagesPlaceholder.forEach { uri ->
+//                        viewModel.removeImageFromTheList(uri)
+//                    }
                 }
             }
         }
@@ -207,7 +203,7 @@ fun HomeScreen(
     /** Enlarging the Image */
     if (stateProperties.isImageEnlarged) {
         val isUriValid =
-            stateProperties.selectedImageUri?.let { viewModel.checkUriValidity(stateProperties.selectedImageUri) }
+            stateProperties.selectedImageUri?.let { viewModel.checkUriValidity(it) }
         if (isUriValid == true) {
             EnlargedImage(
                 image = stateProperties.selectedImageUri,
@@ -228,7 +224,6 @@ fun HomeScreen(
     // Show App Open Ad
     viewModel.showAppOpenAd(context)
 
-
     /** Button Cases */
     when (stateProperties.selectedUploadMethodOption) {
 
@@ -236,7 +231,6 @@ fun HomeScreen(
             val cameraPermissionSet = PermissionSet().getCameraPermissionSet()
             permissionResultLauncher.launch(cameraPermissionSet)
         }
-
 
         UploadFileMethodOptions.UPLOAD_AN_IMAGE -> {
             val galleryPermissionSet = PermissionSet().getGalleryPermissionSet()

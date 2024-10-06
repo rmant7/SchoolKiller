@@ -10,7 +10,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -18,9 +17,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
 import com.schoolkiller.domain.GradeOption
 import com.schoolkiller.presentation.ads.BannerAdContainer
@@ -28,15 +27,14 @@ import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.AttentionAlertDialog
 import com.schoolkiller.presentation.common.UniversalButton
 
+
 @Composable
 fun CheckSolutionScreen(
     modifier: Modifier = Modifier,
     onNavigateToResultScreen: (String) -> Unit
 ) {
     val viewModel: SolutionCheckingViewModel = hiltViewModel()
-    val solutionProperties = viewModel.solutionPropertiesState.collectAsState().value
-    val context = LocalContext.current
-    val adView = viewModel.adview.collectAsState()
+    val solutionProperties = viewModel.solutionPropertiesState.collectAsStateWithLifecycle().value
 
 
     /** Testing the prompt in a dialog if the values are correct. Check also the solve button*/
@@ -61,7 +59,7 @@ fun CheckSolutionScreen(
         {
 
             // Banner ad
-            BannerAdContainer(adView = adView.value)
+            BannerAdContainer(adView = solutionProperties.adView)
 
             /*ScreenImage(
                 modifier = modifier
@@ -119,6 +117,8 @@ fun CheckSolutionScreen(
                         "(1–100)", selectedMaxRate.toString()
                     )
                 )*/
+
+
                 viewModel.buildSolutionPrompt()
                 /** testing the prompt : uncomment */
 //                isAttentionDialogShowed = true

@@ -14,11 +14,14 @@ import com.schoolkiller.data.repositories.SaveFileRepository
 import com.schoolkiller.domain.UploadFileMethodOptions
 import com.schoolkiller.domain.model.HomeProperties
 import com.schoolkiller.domain.usecases.ads.OpenAdUseCase
+import com.schoolkiller.presentation.RequestState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,8 +36,54 @@ class HomeViewModel @Inject constructor(
     private val deleteFileRepository: DeleteFileRepository
 ) : ViewModel() {
 
-    val permissionDialogQueueList = mutableStateListOf<String>()
 
+    private val _homePropertiesState = MutableStateFlow(HomeProperties())
+    val homePropertiesState: StateFlow<HomeProperties> = _homePropertiesState
+        .onStart {
+            /** This is like the init block */
+            openAdUseCase.setOnLoaded { ad ->
+                _homePropertiesState.update { currentState ->
+                    currentState.copy(appOpenAdd = ad)
+                }
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                readImageState()
+                readImageListState()
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = HomeProperties()
+        )
+
+    /** we can use this for handling errors, easier debugging with logging, and
+     * show circular indicator when something is delaying to showed in the UI
+     * example on readImageListState and HomeScreen Lazy Column*/
+    private val _homeScreenRequestState =
+        MutableStateFlow<RequestState<HomeProperties>>(RequestState.Idle)
+    val homeScreenRequestState: StateFlow<RequestState<HomeProperties>> = _homeScreenRequestState
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = RequestState.Idle
+        )
+
+    /*
+    init {
+        openAdUseCase.setOnLoaded { ad ->
+            _homePropertiesState.update { currentState ->
+                currentState.copy(appOpenAdd = ad)
+            }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            readImageState()
+            readImageListState()
+        }
+    }
+     */
+
+    /** multiple permissions request */
+    val permissionDialogQueueList = mutableStateListOf<String>()
     fun onDismissPermissionDialog() {
         permissionDialogQueueList.removeFirst()
     }
@@ -43,14 +92,10 @@ class HomeViewModel @Inject constructor(
         permission: String,
         isGranted: Boolean
     ) {
-        if(!isGranted && !permissionDialogQueueList.contains(permission)) {
+        if (!isGranted && !permissionDialogQueueList.contains(permission)) {
             permissionDialogQueueList.add(permission)
         }
     }
-
-    private val _homePropertiesState = MutableStateFlow(HomeProperties())
-    val homePropertiesState: StateFlow<HomeProperties> = _homePropertiesState.asStateFlow()
-
 
     fun updateSelectedUploadMethodOption(newUploadMethodSelection: UploadFileMethodOptions) {
         _homePropertiesState.update { currentState ->
@@ -58,11 +103,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun updateSelectedImageIndex(newIndex: Int?) {
-        _homePropertiesState.update { currentState ->
-            currentState.copy(selectedImageIndex = newIndex)
-        }
-    }
 
     fun updateIsImageEnlarged(isEnlarged: Boolean) {
         _homePropertiesState.update { currentState ->
@@ -99,7 +139,8 @@ class HomeViewModel @Inject constructor(
     fun insertImagesOnTheList(newImages: List<Uri>) {
         _homePropertiesState.update { currentState ->
             currentState.copy(
-                listOfImages = newImages + currentState.listOfImages)
+                listOfImages = newImages + currentState.listOfImages
+            )
 //                currentState.listOfImages.toMutableList()
 //                    .apply { addAll(newImages) })
         }
@@ -108,7 +149,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) { persistImageListState(updatedList) }
     }
 
-    fun deleteImageFromTheList(imageToDelete: Uri) {
+    fun removeImageFromTheList(imageToDelete: Uri) {
         _homePropertiesState.update { currentState ->
             currentState.copy(
                 listOfImages = currentState.listOfImages.toMutableStateList()
@@ -126,7 +167,6 @@ class HomeViewModel @Inject constructor(
     }
 
     suspend fun getCameraSavedImageUri(): Uri? {
-
         return withContext(Dispatchers.IO) { saveFileRepository.getCameraSavedImageUri() }
     }
 
@@ -175,32 +215,34 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-
+    /** example of homeScreenRequestState use */
     private suspend fun readImageListState() {
         viewModelScope.launch {
+            _homeScreenRequestState.update { RequestState.Loading }
             try {
                 dataStoreRepository.readImageListState.collect { imageList ->
+
+                    val validImageList = withContext(Dispatchers.IO) {
+                        imageList.mapNotNull { uri ->
+                            try {
+                                if (checkUriValidity(uri)) uri else null
+                            } catch (e: Exception) {
+                                Timber.e(e, "Error validating URI: $uri")
+                                null
+                            }
+                        }
+                    }
+
                     withContext(Dispatchers.Main) {
-                        updateListOfImages(imageList)
+                        updateListOfImages(validImageList)
+                        _homeScreenRequestState.update { RequestState.Success(_homePropertiesState.value) }
                     }
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Error reading image list  state")
                 updateListOfImages(emptyList())
+                _homeScreenRequestState.update { RequestState.Error(e) }
             }
-        }
-    }
-
-
-    init {
-        openAdUseCase.setOnLoaded { ad ->
-            _homePropertiesState.update { currentState ->
-                currentState.copy(appOpenAdd = ad)
-            }
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            readImageState()
-            readImageListState()
         }
     }
 
