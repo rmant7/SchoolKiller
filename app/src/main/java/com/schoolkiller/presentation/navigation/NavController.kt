@@ -1,15 +1,13 @@
 package com.schoolkiller.presentation.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.schoolkiller.presentation.screens.checking.CheckSolutionScreen
 import com.schoolkiller.presentation.screens.home.HomeScreen
-import com.schoolkiller.presentation.screens.home.HomeViewModel
 import com.schoolkiller.presentation.screens.info.ParametersScreen
 import com.schoolkiller.presentation.screens.result.ResultScreen
 import com.schoolkiller.presentation.screens.result.ResultViewModel
@@ -19,10 +17,20 @@ import kotlinx.serialization.Serializable
 @Composable
 fun NavigationController() {
     val navController = rememberNavController()
-    val homeViewModel: HomeViewModel = hiltViewModel()
+//    val homeViewModel: HomeViewModel = hiltViewModel()
+//    val homeProperties = homeViewModel.homePropertiesState.collectAsStateWithLifecycle().value
+//    val solutionViewModel: SolutionCheckingViewModel = hiltViewModel()
+//    val solutionProperties = solutionViewModel.solutionPropertiesState.collectAsStateWithLifecycle().value
+//    val parametersViewModel: ParametersViewModel = hiltViewModel()
+//    val parametersProperties = parametersViewModel.parametersPropertiesState.collectAsStateWithLifecycle().value
     val resultViewModel: ResultViewModel = hiltViewModel()
-    val imageUri = resultViewModel.passedImageUri.collectAsState().value
+    val resultProperties = resultViewModel.resultPropertiesState.collectAsStateWithLifecycle().value
+    val prompt =
+        if (resultProperties.isSolveActionRequested) resultProperties.passedConvertedSolvePrompt
+        else resultProperties.passedConvertedSolutionPrompt
 
+    /** Maybe the best place to init the ads. here would be initialized before user goes to the screen
+     * and will kept active. I have ready all view models instances for testing */
 
 
     NavHost(
@@ -41,31 +49,23 @@ fun NavigationController() {
         }
 
         composable<Screens.ParametersScreen> {
+            resultViewModel.updateIsSolveActionRequested(true)
             ParametersScreen(
-                onNavigateToResultScreen = { originalPrompt ->
-                    navController.navigate(
-                        Screens.ResultScreen(originalPrompt = originalPrompt)
-                    )
-                }
+                onNavigateToResultScreen = { navController.navigate(Screens.ResultScreen) }
             )
         }
 
         composable<Screens.CheckSolutionInformationScreen> {
+            resultViewModel.updateIsSolveActionRequested(false)
             CheckSolutionScreen(
-                onNavigateToResultScreen = { originalPrompt ->
-                    navController.navigate(
-                        Screens.ResultScreen(originalPrompt = originalPrompt)
-                    )
-                }
+                onNavigateToResultScreen = { navController.navigate(Screens.ResultScreen) }
             )
         }
 
         composable<Screens.ResultScreen> {
-            val args = it.toRoute<Screens.ResultScreen>()
-
             ResultScreen(
-                originalPrompt = args.originalPrompt,
-                passedImageUri = imageUri,
+                passedPrompt = prompt,
+                passedImageUri = resultProperties.passedImageUri,
                 onNavigateToHomeScreen = {
                     navController.navigate(Screens.HomeScreen)
                 }
@@ -79,15 +79,13 @@ fun NavigationController() {
 sealed class Screens {
 
     @Serializable
-    data object HomeScreen: Screens()
+    data object HomeScreen : Screens()
 
     @Serializable
-    data object ParametersScreen: Screens()
+    data object ParametersScreen : Screens()
 
     @Serializable
-    data class ResultScreen(
-        val originalPrompt: String
-    ) : Screens()
+    data object ResultScreen : Screens()
 
     @Serializable
     data object CheckSolutionInformationScreen : Screens()

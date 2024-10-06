@@ -4,6 +4,8 @@ import com.google.android.gms.ads.LoadAdError
 import com.schoolkiller.BuildConfig
 import timber.log.Timber
 
+
+
 abstract class AdUseCase {
 
     private var onFailedError: (LoadAdError) -> Unit = {

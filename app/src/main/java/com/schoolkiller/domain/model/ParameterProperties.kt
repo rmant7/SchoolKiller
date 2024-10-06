@@ -10,5 +10,6 @@ data class ParameterProperties(
     val language: SolutionLanguageOption = SolutionLanguageOption.ORIGINAL_TASK_LANGUAGE,
     val explanationLevel: ExplanationLevelOption = ExplanationLevelOption.SHORT_EXPLANATION,
     val description: String = "",
-    val solvePromptText: String = PromptText.SOLVE_PROMPT.promptText
+    val solvePromptText: String = PromptText.SOLVE_PROMPT.promptText,
+    val error: Throwable? = null
 )

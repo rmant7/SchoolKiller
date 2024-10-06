@@ -20,7 +20,7 @@ class BannerAdUseCase @Inject constructor(
     private var stretchedBanner: AdView? = null
 
     private var mediumBanner: AdView? = AdView(context).apply {
-        this.adUnitId = Constants.BANNER_AD_ID
+        this.adUnitId = Constants.BANNER_AD_SAMPLE_ID
         this.setAdSize(AdSize.MEDIUM_RECTANGLE)
     }
 
@@ -35,7 +35,7 @@ class BannerAdUseCase @Inject constructor(
             )*/
 
             stretchedBanner = AdView(context).apply {
-                this.adUnitId = Constants.BANNER_AD_ID
+                this.adUnitId = Constants.BANNER_AD_SAMPLE_ID
                 this.setAdSize(adSize) // AdSize.MEDIUM_RECTANGLE
             }
         }

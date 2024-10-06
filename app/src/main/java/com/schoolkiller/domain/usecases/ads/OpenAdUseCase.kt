@@ -13,6 +13,8 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
+
+
 @Singleton
 class OpenAdUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -38,7 +40,7 @@ class OpenAdUseCase @Inject constructor(
         val adRequest = AdRequest.Builder().build()
         AppOpenAd.load(
             context,
-            Constants.OPEN_AD_ID,
+            Constants.OPEN_AD_SAMPLE_ID,
             adRequest,
             AppOpenAd.APP_OPEN_AD_ORIENTATION_PORTRAIT,
             object : AppOpenAd.AppOpenAdLoadCallback() {

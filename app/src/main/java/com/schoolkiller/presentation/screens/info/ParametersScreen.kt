@@ -10,7 +10,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,7 +17,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -27,6 +25,7 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
 import com.schoolkiller.domain.ExplanationLevelOption
 import com.schoolkiller.domain.GradeOption
@@ -36,14 +35,14 @@ import com.schoolkiller.presentation.common.AttentionAlertDialog
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
 
+
 @Composable
 fun ParametersScreen(
     modifier: Modifier = Modifier,
     onNavigateToResultScreen: (String) -> Unit
 ) {
     val viewModel: ParametersViewModel = hiltViewModel()
-    val parameterScreenProperties = viewModel.parameterPropertiesState.collectAsState().value
-    val context = LocalContext.current
+    val parameterScreenProperties = viewModel.parametersPropertiesState.collectAsStateWithLifecycle().value
 
     /** Testing the prompt in a dialog if the values are correct. Check also the solve button*/
     var isAttentionDialogShowed by remember { mutableStateOf(false) }
@@ -58,7 +57,6 @@ fun ParametersScreen(
             proceedToResultScreen = true
         }
     )
-
 
 
     ApplicationScaffold(
@@ -167,6 +165,7 @@ fun ParametersScreen(
                     modifier = Modifier.fillMaxWidth(),
                     label = R.string.solve_button_label,
                 ) {
+
                     viewModel.buildSolvingPrompt()
                     /** testing the prompt : uncomment */
 //                    isAttentionDialogShowed = true
@@ -182,7 +181,7 @@ fun ParametersScreen(
 //                        resultViewModel.updateTextGenerationResult("")
 
                         onNavigateToResultScreen(parameterScreenProperties.solvePromptText)
-                    /** testing the prompt : uncomment */
+                        /** testing the prompt : uncomment */
 //                    }
 
                 }

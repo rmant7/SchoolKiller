@@ -8,12 +8,15 @@ import com.schoolkiller.domain.GradeOption
 import com.schoolkiller.domain.PromptText
 import com.schoolkiller.domain.SolutionLanguageOption
 import com.schoolkiller.domain.model.ParameterProperties
+import com.schoolkiller.presentation.RequestState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -24,61 +27,73 @@ class ParametersViewModel @Inject constructor(
     private val dataStoreRepository: DataStoreRepository
 ) : ViewModel() {
 
-    private val _parameterPropertiesState = MutableStateFlow(ParameterProperties())
-    val parameterPropertiesState: StateFlow<ParameterProperties> =
-        _parameterPropertiesState.asStateFlow()
-    /*   Thinking of this approach, need more testing
-    private val _parameterPropertiesState = MutableStateFlow(ParameterProperties())
-    val parameterPropertiesState = _parameterPropertiesState
-       .onStart {
-           readSolvePromptState()
-           readGradeOptionState()
-           readLanguageOptionState()
-           readExplanationLevelOptionState()
-           readDescriptionOptionState()
-       }
-       .stateIn(
-           viewModelScope,
-           SharingStarted.WhileSubscribed(5000L),
-           _parameterPropertiesState.value
-       )
+    private val _parametersPropertiesState = MutableStateFlow(ParameterProperties())
+    val parametersPropertiesState: StateFlow<ParameterProperties> = _parametersPropertiesState
+        .onStart { /** This is like the init block */
+            readSolvePromptState()
+            readDescriptionOptionState()
+            readGradeOptionState()
+            readLanguageOptionState()
+            readExplanationLevelOptionState()
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = ParameterProperties()
+        )
+
+    /** we can use this for handling errors, easier debugging with logging, and
+     * show circular indicator when something is delaying to showed in the UI */
+    private val _parametersScreenRequestState = MutableStateFlow<RequestState<ParameterProperties>>(
+        RequestState.Idle)
+    val parametersScreenRequestState: StateFlow<RequestState<ParameterProperties>> = _parametersScreenRequestState
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = RequestState.Idle
+        )
+
+    /*
+    init {
+        readSolvePromptState()
+        readDescriptionOptionState()
+        readGradeOptionState()
+        readLanguageOptionState()
+        readExplanationLevelOptionState()
+    }
+
      */
 
 
-    private var _error = MutableStateFlow<Throwable?>(null)
-    val error: StateFlow<Throwable?>
-        get() = _error.asStateFlow()
-
     fun updateSelectedGradeOption(newClassSelection: GradeOption) {
-        _parameterPropertiesState.update { currentState ->
+        _parametersPropertiesState.update { currentState ->
             currentState.copy(grade = newClassSelection)
         }
         persistGradeOptionState(newClassSelection)
     }
 
     fun updateSelectedLanguageOption(newLanguageSelection: SolutionLanguageOption) {
-        _parameterPropertiesState.update { currentState ->
+        _parametersPropertiesState.update { currentState ->
             currentState.copy(language = newLanguageSelection)
         }
         persistLanguageOptionState(newLanguageSelection)
     }
 
     fun updateSelectedExplanationLevelOption(newExplanationLevelSelection: ExplanationLevelOption) {
-        _parameterPropertiesState.update { currentState ->
+        _parametersPropertiesState.update { currentState ->
             currentState.copy(explanationLevel = newExplanationLevelSelection)
         }
         persistExplanationLevelOptionState(newExplanationLevelSelection)
     }
 
     fun updateDescriptionText(addedText: String) {
-        _parameterPropertiesState.update { currentState ->
+        _parametersPropertiesState.update { currentState ->
             currentState.copy(description = addedText)
         }
         persistDescriptionState(addedText)
     }
 
     private fun updateSolvePromptText(newSolvePromptText: String) {
-        _parameterPropertiesState.update { currentState ->
+        _parametersPropertiesState.update { currentState ->
             currentState.copy(solvePromptText = newSolvePromptText)
         }
         persistSolvePromptTextState(newSolvePromptText)
@@ -87,21 +102,25 @@ class ParametersViewModel @Inject constructor(
 
     fun buildSolvingPrompt() {
         val originalPrompt = PromptText.SOLVE_PROMPT.promptText
-        val selectedGradeStr = "${parameterPropertiesState.value.grade.arrayIndex}"
-        val selectedLanguageStr = "${parameterPropertiesState.value.language.languageName}"
-        val selectedExplanationStr = "${parameterPropertiesState.value.explanationLevel.code}"
-        val description = " ${parameterPropertiesState.value.description}"
+        val selectedGradeStr = "${parametersPropertiesState.value.grade.arrayIndex}"
+        val selectedLanguageStr = "${parametersPropertiesState.value.language.languageName}"
+        val selectedExplanationStr = "${parametersPropertiesState.value.explanationLevel.code}"
+        val description = " ${parametersPropertiesState.value.description}"
 
         val promptWithGradeOption = if (originalPrompt.contains("(as grade+th grader)")) {
             originalPrompt.replace("(as grade+th grader)", "as ${selectedGradeStr}th grader")
         } else {
             originalPrompt
         }
-        val promptWithLanguageOption = if (promptWithGradeOption.contains("(language shown on this picture)")) {
-            promptWithGradeOption.replace("(language shown on this picture)", selectedLanguageStr)
-        } else {
-            promptWithGradeOption
-        }
+        val promptWithLanguageOption =
+            if (promptWithGradeOption.contains("(language shown on this picture)")) {
+                promptWithGradeOption.replace(
+                    "(language shown on this picture)",
+                    "${selectedLanguageStr.uppercase()} ONLY"
+                )
+            } else {
+                promptWithGradeOption
+            }
         val promptWithExplanationOption = if (promptWithLanguageOption.contains("(briefly)")) {
             promptWithLanguageOption.replace("(briefly)", selectedExplanationStr)
         } else {
@@ -217,15 +236,5 @@ class ParametersViewModel @Inject constructor(
         }
     }
 
-
-
-
-    init {
-        readSolvePromptState()
-        readDescriptionOptionState()
-        readGradeOptionState()
-        readLanguageOptionState()
-        readExplanationLevelOptionState()
-    }
 
 }
