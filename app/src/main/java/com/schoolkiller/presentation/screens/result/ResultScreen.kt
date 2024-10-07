@@ -44,6 +44,7 @@ import io.ktor.client.plugins.ServerResponseException
 fun ResultScreen(
     modifier: Modifier = Modifier,
     passedPrompt: String,
+    passedSystemInstruction : String,
     passedImageUri: Uri?,
     onNavigateToHomeScreen: () -> Unit,
 ) {
@@ -61,7 +62,8 @@ fun ResultScreen(
             viewModel.fetchGeminiResponse(
                 imageUri = passedImageUri,
                 fileName = passedImageUri.toString(),
-                prompt = passedPrompt
+                prompt = passedPrompt,
+                systemInstruction = passedSystemInstruction
             )
             // result is fetched and this block wouldn't run
             // until new try request from user

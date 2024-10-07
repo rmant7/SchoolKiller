@@ -5,6 +5,7 @@ import com.schoolkiller.BuildConfig
 import com.schoolkiller.data.Constants
 import com.schoolkiller.data.network.HttpRoutes
 import com.schoolkiller.data.network.response.GeminiResponse
+import com.schoolkiller.domain.PromptText
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.RedirectResponseException
@@ -100,9 +101,11 @@ class GeminiApiService @Inject constructor(
         }
     }
 
-    suspend fun generateContent(fileUri: String, prompt: String): GeminiResponse<String> {
+    suspend fun generateContent(fileUri: String,
+                                prompt: String,
+                                systemInstruction: String): GeminiResponse<String> {
         val escapedFileUri = fileUri.replace("\"", "\\\"")
-
+        println("SYSTEM INSTRUCTION IS $prompt")
         return try {
             val response: HttpResponse = client.post(
                 "${HttpRoutes.MODELS}/${Constants.GEMINI_FLASH_LATEST}?key=${BuildConfig.gemini_api_key}"
@@ -111,15 +114,28 @@ class GeminiApiService @Inject constructor(
                 contentType(ContentType.Application.Json)
                 setBody(
                     """
-                        {
-                            "contents": [{
-                                "parts":[
-                                    {"text": "$prompt"},
-                                    {"file_data": {"mime_type": "image/jpeg", "file_uri": "$escapedFileUri"}}
-                                ]
+                    { "system_instruction": {
+                        "parts":
+                        { "text": "$systemInstruction"}
+                        },
+                        "contents": [{
+                            "parts": [
+                            {"text":"$prompt"},
+                            {"file_data": {"mime_type": "image/jpeg", "file_uri": "$escapedFileUri"}}
+                            ]
                             }]
-                        }
-                """.trimIndent()
+                            }
+                            """
+                    /*"""
+                            {
+                                "contents": [{
+                                    "parts":[
+                                        {"text": "$prompt"},
+                                        {"file_data": {"mime_type": "image/jpeg", "file_uri": "$escapedFileUri"}}
+                                    ]
+                                }]
+                            }
+                    """.trimIndent()*/
                 )
             }
             GeminiResponse.Success(response.bodyAsText())

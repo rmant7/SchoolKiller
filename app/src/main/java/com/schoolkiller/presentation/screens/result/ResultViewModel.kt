@@ -137,7 +137,8 @@ class ResultViewModel @Inject constructor(
     fun fetchGeminiResponse(
         imageUri: Uri,
         fileName: String,
-        prompt: String
+        prompt: String,
+        systemInstruction : String
     ) {
         viewModelScope.launch {
             val fileByteArray = getImageByteArrayUseCase.invoke(imageUri = imageUri)
@@ -157,7 +158,7 @@ class ResultViewModel @Inject constructor(
                         .jsonObject["file"]?.jsonObject?.get("uri")?.jsonPrimitive?.content
 
                     if (actualFileUri != null) {
-                        val content = geminiApiService.generateContent(actualFileUri, prompt)
+                        val content = geminiApiService.generateContent(actualFileUri, prompt, systemInstruction)
                         val textResponse = if (content is GeminiResponse.Success) {
                             extractGeminiResponseUseCase.invoke(content.data ?: "{}")
                         } else {

@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import com.schoolkiller.presentation.screens.checking.CheckSolutionScreen
 import com.schoolkiller.presentation.screens.home.HomeScreen
 import com.schoolkiller.presentation.screens.info.ParametersScreen
+import com.schoolkiller.presentation.screens.info.ParametersViewModel
 import com.schoolkiller.presentation.screens.result.ResultScreen
 import com.schoolkiller.presentation.screens.result.ResultViewModel
 import kotlinx.serialization.Serializable
@@ -21,13 +22,22 @@ fun NavigationController() {
 //    val homeProperties = homeViewModel.homePropertiesState.collectAsStateWithLifecycle().value
 //    val solutionViewModel: SolutionCheckingViewModel = hiltViewModel()
 //    val solutionProperties = solutionViewModel.solutionPropertiesState.collectAsStateWithLifecycle().value
-//    val parametersViewModel: ParametersViewModel = hiltViewModel()
+    val parametersViewModel: ParametersViewModel = hiltViewModel()
 //    val parametersProperties = parametersViewModel.parametersPropertiesState.collectAsStateWithLifecycle().value
     val resultViewModel: ResultViewModel = hiltViewModel()
     val resultProperties = resultViewModel.resultPropertiesState.collectAsStateWithLifecycle().value
     val prompt =
         if (resultProperties.isSolveActionRequested) resultProperties.passedConvertedSolvePrompt
         else resultProperties.passedConvertedSolutionPrompt
+
+    val parametersProps = parametersViewModel
+        .parametersPropertiesState.collectAsStateWithLifecycle().value
+    val systemInstruction =
+        if (resultProperties.isSolveActionRequested)
+           "Answer only in ${parametersProps.language}."
+        else
+            "Answer only in language identified on the picture."
+
 
     /** Maybe the best place to init the ads. here would be initialized before user goes to the screen
      * and will kept active. I have ready all view models instances for testing */
@@ -66,6 +76,7 @@ fun NavigationController() {
             ResultScreen(
                 passedPrompt = prompt,
                 passedImageUri = resultProperties.passedImageUri,
+                passedSystemInstruction = systemInstruction,
                 onNavigateToHomeScreen = {
                     navController.navigate(Screens.HomeScreen)
                 }
