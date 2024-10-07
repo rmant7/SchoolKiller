@@ -105,7 +105,7 @@ class GeminiApiService @Inject constructor(
                                 prompt: String,
                                 systemInstruction: String): GeminiResponse<String> {
         val escapedFileUri = fileUri.replace("\"", "\\\"")
-        println("SYSTEM INSTRUCTION IS $prompt")
+
         return try {
             val response: HttpResponse = client.post(
                 "${HttpRoutes.MODELS}/${Constants.GEMINI_FLASH_LATEST}?key=${BuildConfig.gemini_api_key}"
