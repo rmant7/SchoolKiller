@@ -13,6 +13,8 @@ plugins {
     id("com.google.dagger.hilt.android")
     // Secrets Gradle Plugin
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -71,6 +73,14 @@ android {
 
 dependencies {
 
+    // AppMetrica SDK.
+    implementation(libs.analytics)
+    // AppMetrica Push SDK.
+    implementation("io.appmetrica.analytics:push:4.0.0")
+    implementation("androidx.legacy:legacy-support-v4:1.0.0")
+    // minimum support version 20.3.0
+    implementation("com.google.firebase:firebase-messaging:22.0.0")
+    implementation("com.google.android.gms:play-services-base:17.5.0")
 
     // AdMob advertisement
     implementation(libs.play.services.ads)

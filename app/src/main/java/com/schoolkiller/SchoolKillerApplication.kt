@@ -4,13 +4,15 @@ import android.app.Application
 import android.os.Build
 import android.util.DisplayMetrics
 import android.view.WindowManager
-import com.google.ai.client.generativeai.BuildConfig
+import com.schoolkiller.BuildConfig
 import com.google.android.gms.ads.MobileAds
 import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
 import com.schoolkiller.domain.usecases.ads.InterstitialAdUseCase
-import com.schoolkiller.domain.usecases.ads.OpenAdUseCase
 import com.schoolkiller.presentation.toast.ShowToastMessage
 import dagger.hilt.android.HiltAndroidApp
+import io.appmetrica.analytics.AppMetrica
+import io.appmetrica.analytics.AppMetricaConfig
+import io.appmetrica.analytics.push.AppMetricaPush
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -51,31 +53,27 @@ class SchoolKillerApplication : Application() {
             MobileAds.setAppMuted(true)
         }
 
-        // apply reload every 5 seconds on fail to load
 
-//        openAppAdUseCase.apply {
-//            setOnFailedAction { onReload(this) }
-//        }
-//
-//
-//        interstitialAdUseCase.apply {
-//            setOnFailedAction { onReload(this) }
-//        }
-//
-//        bannerAdUseCase.apply {
-//            setOnFailedAction { onReload(this) }
-//        }
-
-        setMaxScreenHeight()
+        setMaxScreenSize()
 
         // preloading ads
         // openAppAdUseCase.loadAdWithNoAdsCheck()
         bannerAdUseCase.loadAdWithNoAdsCheck()
         interstitialAdUseCase.loadAdWithNoAdsCheck()
 
+
+        CoroutineScope(Dispatchers.IO).launch {
+            Timber.d("Creating an extended library configuration.")
+            val config = AppMetricaConfig.newConfigBuilder(BuildConfig.app_metrica_api_key).build()
+            Timber.d("Initializing the AppMetrica SDK.")
+            AppMetrica.activate(applicationContext, config)
+            Timber.d("Initializing the AppMetricaPush.")
+            AppMetricaPush.activate(applicationContext)
+        }
+
     }
 
-    private fun setMaxScreenHeight(){
+    private fun setMaxScreenSize(){
         val height: Int
         val width: Int
         val windowManager = this.getSystemService(
