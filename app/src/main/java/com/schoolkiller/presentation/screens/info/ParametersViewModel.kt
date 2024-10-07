@@ -113,9 +113,9 @@ class ParametersViewModel @Inject constructor(
             originalPrompt
         }
         val promptWithLanguageOption =
-            if (promptWithGradeOption.contains("(language shown on this picture)")) {
+            if (promptWithGradeOption.contains("(language identified on the sent file)")) {
                 promptWithGradeOption.replace(
-                    "(language shown on this picture)",
+                    "(language identified on the sent file)",
                     "${selectedLanguageStr.uppercase()} ONLY"
                 )
             } else {

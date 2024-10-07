@@ -41,7 +41,7 @@ class ResultViewModel @Inject constructor(
     private val _resultPropertiesState = MutableStateFlow(ResultProperties())
     val resultPropertiesState: StateFlow<ResultProperties> = _resultPropertiesState
         .onStart { /** This is like the init block */
-            updateAdview(bannerAdUseCase.getMediumBannerAdView())
+           // updateAdview(bannerAdUseCase.getMediumBannerAdView())
             readImageState()
             readConvertedSolvePromptState()
             readConvertedSolutionPromptTextState()
@@ -72,11 +72,11 @@ class ResultViewModel @Inject constructor(
 
      */
 
-    fun updateAdview(adView: AdView?) {
+    /*fun updateAdview(adView: AdView?) {
         _resultPropertiesState.update { currentState ->
             currentState.copy(mediumBannerAdview = adView)
         }
-    }
+    }*/
 
     fun updateIsSolveActionRequested(isSolveActionRequested: Boolean) {
         _resultPropertiesState.update { currentState ->

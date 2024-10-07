@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -31,7 +33,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
-import com.schoolkiller.presentation.ads.BannerAdContainer
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.ErrorAlertDialog
 import com.schoolkiller.presentation.common.UniversalButton
@@ -51,20 +52,25 @@ fun ResultScreen(
     val context = LocalContext.current
     val responseListState = rememberLazyListState()
     val openAlertDialog = remember { mutableStateOf(resultProperties.error != null) }
-
+    val interstitialAdCount = remember { mutableIntStateOf(1) }
 
     // fetch only when user requested AI response
     // and result wasn't fetched yet
     if (resultProperties.requestGeminiResponse && !resultProperties.isResultFetchedStatus) {
         if (passedImageUri != null) {
             viewModel.fetchGeminiResponse(
-                imageUri = passedImageUri!!,
+                imageUri = passedImageUri,
                 fileName = passedImageUri.toString(),
                 prompt = passedPrompt
             )
             // result is fetched and this block wouldn't run
             // until new try request from user
             viewModel.updateResultFetchedStatus(true)
+
+            interstitialAdCount.value += 1
+            if (interstitialAdCount.intValue == 2)
+                interstitialAdCount.intValue = 0
+
         } else {
             ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
         }
@@ -116,7 +122,7 @@ fun ResultScreen(
 
             LazyColumn(
                 modifier = modifier
-                    .fillMaxHeight(0.65f)
+                    .fillMaxHeight(/*0.65f*/)
                     .padding(0.dp, 10.dp),
                 state = responseListState,
                 content = {
@@ -126,7 +132,8 @@ fun ResultScreen(
 
 
                     item {
-                        if (resultProperties.textGenerationResult.isBlank() && resultProperties.error == null) {
+                        if (resultProperties.textGenerationResult.isBlank()
+                            && resultProperties.error == null) {
                             Box(
                                 modifier = modifier
                                     .fillMaxWidth()
@@ -134,13 +141,15 @@ fun ResultScreen(
                                 contentAlignment = Alignment.Center,
                                 content = {
 
-                                    if (resultProperties.requestGeminiResponse) {
+                                    if (resultProperties.requestGeminiResponse
+                                        && interstitialAdCount.intValue == 0
+                                    ) {
                                         viewModel.showInterstitialAd(context)
                                         viewModel.updateRequestGeminiResponse(false)
                                     } else {
                                         CircularProgressIndicator(modifier = modifier.size(80.dp))
                                     }
-
+                                    //firstTry.value = false
                                 }
                             )
                         } else {
@@ -148,11 +157,12 @@ fun ResultScreen(
                             SelectionContainer {
                                 OutlinedTextField(
                                     modifier = modifier
-                                        .fillMaxWidth(),
+                                        .fillMaxSize(),
+                                        //.fillMaxWidth(),
                                     value = resultProperties.textGenerationResult,
                                     onValueChange = {},
                                     textStyle = TextStyle(
-                                        fontSize = 20.sp,
+                                        fontSize = 25.sp,
                                         textAlign = TextAlign.Start
                                     ),
                                     readOnly = true
@@ -162,7 +172,7 @@ fun ResultScreen(
                     }
                 }
             )
-            BannerAdContainer(adView = resultProperties.mediumBannerAdview)
+            //BannerAdContainer(adView = resultProperties.mediumBannerAdview)
         },
         bottomBar = {
             Column(

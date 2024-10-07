@@ -23,8 +23,8 @@ android {
         applicationId = "com.schoolkiller"
         minSdk = 29
         targetSdk = 34
-        versionCode = 5
-        versionName = "1.5"
+        versionCode = 6
+        versionName = "1.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -75,9 +75,7 @@ dependencies {
     // AdMob advertisement
     implementation(libs.play.services.ads)
     // Added dependency on Guava to avoid conflicts with CameraX and AdMob
-    implementation(libs.guava)/** CameraX not used anymore */
-    // Process Lifecycle Owner
-    //implementation("androidx.lifecycle:lifecycle-process:2.6.1")
+    //implementation(libs.guava)/** CameraX not used anymore */
 
     // Accompanist Permissions
     implementation (libs.accompanist.permissions)

@@ -19,29 +19,40 @@ class BannerAdUseCase @Inject constructor(
 
     private var stretchedBanner: AdView? = null
 
-    private var mediumBanner: AdView? = AdView(context).apply {
+    /*private var mediumBanner: AdView? = AdView(context).apply {
         this.adUnitId = Constants.BANNER_AD_SAMPLE_ID
         this.setAdSize(AdSize.MEDIUM_RECTANGLE)
+    }*/
+
+    private var  maxHeight = 600
+    private var maxWidth = 400
+
+    fun setMaxHeight(max : Int){
+        this.maxHeight = max
+    }
+
+    fun setMaxWidth(max : Int){
+        this.maxHeight = max
     }
 
     override fun load() {
 
         if (stretchedBanner == null) {
-            val adSize = AdSize(AdSize.FULL_WIDTH, 650)
+            //val adSize = AdSize((maxWidth * 0.35).toInt(), (maxHeight * 0.2).toInt())
 
-           /* val adaptiveSize = AdSize.getInlineAdaptiveBannerAdSize(
-                AdSize.FULL_WIDTH,
-                (maxScreenHeight * 0.2).roundToInt()
+            /*val adaptiveSize = AdSize.getInlineAdaptiveBannerAdSize(
+                maxWidth,
+                (maxHeight * 0.2).toInt()
             )*/
 
             stretchedBanner = AdView(context).apply {
-                this.adUnitId = Constants.BANNER_AD_SAMPLE_ID
-                this.setAdSize(adSize) // AdSize.MEDIUM_RECTANGLE
+                this.adUnitId = Constants.BANNER_AD_ID
+                this.setAdSize(AdSize.MEDIUM_RECTANGLE) // AdSize.MEDIUM_RECTANGLE
             }
         }
 
         loadBanner(stretchedBanner)
-        loadBanner(mediumBanner)
+        //loadBanner(mediumBanner)
     }
 
     private fun loadBanner(
@@ -68,9 +79,9 @@ class BannerAdUseCase @Inject constructor(
         return stretchedBanner
     }
 
-    fun getMediumBannerAdView(): AdView? {
+    /*fun getMediumBannerAdView(): AdView? {
         return mediumBanner
-    }
+    }*/
 
 }
 

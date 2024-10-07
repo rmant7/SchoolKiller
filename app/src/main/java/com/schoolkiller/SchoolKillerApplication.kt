@@ -1,6 +1,9 @@
 package com.schoolkiller
 
 import android.app.Application
+import android.os.Build
+import android.util.DisplayMetrics
+import android.view.WindowManager
 import com.google.ai.client.generativeai.BuildConfig
 import com.google.android.gms.ads.MobileAds
 import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
@@ -16,10 +19,10 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltAndroidApp
-class SchoolKillerApplication : Application(){
+class SchoolKillerApplication : Application() {
 
-    @Inject
-    lateinit var openAppAdUseCase: OpenAdUseCase
+    /* @Inject
+     lateinit var openAppAdUseCase: OpenAdUseCase*/
 
     @Inject
     lateinit var bannerAdUseCase: BannerAdUseCase
@@ -63,10 +66,33 @@ class SchoolKillerApplication : Application(){
 //            setOnFailedAction { onReload(this) }
 //        }
 
+        setMaxScreenHeight()
+
         // preloading ads
-        openAppAdUseCase.loadAdWithNoAdsCheck()
+        // openAppAdUseCase.loadAdWithNoAdsCheck()
         bannerAdUseCase.loadAdWithNoAdsCheck()
         interstitialAdUseCase.loadAdWithNoAdsCheck()
+
+    }
+
+    private fun setMaxScreenHeight(){
+        val height: Int
+        val width: Int
+        val windowManager = this.getSystemService(
+            WindowManager::class.java
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val metrics = windowManager.currentWindowMetrics
+            height = metrics.bounds.height()
+            width = metrics.bounds.width()
+        } else {
+            val displayMetrics = DisplayMetrics()
+            windowManager.getDefaultDisplay().getMetrics(displayMetrics)
+            height = displayMetrics.heightPixels
+            width = displayMetrics.widthPixels
+        }
+        bannerAdUseCase.setMaxHeight(height)
+        bannerAdUseCase.setMaxWidth(width)
 
     }
 

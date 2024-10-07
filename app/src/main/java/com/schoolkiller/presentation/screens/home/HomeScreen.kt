@@ -222,7 +222,7 @@ fun HomeScreen(
      * Try to condition it with the cooldown.
      */
     // Show App Open Ad
-    viewModel.showAppOpenAd(context)
+    //viewModel.showAppOpenAd(context)
 
     /** Button Cases */
     when (stateProperties.selectedUploadMethodOption) {

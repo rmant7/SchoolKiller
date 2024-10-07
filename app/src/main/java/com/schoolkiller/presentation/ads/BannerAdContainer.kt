@@ -18,7 +18,7 @@ fun BannerAdContainer(
             factory = { adView },
             modifier = modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.7f)
+                .fillMaxHeight(0.5f)
         ) { view ->
             (view as AdView).resume()
         }
