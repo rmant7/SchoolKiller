@@ -18,6 +18,7 @@
 
 
     // Button Labels
+    <string name="solution_text_value">פִּתָרוֹן:</string>
     <string name="next_button_label">הבא</string>
     <string name="solve_button_label">לפתור</string>
     <string name="check_solution_button_label">בדוק פתרון</string>
@@ -28,6 +29,7 @@
     <string name="Ok">בסדר.</string>
 
     // Text Field Labels
+    <string name="send_edited_prompt">לִשְׁלוֹחַ</string>
     <string name="additional_information_TextField_label">מידע נוסף</string>
     <string name="What_to_solve_TextField_label">מה לפתור?</string>
 <!--    <string name="What_to_solve_TextField_label">מה לפתור?</string>-->
@@ -110,5 +112,6 @@
     <string name="select_image_warning">אנא בחר תמונה מהמכשיר</string>
     <string name="upload_picture">להעלות תמונה</string>
     <string name="take_a_picture">לצלם תמונה</string>
+    <string name="recognized_text_value">טקסט מוכר:</string>
 
 </resources>

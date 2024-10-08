@@ -24,7 +24,7 @@ class BannerAdUseCase @Inject constructor(
         this.setAdSize(AdSize.MEDIUM_RECTANGLE)
     }*/
 
-    private var  maxHeight = 600
+   /* private var  maxHeight = 600
     private var maxWidth = 400
 
     fun setMaxHeight(max : Int){
@@ -33,7 +33,7 @@ class BannerAdUseCase @Inject constructor(
 
     fun setMaxWidth(max : Int){
         this.maxHeight = max
-    }
+    }*/
 
     override fun load() {
 

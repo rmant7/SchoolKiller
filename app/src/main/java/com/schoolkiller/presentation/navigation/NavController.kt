@@ -30,6 +30,7 @@ fun NavigationController() {
         if (resultProperties.isSolveActionRequested) resultProperties.passedConvertedSolvePrompt
         else resultProperties.passedConvertedSolutionPrompt
 
+    //systemInstruction should be in ResultProperties instead
     val parametersProps = parametersViewModel
         .parametersPropertiesState.collectAsStateWithLifecycle().value
     val systemInstruction =
@@ -61,6 +62,7 @@ fun NavigationController() {
         composable<Screens.ParametersScreen> {
             resultViewModel.updateIsSolveActionRequested(true)
             ParametersScreen(
+                viewModel = parametersViewModel,
                 onNavigateToResultScreen = { navController.navigate(Screens.ResultScreen) }
             )
         }

@@ -38,10 +38,14 @@ class ResultViewModel @Inject constructor(
     private val dataStoreRepository: DataStoreRepository
 ) : ViewModel() {
 
+    private val _recognizedText = MutableStateFlow("")
+    val recognizedText: StateFlow<String> = _recognizedText
+
     private val _resultPropertiesState = MutableStateFlow(ResultProperties())
     val resultPropertiesState: StateFlow<ResultProperties> = _resultPropertiesState
-        .onStart { /** This is like the init block */
-           // updateAdview(bannerAdUseCase.getMediumBannerAdView())
+        .onStart {
+            /** This is like the init block */
+            // updateAdview(bannerAdUseCase.getMediumBannerAdView())
             readImageState()
             readConvertedSolvePromptState()
             readConvertedSolutionPromptTextState()
@@ -49,18 +53,24 @@ class ResultViewModel @Inject constructor(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000L),
             initialValue = ResultProperties()
-    )
+        )
+
+    fun updateRecognizedText(recognizedText: String) {
+        _recognizedText.update { recognizedText }
+    }
 
     /** we can use this for handling errors, easier debugging with logging, and
      * show circular indicator when something is delaying to showed in the UI */
     private val _resultScreenRequestState = MutableStateFlow<RequestState<ResultProperties>>(
-        RequestState.Idle)
-    val resultScreenRequestState: StateFlow<RequestState<ResultProperties>> = _resultScreenRequestState
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = RequestState.Idle
-        )
+        RequestState.Idle
+    )
+    val resultScreenRequestState: StateFlow<RequestState<ResultProperties>> =
+        _resultScreenRequestState
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000L),
+                initialValue = RequestState.Idle
+            )
 
     /*
 //    init {
@@ -134,11 +144,88 @@ class ResultViewModel @Inject constructor(
         interstitialAdUseCase.show(context)
     }
 
+    fun geminiImageToText(
+        imageUri: Uri,
+        fileName: String
+    ) = viewModelScope.launch {
+
+        val fileByteArray = getImageByteArrayUseCase.invoke(imageUri = imageUri)
+        val uploadResult = geminiApiService.uploadFileWithProgress(
+            fileByteArray,
+            fileName
+        )
+
+        uploadResult.onSuccess { uploadModel ->
+            val fileUriResult = geminiApiService.uploadFileBytes(
+                uploadModel.uploadUrl,
+                fileByteArray
+            )
+
+            fileUriResult.onSuccess { fileUriJson ->
+                val actualFileUri = Json.parseToJsonElement(fileUriJson)
+                    .jsonObject["file"]?.jsonObject?.get("uri")?.jsonPrimitive?.content
+
+                /*
+                "Recognize text from this image.
+                Don't mention what language it is.
+                Don't mention "The text in the image is:" unless image has this text."
+                 */
+                if (actualFileUri != null) {
+                    val content = geminiApiService.generateContent(
+                        actualFileUri,
+                        "Recognize text from this image.",
+                        ""
+                    )
+                    val textResponse = if (content is GeminiResponse.Success) {
+                        extractGeminiResponseUseCase.invoke(content.data ?: "{}")
+                    } else {
+                        content.message
+                    }
+                    textResponse?.let { updateRecognizedText(it) }
+                } else {
+                    // Handle the case where the URI couldn't be extracted
+                    updateRecognizedText(
+                        " URI couldn't be extracted"
+                    )
+                }
+            }
+
+            fileUriResult.onFailure { throwable ->
+                _resultPropertiesState.update { currentState ->
+                    currentState.copy(error = throwable)
+                }
+            }
+        }
+        uploadResult.onFailure { throwable ->
+            _resultPropertiesState.update { currentState ->
+                currentState.copy(error = throwable)
+            }
+        }
+    }
+
+    fun fetchGeminiResponse(
+        prompt: String,
+        systemInstruction: String
+    ) = viewModelScope.launch {
+        val content = geminiApiService.generateContent(
+            "",
+            prompt,
+            systemInstruction
+        )
+        val textResponse = if (content is GeminiResponse.Success) {
+            extractGeminiResponseUseCase.invoke(content.data ?: "{}")
+        } else {
+            content.message
+        }
+        updateTextGenerationResult(textResponse)
+
+    }
+
     fun fetchGeminiResponse(
         imageUri: Uri,
         fileName: String,
         prompt: String,
-        systemInstruction : String
+        systemInstruction: String
     ) {
         viewModelScope.launch {
             val fileByteArray = getImageByteArrayUseCase.invoke(imageUri = imageUri)
@@ -158,7 +245,11 @@ class ResultViewModel @Inject constructor(
                         .jsonObject["file"]?.jsonObject?.get("uri")?.jsonPrimitive?.content
 
                     if (actualFileUri != null) {
-                        val content = geminiApiService.generateContent(actualFileUri, prompt, systemInstruction)
+                        val content = geminiApiService.generateContent(
+                            actualFileUri,
+                            prompt,
+                            systemInstruction
+                        )
                         val textResponse = if (content is GeminiResponse.Success) {
                             extractGeminiResponseUseCase.invoke(content.data ?: "{}")
                         } else {

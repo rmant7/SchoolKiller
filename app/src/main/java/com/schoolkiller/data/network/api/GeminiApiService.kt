@@ -101,31 +101,46 @@ class GeminiApiService @Inject constructor(
         }
     }
 
-    suspend fun generateContent(fileUri: String,
-                                prompt: String,
-                                systemInstruction: String): GeminiResponse<String> {
+    suspend fun generateContent(
+        fileUri: String,
+        prompt: String,
+        systemInstruction: String
+    ): GeminiResponse<String> {
         val escapedFileUri = fileUri.replace("\"", "\\\"")
 
-        return try {
-            val response: HttpResponse = client.post(
-                "${HttpRoutes.MODELS}/${Constants.GEMINI_FLASH_LATEST}?key=${BuildConfig.gemini_api_key}"
-
-            ) {
-                contentType(ContentType.Application.Json)
-                setBody(
-                    """
-                    { "system_instruction": {
+        val strBuilder: StringBuilder = StringBuilder("""
+            { "system_instruction": {
                         "parts":
                         { "text": "$systemInstruction"}
                         },
                         "contents": [{
                             "parts": [
                             {"text":"$prompt"},
-                            {"file_data": {"mime_type": "image/jpeg", "file_uri": "$escapedFileUri"}}
-                            ]
-                            }]
-                            }
-                            """
+                           
+        """.trimIndent())
+
+        if (fileUri.isNotEmpty())
+            strBuilder.append(
+            """
+             {"file_data": {"mime_type": "image/jpeg", "file_uri": "$escapedFileUri"}}            
+        """.trimIndent()
+        )
+
+        strBuilder.append(
+            """
+            ]
+            }]
+            }
+        """.trimIndent()
+
+        )
+        return try {
+            val response: HttpResponse = client.post(
+                "${HttpRoutes.MODELS}/${Constants.GEMINI_FLASH_LATEST}?key=${BuildConfig.gemini_api_key}"
+
+            ) {
+                contentType(ContentType.Application.Json)
+                setBody(strBuilder.toString()
                     /*"""
                             {
                                 "contents": [{

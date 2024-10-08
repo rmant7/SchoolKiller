@@ -39,9 +39,10 @@ import com.schoolkiller.presentation.common.UniversalButton
 @Composable
 fun ParametersScreen(
     modifier: Modifier = Modifier,
+    viewModel: ParametersViewModel,
     onNavigateToResultScreen: (String) -> Unit
 ) {
-    val viewModel: ParametersViewModel = hiltViewModel()
+    //val viewModel: ParametersViewModel = hiltViewModel()
     val parameterScreenProperties = viewModel.parametersPropertiesState.collectAsStateWithLifecycle().value
 
     /** Testing the prompt in a dialog if the values are correct. Check also the solve button*/

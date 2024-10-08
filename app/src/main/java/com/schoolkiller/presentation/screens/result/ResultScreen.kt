@@ -3,9 +3,9 @@ package com.schoolkiller.presentation.screens.result
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -18,7 +18,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +37,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.ErrorAlertDialog
+import com.schoolkiller.presentation.common.RoundIconButton
 import com.schoolkiller.presentation.common.UniversalButton
 import com.schoolkiller.presentation.toast.ShowToastMessage
 import io.ktor.client.plugins.ServerResponseException
@@ -44,7 +47,7 @@ import io.ktor.client.plugins.ServerResponseException
 fun ResultScreen(
     modifier: Modifier = Modifier,
     passedPrompt: String,
-    passedSystemInstruction : String,
+    passedSystemInstruction: String,
     passedImageUri: Uri?,
     onNavigateToHomeScreen: () -> Unit,
 ) {
@@ -53,31 +56,56 @@ fun ResultScreen(
     val context = LocalContext.current
     val responseListState = rememberLazyListState()
     val openAlertDialog = remember { mutableStateOf(resultProperties.error != null) }
-    val interstitialAdCount = remember { mutableIntStateOf(1) }
 
-    // fetch only when user requested AI response
-    // and result wasn't fetched yet
+    // ad views count, ad plays every 2 clicks or on first try
+    val interstitialAdViewCount = remember { mutableIntStateOf(1) }
+
+    // prompt which user can edit, initial value is passed prompt
+    val shouldRecognizeText = remember { mutableStateOf(true) }
+    val recognizedText = viewModel.recognizedText.collectAsState()
+
+    val recognizedTextValue = stringResource(R.string.recognized_text_value)
+    val solutionTextValue = stringResource(R.string.solution_text_value)
+
+    // recognize text from image only once
+    if (shouldRecognizeText.value) {
+        if (passedImageUri != null)
+            viewModel.geminiImageToText(
+                imageUri = passedImageUri,
+                fileName = passedImageUri.toString()
+            )
+        else ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
+        // and close the call
+        shouldRecognizeText.value = false
+    }
+
     if (resultProperties.requestGeminiResponse && !resultProperties.isResultFetchedStatus) {
         if (passedImageUri != null) {
+            val editedSystemInstruction =
+                if (recognizedText.value.isNotEmpty())
+                // change to != error message
+                    "$passedSystemInstruction " +
+                            "Corrected task's text is: " + recognizedText.value
+                else passedSystemInstruction
+
             viewModel.fetchGeminiResponse(
                 imageUri = passedImageUri,
                 fileName = passedImageUri.toString(),
                 prompt = passedPrompt,
-                systemInstruction = passedSystemInstruction
+                systemInstruction = editedSystemInstruction
             )
             // result is fetched and this block wouldn't run
             // until new try request from user
             viewModel.updateResultFetchedStatus(true)
 
-            interstitialAdCount.value += 1
-            if (interstitialAdCount.intValue == 2)
-                interstitialAdCount.intValue = 0
+            interstitialAdViewCount.value += 1
+            if (interstitialAdViewCount.intValue == 2)
+                interstitialAdViewCount.intValue = 0
 
         } else {
             ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
         }
     }
-
 
     ApplicationScaffold(
         isShowed = true,
@@ -135,7 +163,8 @@ fun ResultScreen(
 
                     item {
                         if (resultProperties.textGenerationResult.isBlank()
-                            && resultProperties.error == null) {
+                            && resultProperties.error == null
+                        ) {
                             Box(
                                 modifier = modifier
                                     .fillMaxWidth()
@@ -144,23 +173,84 @@ fun ResultScreen(
                                 content = {
 
                                     if (resultProperties.requestGeminiResponse
-                                        && interstitialAdCount.intValue == 0
+                                        && interstitialAdViewCount.intValue == 0
                                     ) {
                                         viewModel.showInterstitialAd(context)
                                         viewModel.updateRequestGeminiResponse(false)
                                     } else {
                                         CircularProgressIndicator(modifier = modifier.size(80.dp))
                                     }
-                                    //firstTry.value = false
+
                                 }
                             )
                         } else {
 
+                            val isPromptReadOnly = remember { mutableStateOf(true) }
+                            val isEditButtonVisible = remember { mutableStateOf(true) }
+                            val isSendEditedPromptButtonVisible = remember {
+                                mutableStateOf(false)
+                            }
+                            // user's editable prompt
+                            Text(recognizedTextValue, fontSize = 30.sp)
+
                             SelectionContainer {
                                 OutlinedTextField(
                                     modifier = modifier
-                                        .fillMaxSize(),
-                                        //.fillMaxWidth(),
+                                        .fillMaxWidth()
+                                        .padding(0.dp, 10.dp),
+                                    value = recognizedText.value,
+                                    onValueChange = {
+                                        viewModel.updateRecognizedText(it)
+                                    },
+                                    textStyle = TextStyle(
+                                        fontSize = 25.sp,
+                                        textAlign = TextAlign.Start
+                                    ),
+                                    readOnly = isPromptReadOnly.value
+                                )
+                            }
+
+                            Row {
+                                Spacer(Modifier.weight(1f))
+                                if (isEditButtonVisible.value)
+                                    RoundIconButton(
+                                        iconModifier = Modifier.size(30.dp),
+                                        icon = R.drawable.edit_svg
+                                    ) {
+                                        //prompt is editable, this button is invisible
+                                        // send button is visible
+                                        isPromptReadOnly.value = false
+                                        isEditButtonVisible.value = false
+                                        isSendEditedPromptButtonVisible.value = true
+                                    } else {
+                                    UniversalButton(
+                                        label = R.string.send_edited_prompt
+                                    ) {
+                                        //prompt isn't editable, this button is invisible
+                                        // edit button is visible
+                                        isPromptReadOnly.value = true
+                                        isEditButtonVisible.value = true
+                                        isSendEditedPromptButtonVisible.value = false
+
+                                        sendRequestToSolvePrompt(viewModel)
+                                    }
+                                }
+
+                            }
+
+
+                            // add vertical gap 30.dp
+                            Spacer(Modifier.padding(0.dp, 15.dp))
+
+                            // AI response
+                            Text(solutionTextValue, fontSize = 30.sp)
+
+                            SelectionContainer {
+                                OutlinedTextField(
+                                    modifier = modifier
+                                        //.fillMaxSize(),
+                                        .fillMaxWidth()
+                                        .padding(0.dp, 10.dp),
                                     value = resultProperties.textGenerationResult,
                                     onValueChange = {},
                                     textStyle = TextStyle(
@@ -180,15 +270,12 @@ fun ResultScreen(
             Column(
                 modifier = Modifier.navigationBarsPadding(),
                 content = {
-
-                    UniversalButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = R.string.try_again
-                    ) {
-                        viewModel.updateTextGenerationResult("")
-                        viewModel.updateRequestGeminiResponse(true)
-                        viewModel.updateResultFetchedStatus(false)
-                    }
+                    // change to "error from gemini" instead of isEmpty check
+                    if (recognizedText.value.isEmpty())
+                        UniversalButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            label = R.string.try_again
+                        ) { sendRequestToSolvePrompt(viewModel) }
 
                     UniversalButton(
                         modifier = Modifier.fillMaxWidth(),
@@ -198,9 +285,16 @@ fun ResultScreen(
                     }
                 }
             )
-        })
+        }
+
+    )
 }
 
+fun sendRequestToSolvePrompt(viewModel: ResultViewModel) {
+    viewModel.updateTextGenerationResult("")
+    viewModel.updateRequestGeminiResponse(true)
+    viewModel.updateResultFetchedStatus(false)
+}
 
 private fun getAlertWindowData(t: Throwable?): Pair<Int, Int> {
     return when (t) {

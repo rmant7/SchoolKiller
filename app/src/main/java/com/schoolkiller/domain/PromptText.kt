@@ -9,7 +9,7 @@ enum class PromptText(val promptText: String) {
                 "Use a chain of thoughts before answering."
     ),
     CHECK_SOLUTION_PROMPT(
-        "As a (first grader) explain in detail" +
+        "As a (grade+th grader) explain in detail" +
                 " why this solution is correct or not, rate it on scale (1–100)."
         /*
         "Check the solution depicted on the sent file. " +

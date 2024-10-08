@@ -53,9 +53,6 @@ class SchoolKillerApplication : Application() {
             MobileAds.setAppMuted(true)
         }
 
-
-        setMaxScreenSize()
-
         // preloading ads
         // openAppAdUseCase.loadAdWithNoAdsCheck()
         bannerAdUseCase.loadAdWithNoAdsCheck()
@@ -73,7 +70,7 @@ class SchoolKillerApplication : Application() {
 
     }
 
-    private fun setMaxScreenSize(){
+   /* private fun setMaxScreenSize(){
         val height: Int
         val width: Int
         val windowManager = this.getSystemService(
@@ -92,7 +89,7 @@ class SchoolKillerApplication : Application() {
         bannerAdUseCase.setMaxHeight(height)
         bannerAdUseCase.setMaxWidth(width)
 
-    }
+    }*/
 
 
     // all ads loading must be in main thread

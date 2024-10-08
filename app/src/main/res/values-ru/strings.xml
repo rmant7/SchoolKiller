@@ -17,6 +17,7 @@
 -->
 
 	// Button Labels
+    <string name="solution_text_value">Решение:</string>
     <string name="next_button_label">Дальше</string>
     <string name="solve_button_label">Решить</string>
     <string name="check_solution_button_label">Проверить решение</string>
@@ -27,6 +28,7 @@
     <string name="Ok">Ок</string>
 
     // Text Field Labels
+    <string name="send_edited_prompt">Отправить</string>
     <string name="additional_information_TextField_label">Дополнительная информация</string>
     <string name="What_to_solve_TextField_label">Что решить?</string>
 
@@ -105,5 +107,6 @@
     <string name="select_image_warning">Пожалуйста, выберите изображение с устройства</string>
     <string name="upload_picture">Загрузить картинку</string>
     <string name="take_a_picture">Фото</string>
+    <string name="recognized_text_value">Распознанный текст:</string>
 
 </resources>
