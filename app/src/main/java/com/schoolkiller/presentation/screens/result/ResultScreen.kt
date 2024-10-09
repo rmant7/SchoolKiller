@@ -48,7 +48,7 @@ fun ResultScreen(
     modifier: Modifier = Modifier,
     passedPrompt: String,
     passedSystemInstruction: String,
-    passedImageUri: Uri?,
+    //passedImageUri: Uri?,
     onNavigateToHomeScreen: () -> Unit,
 ) {
     val viewModel: ResultViewModel = hiltViewModel()
@@ -60,51 +60,32 @@ fun ResultScreen(
     // ad views count, ad plays every 2 clicks or on first try
     val interstitialAdViewCount = remember { mutableIntStateOf(1) }
 
-    // prompt which user can edit, initial value is passed prompt
-    val shouldRecognizeText = remember { mutableStateOf(true) }
-    val recognizedText = viewModel.recognizedText.collectAsState()
-
-    val recognizedTextValue = stringResource(R.string.recognized_text_value)
-    val solutionTextValue = stringResource(R.string.solution_text_value)
-
-    // recognize text from image only once
-    if (shouldRecognizeText.value) {
-        if (passedImageUri != null)
-            viewModel.geminiImageToText(
-                imageUri = passedImageUri,
-                fileName = passedImageUri.toString()
-            )
-        else ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
-        // and close the call
-        shouldRecognizeText.value = false
-    }
+    val solutionTextLabel = stringResource(R.string.solution_text_value)
+    val invalidSolutionGenerationText = stringResource(
+        R.string.error_gemini_solution_result_extraction
+    )
 
     if (resultProperties.requestGeminiResponse && !resultProperties.isResultFetchedStatus) {
-        if (passedImageUri != null) {
-            val editedSystemInstruction =
-                if (recognizedText.value.isNotEmpty())
-                // change to != error message
-                    "$passedSystemInstruction " +
-                            "Corrected task's text is: " + recognizedText.value
-                else passedSystemInstruction
+        //if (passedImageUri != null) {
 
-            viewModel.fetchGeminiResponse(
-                imageUri = passedImageUri,
-                fileName = passedImageUri.toString(),
-                prompt = passedPrompt,
-                systemInstruction = editedSystemInstruction
-            )
-            // result is fetched and this block wouldn't run
-            // until new try request from user
-            viewModel.updateResultFetchedStatus(true)
+        viewModel.geminiGenerateSolution(
+            //imageUri = passedImageUri,
+            //fileName = passedImageUri.toString(),
+            systemInstruction = passedSystemInstruction,
+            prompt = passedPrompt,
+            textOnExtractionError = invalidSolutionGenerationText
+        )
+        // result is fetched and this block wouldn't run
+        // until new try request from user
+        viewModel.updateResultFetchedStatus(true)
 
-            interstitialAdViewCount.value += 1
-            if (interstitialAdViewCount.intValue == 2)
-                interstitialAdViewCount.intValue = 0
+        interstitialAdViewCount.value += 1
+        if (interstitialAdViewCount.intValue == 2)
+            interstitialAdViewCount.intValue = 0
 
-        } else {
+        /*} else {
             ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
-        }
+        }*/
     }
 
     ApplicationScaffold(
@@ -185,65 +166,8 @@ fun ResultScreen(
                             )
                         } else {
 
-                            val isPromptReadOnly = remember { mutableStateOf(true) }
-                            val isEditButtonVisible = remember { mutableStateOf(true) }
-                            val isSendEditedPromptButtonVisible = remember {
-                                mutableStateOf(false)
-                            }
-                            // user's editable prompt
-                            Text(recognizedTextValue, fontSize = 30.sp)
-
-                            SelectionContainer {
-                                OutlinedTextField(
-                                    modifier = modifier
-                                        .fillMaxWidth()
-                                        .padding(0.dp, 10.dp),
-                                    value = recognizedText.value,
-                                    onValueChange = {
-                                        viewModel.updateRecognizedText(it)
-                                    },
-                                    textStyle = TextStyle(
-                                        fontSize = 25.sp,
-                                        textAlign = TextAlign.Start
-                                    ),
-                                    readOnly = isPromptReadOnly.value
-                                )
-                            }
-
-                            Row {
-                                Spacer(Modifier.weight(1f))
-                                if (isEditButtonVisible.value)
-                                    RoundIconButton(
-                                        iconModifier = Modifier.size(30.dp),
-                                        icon = R.drawable.edit_svg
-                                    ) {
-                                        //prompt is editable, this button is invisible
-                                        // send button is visible
-                                        isPromptReadOnly.value = false
-                                        isEditButtonVisible.value = false
-                                        isSendEditedPromptButtonVisible.value = true
-                                    } else {
-                                    UniversalButton(
-                                        label = R.string.send_edited_prompt
-                                    ) {
-                                        //prompt isn't editable, this button is invisible
-                                        // edit button is visible
-                                        isPromptReadOnly.value = true
-                                        isEditButtonVisible.value = true
-                                        isSendEditedPromptButtonVisible.value = false
-
-                                        sendRequestToSolvePrompt(viewModel)
-                                    }
-                                }
-
-                            }
-
-
-                            // add vertical gap 30.dp
-                            Spacer(Modifier.padding(0.dp, 15.dp))
-
                             // AI response
-                            Text(solutionTextValue, fontSize = 30.sp)
+                            Text(solutionTextLabel, fontSize = 30.sp)
 
                             SelectionContainer {
                                 OutlinedTextField(
@@ -264,18 +188,23 @@ fun ResultScreen(
                     }
                 }
             )
+            // it's a violation to use more than 2 types of ads on the same screen
+            // banners shouldn't be places between actual content's interactive elements
             //BannerAdContainer(adView = resultProperties.mediumBannerAdview)
         },
         bottomBar = {
             Column(
                 modifier = Modifier.navigationBarsPadding(),
                 content = {
-                    // change to "error from gemini" instead of isEmpty check
-                    if (recognizedText.value.isEmpty())
-                        UniversalButton(
-                            modifier = Modifier.fillMaxWidth(),
-                            label = R.string.try_again
-                        ) { sendRequestToSolvePrompt(viewModel) }
+
+                    UniversalButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = R.string.try_again
+                    ) {
+                        viewModel.updateTextGenerationResult("")
+                        viewModel.updateRequestGeminiResponse(true)
+                        viewModel.updateResultFetchedStatus(false)
+                    }
 
                     UniversalButton(
                         modifier = Modifier.fillMaxWidth(),
@@ -288,12 +217,6 @@ fun ResultScreen(
         }
 
     )
-}
-
-fun sendRequestToSolvePrompt(viewModel: ResultViewModel) {
-    viewModel.updateTextGenerationResult("")
-    viewModel.updateRequestGeminiResponse(true)
-    viewModel.updateResultFetchedStatus(false)
 }
 
 private fun getAlertWindowData(t: Throwable?): Pair<Int, Int> {

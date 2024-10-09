@@ -35,7 +35,7 @@ sealed class ShowToastMessage(
     data object READ_STORAGE_PERMISSION_RATIONALE : ShowToastMessage(stringMessage = R.string.read_storage_permission_rationale)
     data object WRITE_STORAGE_PERMISSION_RATIONALE : ShowToastMessage(stringMessage = R.string.write_storage_permission_rationale)
     data object READ_MEDIA_PERMISSION_RATIONALE : ShowToastMessage(stringMessage = R.string.read_media_permission_rationale)
-
+    data object PROMPT_IS_EMPTY : ShowToastMessage(stringMessage = R.string.prompt_is_empty)
 
 
 }

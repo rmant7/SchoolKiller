@@ -36,8 +36,9 @@ import timber.log.Timber
 
 @Composable
 fun HomeScreen(
-    onNavigateToParametersScreen: () -> Unit,
-    onNavigateToCheckSolutionOptionsScreen: () -> Unit
+    onNavigateToOcrScreen: () -> Unit,
+    /*onNavigateToParametersScreen: () -> Unit,
+    onNavigateToCheckSolutionOptionsScreen: () -> Unit*/
 ) {
 
     val viewModel: HomeViewModel = hiltViewModel()
@@ -263,8 +264,9 @@ fun HomeScreen(
     /** Main UI screen */
     HomeScreenUI(
         isHomeScreenUIShowed = isHomeScreenUIShowed,
-        onNavigateToParametersScreen = { onNavigateToParametersScreen() },
-        onNavigateToCheckSolutionOptionsScreen = { onNavigateToCheckSolutionOptionsScreen() }
+        onNavigateToOcrScreen = onNavigateToOcrScreen,
+        /*onNavigateToParametersScreen = { onNavigateToParametersScreen() },
+        onNavigateToCheckSolutionOptionsScreen = { onNavigateToCheckSolutionOptionsScreen() }*/
     )
 
 

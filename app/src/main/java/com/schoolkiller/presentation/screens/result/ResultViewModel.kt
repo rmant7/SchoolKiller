@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.ads.AdView
 import com.schoolkiller.data.network.api.GeminiApiService
 import com.schoolkiller.data.network.response.GeminiResponse
 import com.schoolkiller.data.repositories.DataStoreRepository
@@ -34,12 +33,12 @@ class ResultViewModel @Inject constructor(
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
     private val interstitialAdUseCase: InterstitialAdUseCase,
-    private val bannerAdUseCase: BannerAdUseCase,
+   // private val bannerAdUseCase: BannerAdUseCase,
     private val dataStoreRepository: DataStoreRepository
 ) : ViewModel() {
 
-    private val _recognizedText = MutableStateFlow("")
-    val recognizedText: StateFlow<String> = _recognizedText
+    /*private val _recognizedText = MutableStateFlow("")
+    val recognizedText: StateFlow<String?> = _recognizedText*/
 
     private val _resultPropertiesState = MutableStateFlow(ResultProperties())
     val resultPropertiesState: StateFlow<ResultProperties> = _resultPropertiesState
@@ -55,9 +54,9 @@ class ResultViewModel @Inject constructor(
             initialValue = ResultProperties()
         )
 
-    fun updateRecognizedText(recognizedText: String) {
+    /*fun updateRecognizedText(recognizedText: String) {
         _recognizedText.update { recognizedText }
-    }
+    }*/
 
     /** we can use this for handling errors, easier debugging with logging, and
      * show circular indicator when something is delaying to showed in the UI */
@@ -144,83 +143,28 @@ class ResultViewModel @Inject constructor(
         interstitialAdUseCase.show(context)
     }
 
-    fun geminiImageToText(
-        imageUri: Uri,
-        fileName: String
-    ) = viewModelScope.launch {
-
-        val fileByteArray = getImageByteArrayUseCase.invoke(imageUri = imageUri)
-        val uploadResult = geminiApiService.uploadFileWithProgress(
-            fileByteArray,
-            fileName
-        )
-
-        uploadResult.onSuccess { uploadModel ->
-            val fileUriResult = geminiApiService.uploadFileBytes(
-                uploadModel.uploadUrl,
-                fileByteArray
-            )
-
-            fileUriResult.onSuccess { fileUriJson ->
-                val actualFileUri = Json.parseToJsonElement(fileUriJson)
-                    .jsonObject["file"]?.jsonObject?.get("uri")?.jsonPrimitive?.content
-
-                /*
-                "Recognize text from this image.
-                Don't mention what language it is.
-                Don't mention "The text in the image is:" unless image has this text."
-                 */
-                if (actualFileUri != null) {
-                    val content = geminiApiService.generateContent(
-                        actualFileUri,
-                        "Recognize text from this image.",
-                        ""
-                    )
-                    val textResponse = if (content is GeminiResponse.Success) {
-                        extractGeminiResponseUseCase.invoke(content.data ?: "{}")
-                    } else {
-                        content.message
-                    }
-                    textResponse?.let { updateRecognizedText(it) }
-                } else {
-                    // Handle the case where the URI couldn't be extracted
-                    updateRecognizedText(
-                        " URI couldn't be extracted"
-                    )
-                }
-            }
-
-            fileUriResult.onFailure { throwable ->
-                _resultPropertiesState.update { currentState ->
-                    currentState.copy(error = throwable)
-                }
-            }
-        }
-        uploadResult.onFailure { throwable ->
-            _resultPropertiesState.update { currentState ->
-                currentState.copy(error = throwable)
-            }
-        }
-    }
-
-    fun fetchGeminiResponse(
+    fun geminiGenerateSolution(
+        systemInstruction: String,
         prompt: String,
-        systemInstruction: String
+        textOnExtractionError: String
     ) = viewModelScope.launch {
+
         val content = geminiApiService.generateContent(
-            "",
-            prompt,
-            systemInstruction
+            "", prompt, systemInstruction
         )
         val textResponse = if (content is GeminiResponse.Success) {
             extractGeminiResponseUseCase.invoke(content.data ?: "{}")
         } else {
             content.message
         }
-        updateTextGenerationResult(textResponse)
 
+        if (!textResponse.isNullOrEmpty())
+            updateTextGenerationResult(textResponse)
+        else
+            updateTextGenerationResult(textOnExtractionError)
     }
 
+    /*
     fun fetchGeminiResponse(
         imageUri: Uri,
         fileName: String,
@@ -278,7 +222,7 @@ class ResultViewModel @Inject constructor(
             }
         }
     }
-
+*/
 
     private fun readImageState() {
         viewModelScope.launch {

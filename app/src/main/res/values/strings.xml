@@ -27,7 +27,7 @@
     <string name="Ok">Ok</string>
     <string name="upload_picture">Upload Picture</string>
     <string name="take_a_picture">Take a Picture</string>
-    <string name="send_edited_prompt">Send</string>
+    <string name="recognize_text_button_label">Recognize text</string>
 
     // Text Field Labels
     <string name="additional_information_TextField_label">Additional Information</string>
@@ -98,6 +98,8 @@
     <string name="error_service_not_available_title">Service is not available</string>
     <string name="error_common_title">Error</string>
     <string name="error_common_message">An error occurred while the application was running. Try updating the app or try again later</string>
+    <string name="error_gemini_ocr_result_extraction">AI wasn\'t able to recognize text from the image. Please, try again.</string>
+    <string name="error_gemini_solution_result_extraction">>AI wasn\'t able to solve this problem. Please, try again.</string>
 
     // Toast messages
     <string name="something_went_wrong">Whoops! Something went wrong. Please try again!</string>
@@ -114,5 +116,6 @@
     <string name="read_storage_permission_rationale">SchoolKiller needs access to your device\'s storage to read files, like photos or documents, that you might want to use in the app.</string>
     <string name="upload_image_warning">Please upload an image from the device</string>
     <string name="select_image_warning">Please select an image from the list</string>
+    <string name="prompt_is_empty">Recognized text is empty. Please try again!</string>
 
 </resources>

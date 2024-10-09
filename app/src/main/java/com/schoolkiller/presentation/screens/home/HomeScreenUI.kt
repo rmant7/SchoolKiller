@@ -47,8 +47,9 @@ import com.schoolkiller.presentation.toast.ShowToastMessage
 fun HomeScreenUI(
     modifier: Modifier = Modifier,
     isHomeScreenUIShowed: Boolean,
-    onNavigateToParametersScreen: () -> Unit,
-    onNavigateToCheckSolutionOptionsScreen: () -> Unit
+    onNavigateToOcrScreen: () -> Unit,
+    /*onNavigateToParametersScreen: () -> Unit,
+    onNavigateToCheckSolutionOptionsScreen: () -> Unit*/
 ) {
     val viewModel: HomeViewModel = hiltViewModel()
     val stateProperties = viewModel.homePropertiesState.collectAsStateWithLifecycle().value
@@ -190,49 +191,74 @@ fun HomeScreenUI(
                 }
             }
 
-            },
-            bottomBar = {
-                Column(
-                    modifier = Modifier.navigationBarsPadding()
-                ) {
+        },
+        bottomBar = {
+            Column(
+                modifier = Modifier.navigationBarsPadding()
+            ) {
 
-                    val uploadImageWarningMessage = stringResource(R.string.upload_image_warning)
-                    val selectImageWarningMessage = stringResource(R.string.select_image_warning)
+                val uploadImageWarningMessage = stringResource(R.string.upload_image_warning)
+                val selectImageWarningMessage = stringResource(R.string.select_image_warning)
 
-                    fun onNextClick(onNavigate: () -> Unit) {
-                        when {
-                            stateProperties.listOfImages.isEmpty() -> {
-                                Toast.makeText(
-                                    context,
-                                    uploadImageWarningMessage,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                fun onNextClick(/*onNavigate: () -> Unit*/) {
+                    when {
+                        stateProperties.listOfImages.isEmpty() -> {
+                            Toast.makeText(
+                                context,
+                                uploadImageWarningMessage,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
 
-                            selectedImageUri != null -> {
-                                val isUriValid = viewModel.checkUriValidity(selectedImageUri!!)
-                                if (isUriValid) {
-                                    viewModel.updateSelectedUri(selectedImageUri)
-                                    onNavigate()
-                                } else {
-                                    ShowToastMessage.CORRUPTED_LOADED_FILE.showToast()
-                                }
-                            }
-
-                            else -> {
-                                Toast.makeText(
-                                    context,
-                                    selectImageWarningMessage,
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                        selectedImageUri != null -> {
+                            val isUriValid = viewModel.checkUriValidity(selectedImageUri!!)
+                            if (isUriValid) {
+                                viewModel.updateSelectedUri(selectedImageUri)
+                               // onNavigate()
+                                onNavigateToOcrScreen()
+                            } else {
+                                ShowToastMessage.CORRUPTED_LOADED_FILE.showToast()
                             }
                         }
-                    }
 
-                    UniversalButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = R.string.check_solution_button_label
-                    ) {
+                        else -> {
+                            Toast.makeText(
+                                context,
+                                selectImageWarningMessage,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
+
+                UniversalButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = R.string.recognize_text_button_label,
+                    onButtonClicked = { onNextClick() }
+                )
+
+                /*UniversalButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = R.string.check_solution_button_label
+                ) {
+                    val index = selectedImageIndex
+                    onNextClick {
+                        val uri = index?.let {
+                            if (it >= 0 && it < stateProperties.listOfImages.size) {
+                                stateProperties.listOfImages[it]
+                            } else {
+                                null
+                            }
+                        }
+                        viewModel.updateSelectedUri(uri)
+                        onNavigateToCheckSolutionOptionsScreen()
+                    }
+                }*/
+
+                /*UniversalButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = R.string.solve_button_label,
+                    onButtonClicked = {
                         val index = selectedImageIndex
                         onNextClick {
                             val uri = index?.let {
@@ -243,30 +269,12 @@ fun HomeScreenUI(
                                 }
                             }
                             viewModel.updateSelectedUri(uri)
-                            onNavigateToCheckSolutionOptionsScreen()
+                            onNavigateToParametersScreen()
                         }
                     }
-
-                    UniversalButton(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = R.string.solve_button_label,
-                        onButtonClicked = {
-                            val index = selectedImageIndex
-                            onNextClick {
-                                val uri = index?.let {
-                                    if (it >= 0 && it < stateProperties.listOfImages.size) {
-                                        stateProperties.listOfImages[it]
-                                    } else {
-                                        null
-                                    }
-                                }
-                                viewModel.updateSelectedUri(uri)
-                                onNavigateToParametersScreen()
-                            }
-                        }
-                    )
-                }
+                )*/
             }
-            )
-
         }
+    )
+
+}

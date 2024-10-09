@@ -19,10 +19,12 @@ fun ApplicationScaffold(
     columnHorizontalAlignment: Alignment. Horizontal = Alignment.Start,
     content: @Composable () -> Unit,
     bottomBar : @Composable () -> Unit = {},
+    topBar : @Composable () -> Unit = {},
 ) {
 if (isShowed){
     Scaffold(
         modifier = modifier,
+        topBar = topBar,
         bottomBar = bottomBar,
         content = { paddingValues ->
             Column(

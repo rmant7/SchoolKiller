@@ -59,6 +59,7 @@ class SchoolKillerApplication : Application() {
         interstitialAdUseCase.loadAdWithNoAdsCheck()
 
 
+        // it's recommended to initialize AppMetrica in the main process instead
         CoroutineScope(Dispatchers.IO).launch {
             Timber.d("Creating an extended library configuration.")
             val config = AppMetricaConfig.newConfigBuilder(BuildConfig.app_metrica_api_key).build()
@@ -69,38 +70,6 @@ class SchoolKillerApplication : Application() {
         }
 
     }
-
-   /* private fun setMaxScreenSize(){
-        val height: Int
-        val width: Int
-        val windowManager = this.getSystemService(
-            WindowManager::class.java
-        )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val metrics = windowManager.currentWindowMetrics
-            height = metrics.bounds.height()
-            width = metrics.bounds.width()
-        } else {
-            val displayMetrics = DisplayMetrics()
-            windowManager.getDefaultDisplay().getMetrics(displayMetrics)
-            height = displayMetrics.heightPixels
-            width = displayMetrics.widthPixels
-        }
-        bannerAdUseCase.setMaxHeight(height)
-        bannerAdUseCase.setMaxWidth(width)
-
-    }*/
-
-
-    // all ads loading must be in main thread
-    /** no don`t do that, ads are fetched as data and blocking the UI with such a heavy task,
-     * slow down all the app responses to ui and updates of the state properties
-     * we must find another way */
-
-//    private fun onReload(adUseCase: AdUseCase) = adsScope.launch(Dispatchers.Main + SupervisorJob()) {
-//        delay(5000)
-//        adUseCase.loadAdWithNoAdsCheck()
-//    }
 
 }
 
