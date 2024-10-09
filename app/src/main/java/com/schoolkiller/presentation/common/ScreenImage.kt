@@ -39,7 +39,8 @@ fun ScreenImage(
                     .clip(RoundedCornerShape(16.dp)),
                 painter = painterResource(image),
                 contentDescription = stringResource(id = contentDescription),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                alignment = Alignment.TopCenter
             )
         }
     }

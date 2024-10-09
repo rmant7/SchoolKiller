@@ -6,7 +6,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.schoolkiller.presentation.screens.checking.CheckSolutionScreen
 import com.schoolkiller.presentation.screens.home.HomeScreen
 import com.schoolkiller.presentation.screens.info.ParametersScreen
@@ -19,8 +18,11 @@ import kotlinx.serialization.Serializable
 
 
 @Composable
-fun NavigationController() {
-    val navController = rememberNavController()
+fun NavigationController(navController: NavHostController) {
+
+    //val navController = rememberNavController()
+
+    println("HAS STACK ${navController.previousBackStackEntry}")
 //    val homeViewModel: HomeViewModel = hiltViewModel()
 //    val homeProperties = homeViewModel.homePropertiesState.collectAsStateWithLifecycle().value
 //    val solutionViewModel: SolutionCheckingViewModel = hiltViewModel()
@@ -109,13 +111,12 @@ fun NavigationController() {
         }
 
         composable<Screens.ResultScreen> {
+
             ResultScreen(
                 passedPrompt = prompt,
                 //passedImageUri = resultProperties.passedImageUri,
                 passedSystemInstruction = systemInstruction,
-                onNavigateToHomeScreen = {
-                    navController.navigate(Screens.HomeScreen)
-                }
+                onNavigateToHomeScreen = { navController.navigate(Screens.HomeScreen) }
             )
         }
     }

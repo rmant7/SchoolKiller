@@ -15,29 +15,29 @@ fun ApplicationScaffold(
     modifier: Modifier = Modifier,
     isShowed: Boolean,
     columnModifier: Modifier = Modifier,
-    columnVerticalArrangement: Arrangement. Vertical = Arrangement.spacedBy(16.dp),
-    columnHorizontalAlignment: Alignment. Horizontal = Alignment.Start,
+    columnVerticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(16.dp),
+    columnHorizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: @Composable () -> Unit,
-    bottomBar : @Composable () -> Unit = {},
-    topBar : @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
+    topBar: @Composable () -> Unit = {},
 ) {
-if (isShowed){
-    Scaffold(
-        modifier = modifier,
-        topBar = topBar,
-        bottomBar = bottomBar,
-        content = { paddingValues ->
-            Column(
-                modifier = columnModifier
-                    .fillMaxSize()
-                    .padding(paddingValues = paddingValues)
-                    .padding(16.dp),
-                verticalArrangement = columnVerticalArrangement,
-                horizontalAlignment = columnHorizontalAlignment
-            ) {
-                content()
+    if (isShowed) {
+        Scaffold(
+            modifier = modifier,
+            topBar = topBar,
+            bottomBar = bottomBar,
+            content = { paddingValues ->
+                Column(
+                    modifier = columnModifier
+                        .fillMaxSize()
+                        .padding(paddingValues = paddingValues),
+                        //.padding(16.dp),
+                    verticalArrangement = columnVerticalArrangement,
+                    horizontalAlignment = columnHorizontalAlignment
+                ) {
+                    content()
+                }
             }
-        }
-    )
-}
+        )
+    }
 }

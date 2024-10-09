@@ -1,9 +1,7 @@
 package com.schoolkiller.presentation.screens.result
 
-import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,7 +18,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,9 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.ErrorAlertDialog
-import com.schoolkiller.presentation.common.RoundIconButton
 import com.schoolkiller.presentation.common.UniversalButton
-import com.schoolkiller.presentation.toast.ShowToastMessage
 import io.ktor.client.plugins.ServerResponseException
 
 

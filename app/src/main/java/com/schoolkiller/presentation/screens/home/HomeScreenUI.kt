@@ -77,7 +77,7 @@ fun HomeScreenUI(
 
             ScreenImage(
                 modifier = modifier
-                    .fillMaxHeight(0.35f), // adjust the height of the image from here
+                    .fillMaxHeight(0.4f), // adjust the height of the image from here
                 image = R.drawable.upload_to_school_assistant,
                 contentDescription = R.string.upload_to_ai_school_image_assistant_content_description
             )
