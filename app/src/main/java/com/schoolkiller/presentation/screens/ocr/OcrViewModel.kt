@@ -44,7 +44,8 @@ class OcrViewModel @Inject constructor(
         textOnExtractionError: String
     ) = viewModelScope.launch {
 
-        val prompt = "Recognize text from this image."
+        val prompt = "Recognize text from this image. " +
+                "If picture doesn't have text, describe what you see in it."
         val systemInstruction = ""
 
         val fileByteArray = getImageByteArrayUseCase.invoke(imageUri = imageUri)

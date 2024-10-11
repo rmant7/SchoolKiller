@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -153,14 +154,15 @@ fun ParametersScreen(
                 else VisualTransformation.None,
                 textStyle = TextStyle(color = textColor)
             )
+
+        }, bottomBar = {
             Row(
                 modifier = modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(),
+                    .navigationBarsPadding(),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
 
                 //Reused Component
                 UniversalButton(
