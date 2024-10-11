@@ -1,17 +1,17 @@
 package com.schoolkiller.presentation.navigation
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import com.schoolkiller.presentation.screens.checking.CheckSolutionScreen
 import com.schoolkiller.presentation.screens.home.HomeScreen
 import com.schoolkiller.presentation.screens.info.ParametersScreen
-import com.schoolkiller.presentation.screens.info.ParametersViewModel
 import com.schoolkiller.presentation.screens.ocr.OcrScreen
-import com.schoolkiller.presentation.screens.ocr.OcrViewModel
 import com.schoolkiller.presentation.screens.result.ResultScreen
 import com.schoolkiller.presentation.screens.result.ResultViewModel
 import kotlinx.serialization.Serializable
@@ -22,46 +22,30 @@ fun NavigationController(navController: NavHostController) {
 
     //val navController = rememberNavController()
 
-    println("HAS STACK ${navController.previousBackStackEntry}")
 //    val homeViewModel: HomeViewModel = hiltViewModel()
 //    val homeProperties = homeViewModel.homePropertiesState.collectAsStateWithLifecycle().value
 //    val solutionViewModel: SolutionCheckingViewModel = hiltViewModel()
 //    val solutionProperties = solutionViewModel.solutionPropertiesState.collectAsStateWithLifecycle().value
 //    val parametersProperties = parametersViewModel.parametersPropertiesState.collectAsStateWithLifecycle().value
 
-    /**
-     *  Recognized text should be in ResultProperties instead
-     */
-    val ocrViewModel: OcrViewModel = hiltViewModel()
-    val recognizedText = ocrViewModel.recognizedText.collectAsStateWithLifecycle().value
-
-    val resultViewModel: ResultViewModel = hiltViewModel()
+    /*val resultViewModel: ResultViewModel = hiltViewModel()
     val resultProperties = resultViewModel.resultPropertiesState.collectAsStateWithLifecycle().value
-    // prompt from options + recognized text / user edited prompt
-    // should be put inside passedConvertedSolvePrompt / passedConvertedSolutionPrompt
-    val prompt =
-        if (resultProperties.isSolveActionRequested)
-            resultProperties.passedConvertedSolvePrompt + " The task is: $recognizedText"
-        else
-            resultProperties.passedConvertedSolutionPrompt + " User's solution is: $recognizedText"
 
-    /**
-     *  SystemInstruction should be in ResultProperties instead
-     */
-    val parametersViewModel: ParametersViewModel = hiltViewModel()
-    val parametersProps = parametersViewModel
-        .parametersPropertiesState.collectAsStateWithLifecycle().value
-    val systemInstruction =
+   val prompt =
         if (resultProperties.isSolveActionRequested)
-            "Answer only in ${parametersProps.language.languageName}."
+            resultProperties.passedConvertedSolvePrompt //+ " The task is: $recognizedText"
         else
-            "Answer only in language identified on the picture."
+            resultProperties.passedConvertedSolutionPrompt //+ " User's solution is: $recognizedText"
+        */
 
 
     /** Maybe the best place to init the ads. here would be initialized before user goes to the screen
      * and will kept active. I have ready all view models instances for testing */
-    // We can try it. In the past I had the same idea and asked Gleb if it's a good practise.
-    // He said architecture wise it's better not to, but if it works we can add it.
+
+    /**
+     * We can try it. In the past I had the same idea and asked Gleb if it's a good practise.
+     * He said architecture wise it's better not to, but if it works we can add it.
+     */
 
     NavHost(
         navController = navController,
@@ -69,54 +53,70 @@ fun NavigationController(navController: NavHostController) {
     ) {
         composable<Screens.HomeScreen> {
             HomeScreen(
-                onNavigateToOcrScreen = {
-                    navController.navigate(Screens.OcrScreen)
-                },
-                /*onNavigateToParametersScreen = {
-                    navController.navigate(Screens.ParametersScreen)
-                },
-                onNavigateToCheckSolutionOptionsScreen = {
-                    navController.navigate(Screens.CheckSolutionInformationScreen)
-                }*/
+                onNavigateToOcrScreen = { uri ->
+                    navController.navigate(Screens.OcrScreen(uri.toString()))
+                }
             )
         }
 
         composable<Screens.OcrScreen> {
+            val args = it.toRoute<Screens.OcrScreen>()
             OcrScreen(
-                viewModel = ocrViewModel,
-                passedImageUri = resultProperties.passedImageUri,
-                onNavigateToParametersScreen = {
-                    navController.navigate(Screens.ParametersScreen)
+                onNavigateToParametersScreen = { recognizedText ->
+                    navController.navigate(
+                        Screens.ParametersScreen(recognizedText)
+                    )
                 },
-                onNavigateToCheckSolutionOptionsScreen = {
-                    navController.navigate(Screens.CheckSolutionInformationScreen)
-                }
+                onNavigateToCheckSolutionOptionsScreen = { recognizedText ->
+                    navController.navigate(
+                        Screens.CheckSolutionInformationScreen(recognizedText)
+                    )
+                },
+                passedImageUri = Uri.parse(args.selectedImageUri)
             )
         }
 
 
         composable<Screens.ParametersScreen> {
-            resultViewModel.updateIsSolveActionRequested(true)
+            //resultViewModel.updateIsSolveActionRequested(true)
+            /** If it's not inconveniencing you, it's easier for me to work with
+             * passed arguments than check through if-else or switch-case
+             * */
+            val args = it.toRoute<Screens.ParametersScreen>()
             ParametersScreen(
-                viewModel = parametersViewModel,
-                onNavigateToResultScreen = { navController.navigate(Screens.ResultScreen) }
+                recognizedText = args.recognizedText,
+                onNavigateToResultScreen = { prompt: String, systemInstruction: String ->
+                    navController.navigate(
+                        Screens.ResultScreen(prompt, systemInstruction)
+                    )
+                }
             )
         }
 
         composable<Screens.CheckSolutionInformationScreen> {
-            resultViewModel.updateIsSolveActionRequested(false)
+            //resultViewModel.updateIsSolveActionRequested(false)
+            val args = it.toRoute<Screens.CheckSolutionInformationScreen>()
             CheckSolutionScreen(
-                onNavigateToResultScreen = { navController.navigate(Screens.ResultScreen) }
+                recognizedText = args.recognizedText,
+                onNavigateToResultScreen = { prompt: String, systemInstruction: String ->
+                    navController.navigate(
+                        Screens.ResultScreen(prompt, systemInstruction)
+                    )
+                }
             )
         }
 
         composable<Screens.ResultScreen> {
-
+            val args = it.toRoute<Screens.ResultScreen>()
             ResultScreen(
-                passedPrompt = prompt,
-                //passedImageUri = resultProperties.passedImageUri,
-                passedSystemInstruction = systemInstruction,
-                onNavigateToHomeScreen = { navController.navigate(Screens.HomeScreen) }
+                // passedImageUri = resultProperties.passedImageUri,
+                passedPrompt = args.prompt,
+                passedSystemInstruction = args.systemInstruction,
+                onNavigateToHomeScreen = {
+                    // Navigate to Home screen and clear back stack
+                    // so that user can't navigate back to Result screen there
+                    navController.popBackStack(Screens.HomeScreen, false)
+                }
             )
         }
     }
@@ -130,14 +130,23 @@ sealed class Screens {
     data object HomeScreen : Screens()
 
     @Serializable
-    data object OcrScreen : Screens()
+    data class OcrScreen(
+        val selectedImageUri: String //List<String>
+    ) : Screens()
 
     @Serializable
-    data object ParametersScreen : Screens()
+    data class ParametersScreen(
+        val recognizedText: String
+    ) : Screens()
 
     @Serializable
-    data object ResultScreen : Screens()
+    data class ResultScreen(
+        val prompt: String,
+        val systemInstruction: String
+    ) : Screens()
 
     @Serializable
-    data object CheckSolutionInformationScreen : Screens()
+    data class CheckSolutionInformationScreen(
+        val recognizedText: String
+    ) : Screens()
 }

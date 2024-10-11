@@ -24,6 +24,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.RoundIconButton
@@ -32,12 +33,12 @@ import com.schoolkiller.presentation.toast.ShowToastMessage
 
 @Composable
 fun OcrScreen(
-    viewModel: OcrViewModel,
-    onNavigateToParametersScreen: () -> Unit,
-    onNavigateToCheckSolutionOptionsScreen: () -> Unit,
+    onNavigateToParametersScreen: (String) -> Unit,
+    onNavigateToCheckSolutionOptionsScreen: (String) -> Unit,
     passedImageUri: Uri?,
 ) {
 
+    val viewModel: OcrViewModel = hiltViewModel()
     val recognizedText = viewModel.recognizedText.collectAsState()
     val ocrError = viewModel.ocrError.collectAsState()
 
@@ -51,6 +52,8 @@ fun OcrScreen(
     val isSendEditedPromptButtonVisible = remember {
         mutableStateOf(false)
     }
+
+    val shouldShowErrorMessage = remember { mutableStateOf(true) }
 
     if (shouldRecognizeText.value) {
         viewModel.updateRecognizedText("")
@@ -70,8 +73,7 @@ fun OcrScreen(
     ApplicationScaffold(
         isShowed = true,
         content = {
-            if (recognizedText.value.isNullOrEmpty()) {
-
+            if (ocrError.value == null && recognizedText.value.isNullOrEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -82,6 +84,11 @@ fun OcrScreen(
                     })
 
             } else {
+
+                if (ocrError.value != null && shouldShowErrorMessage.value) {
+                    ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
+                    shouldShowErrorMessage.value = false
+                }
                 // editable prompt
                 Text(recognizedTextLabel, fontSize = 30.sp)
 
@@ -108,6 +115,7 @@ fun OcrScreen(
                         icon = R.drawable.retry_svg
                     ) {
                         shouldRecognizeText.value = true
+                        viewModel.updateOcrError(null)
                         viewModel.updateRecognizedText("")
                     }
 
@@ -139,12 +147,10 @@ fun OcrScreen(
                 modifier = Modifier.navigationBarsPadding()
             ) {
 
-                fun onNextClick(onNavigate: (/*String*/) -> Unit) {
-                    if (ocrError.value != null || recognizedText.value.isNullOrBlank())
+                fun onNextClick(onNavigate: () -> Unit) {
+                    if (recognizedText.value.isNullOrBlank())
                         ShowToastMessage.PROMPT_IS_EMPTY.showToast()
-                    else
-                        onNavigate(/*recognizedText.value!!*/)
-                    // it's better to pass string argument
+                    else onNavigate()
                 }
 
                 // navigate to check solution options
@@ -152,7 +158,9 @@ fun OcrScreen(
                     modifier = Modifier.fillMaxWidth(),
                     label = R.string.check_solution_button_label,
                 ) {
-                    onNextClick { onNavigateToCheckSolutionOptionsScreen() }
+                    onNextClick {
+                        onNavigateToCheckSolutionOptionsScreen(recognizedText.value!!)
+                    }
                 }
 
                 // navigate to solve task options
@@ -160,7 +168,9 @@ fun OcrScreen(
                     modifier = Modifier.fillMaxWidth(),
                     label = R.string.solve_button_label,
                 ) {
-                    onNextClick { onNavigateToParametersScreen() }
+                    onNextClick {
+                        onNavigateToParametersScreen(recognizedText.value!!)
+                    }
                 }
             }
 

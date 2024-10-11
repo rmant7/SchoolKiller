@@ -160,8 +160,10 @@ class ResultViewModel @Inject constructor(
 
         if (!textResponse.isNullOrEmpty())
             updateTextGenerationResult(textResponse)
-        else
+        else {
             updateTextGenerationResult(textOnExtractionError)
+            //updateError(Throwable("Extraction failure"))
+        }
     }
 
     /*

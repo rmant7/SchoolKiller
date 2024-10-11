@@ -1,5 +1,6 @@
 package com.schoolkiller.presentation.screens.home
 
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -47,7 +48,7 @@ import com.schoolkiller.presentation.toast.ShowToastMessage
 fun HomeScreenUI(
     modifier: Modifier = Modifier,
     isHomeScreenUIShowed: Boolean,
-    onNavigateToOcrScreen: () -> Unit,
+    onNavigateToOcrScreen: (Uri?) -> Unit,
     /*onNavigateToParametersScreen: () -> Unit,
     onNavigateToCheckSolutionOptionsScreen: () -> Unit*/
 ) {
@@ -215,7 +216,7 @@ fun HomeScreenUI(
                             if (isUriValid) {
                                 viewModel.updateSelectedUri(selectedImageUri)
                                // onNavigate()
-                                onNavigateToOcrScreen()
+                                onNavigateToOcrScreen(selectedImageUri)
                             } else {
                                 ShowToastMessage.CORRUPTED_LOADED_FILE.showToast()
                             }

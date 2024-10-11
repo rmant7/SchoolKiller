@@ -9,7 +9,7 @@ class ExtractGeminiResponseUseCase @Inject constructor(
 ) {
 
     // @OptIn(ExperimentalSerializationApi::class)
-    fun invoke(jsonResponse: String): String {
+    fun invoke(jsonResponse: String): String? {
         val json = Json {
             ignoreUnknownKeys = true
             //isLenient = true
@@ -17,7 +17,6 @@ class ExtractGeminiResponseUseCase @Inject constructor(
         }
         val geminiResponse = json.decodeFromString<GeminiResponse>(jsonResponse)
         return geminiResponse.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
-            ?: "No content available"  // TODO { hardcode string }
     }
 }
 

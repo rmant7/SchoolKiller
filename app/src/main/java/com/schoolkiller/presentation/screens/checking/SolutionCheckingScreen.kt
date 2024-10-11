@@ -31,7 +31,8 @@ import com.schoolkiller.presentation.common.UniversalButton
 @Composable
 fun CheckSolutionScreen(
     modifier: Modifier = Modifier,
-    onNavigateToResultScreen: (String) -> Unit
+    recognizedText: String?,
+    onNavigateToResultScreen: (String, String) -> Unit
 ) {
     val viewModel: SolutionCheckingViewModel = hiltViewModel()
     val solutionProperties = viewModel.solutionPropertiesState.collectAsStateWithLifecycle().value
@@ -124,17 +125,21 @@ fun CheckSolutionScreen(
 //                isAttentionDialogShowed = true
                 /** testing the prompt : uncomment */
 //                if (proceedToResultScreen) {
-                    /** testing the prompt : uncomment */
+                /** testing the prompt : uncomment */
 //                    isAttentionDialogShowed = false
 
-                    // on back press from ResultScreen we have to restore requestGeminiResponse back to true
+                // on back press from ResultScreen we have to restore requestGeminiResponse back to true
 //                    resultViewModel.updateRequestGeminiResponse(true)
 
-                    // reset TextGenerationResult to initialize the loading indicator
+                // reset TextGenerationResult to initialize the loading indicator
 //                    viewModel.updateTextGenerationResult("")
 
-                    onNavigateToResultScreen(solutionProperties.solutionPromptText)
-                    /** testing the prompt : uncomment */
+                onNavigateToResultScreen(
+                    solutionProperties.solutionPromptText
+                            + " The task is: $recognizedText",
+                    "Answer only in language identified on the picture."
+                )
+                /** testing the prompt : uncomment */
 //                }
 
             }

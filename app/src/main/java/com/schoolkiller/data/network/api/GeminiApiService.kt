@@ -5,7 +5,6 @@ import com.schoolkiller.BuildConfig
 import com.schoolkiller.data.Constants
 import com.schoolkiller.data.network.HttpRoutes
 import com.schoolkiller.data.network.response.GeminiResponse
-import com.schoolkiller.domain.PromptText
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.RedirectResponseException
@@ -101,46 +100,97 @@ class GeminiApiService @Inject constructor(
         }
     }
 
+    private fun getOcrBody(
+        fileUri: String,
+        prompt: String,
+        systemInstruction: String
+    ): String {
+        val escapedFileUri = fileUri.replace("\"", "\\\"")
+        /*
+        val ocrBodyBuilder = StringBuilder()
+        ocrBodyBuilder.append(
+            """
+                "system_instruction": {
+                    "parts":
+                        { "text": "$systemInstruction"}
+                },
+                "contents": [{
+                    "parts": [
+                        {"text":"$prompt"},
+        """.trimIndent()
+        )
+        val i: List<String> = emptyList()
+        i.forEach { uri ->
+            val escapedFileUri = uri.replace("\"", "\\\"")
+            ocrBodyBuilder.append("""
+                {"file_data": {"mime_type": "image/jpeg", "file_uri": "$escapedFileUri"}}
+                """.trimIndent()
+            )
+        }
+        ocrBodyBuilder.append(
+            """
+                    ]
+                }]
+            }
+        """.trimIndent()
+        )
+        */
+        return """
+            { 
+                "system_instruction": {
+                    "parts":
+                        { "text": "$systemInstruction"}
+                },
+                "contents": [{
+                    "parts": [
+                        {"text":"$prompt"},
+                        {"file_data": {"mime_type": "image/jpeg", "file_uri": "$escapedFileUri"}}
+                    ]
+                }]
+            }                 
+        """.trimIndent()
+    }
+
+    private fun getTextGenerationBody(
+        prompt: String,
+        systemInstruction: String
+    ): String {
+        return """
+            { 
+                "system_instruction": {
+                    "parts":
+                        { "text": "$systemInstruction"}
+                },
+                "contents": [{
+                    "parts": [
+                        {"text":"$prompt"},
+                    ]
+                }]
+            }                 
+        """.trimIndent()
+    }
+
     suspend fun generateContent(
         fileUri: String,
         prompt: String,
         systemInstruction: String
     ): GeminiResponse<String> {
-        val escapedFileUri = fileUri.replace("\"", "\\\"")
 
-        val strBuilder: StringBuilder = StringBuilder("""
-            { "system_instruction": {
-                        "parts":
-                        { "text": "$systemInstruction"}
-                        },
-                        "contents": [{
-                            "parts": [
-                            {"text":"$prompt"},
-                           
-        """.trimIndent())
+        //  val escapedFileUri = fileUri.replace("\"", "\\\"")
+        val requestBody =
+            if (fileUri.isNotEmpty())
+                getOcrBody(fileUri, prompt, systemInstruction)
+            else
+                getTextGenerationBody(prompt, systemInstruction)
 
-        if (fileUri.isNotEmpty())
-            strBuilder.append(
-            """
-             {"file_data": {"mime_type": "image/jpeg", "file_uri": "$escapedFileUri"}}            
-        """.trimIndent()
-        )
-
-        strBuilder.append(
-            """
-            ]
-            }]
-            }
-        """.trimIndent()
-
-        )
         return try {
             val response: HttpResponse = client.post(
                 "${HttpRoutes.MODELS}/${Constants.GEMINI_FLASH_LATEST}?key=${BuildConfig.gemini_api_key}"
 
             ) {
                 contentType(ContentType.Application.Json)
-                setBody(strBuilder.toString()
+                setBody(
+                    requestBody
                     /*"""
                             {
                                 "contents": [{

@@ -36,7 +36,7 @@ import timber.log.Timber
 
 @Composable
 fun HomeScreen(
-    onNavigateToOcrScreen: () -> Unit,
+    onNavigateToOcrScreen: (Uri?) -> Unit,
     /*onNavigateToParametersScreen: () -> Unit,
     onNavigateToCheckSolutionOptionsScreen: () -> Unit*/
 ) {

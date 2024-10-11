@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
 import com.schoolkiller.domain.ExplanationLevelOption
@@ -38,11 +39,12 @@ import com.schoolkiller.presentation.common.UniversalButton
 @Composable
 fun ParametersScreen(
     modifier: Modifier = Modifier,
-    viewModel: ParametersViewModel,
-    onNavigateToResultScreen: (String) -> Unit
+    recognizedText: String?,
+    onNavigateToResultScreen: (String, String) -> Unit
 ) {
-    //val viewModel: ParametersViewModel = hiltViewModel()
-    val parameterScreenProperties = viewModel.parametersPropertiesState.collectAsStateWithLifecycle().value
+    val viewModel: ParametersViewModel = hiltViewModel()
+    val parameterScreenProperties =
+        viewModel.parametersPropertiesState.collectAsStateWithLifecycle().value
 
     /** Testing the prompt in a dialog if the values are correct. Check also the solve button*/
     var isAttentionDialogShowed by remember { mutableStateOf(false) }
@@ -171,17 +173,21 @@ fun ParametersScreen(
 //                    isAttentionDialogShowed = true
                     /** testing the prompt : uncomment */
 //                    if (proceedToResultScreen) {
-                        /** testing the prompt : uncomment */
+                    /** testing the prompt : uncomment */
 //                        isAttentionDialogShowed = false
 
-                        // on back press from ResultScreen we have to restore requestGeminiResponse back to true
+                    // on back press from ResultScreen we have to restore requestGeminiResponse back to true
 //                        resultViewModel.updateRequestGeminiResponse(true)
 
-                        // reset TextGenerationResult to initialize the loading indicator
+                    // reset TextGenerationResult to initialize the loading indicator
 //                        resultViewModel.updateTextGenerationResult("")
 
-                        onNavigateToResultScreen(parameterScreenProperties.solvePromptText)
-                        /** testing the prompt : uncomment */
+                    onNavigateToResultScreen(
+                        parameterScreenProperties.solvePromptText
+                                + " User's solution is: $recognizedText",
+                        "Answer only in ${parameterScreenProperties.language.languageName}."
+                    )
+                    /** testing the prompt : uncomment */
 //                    }
 
                 }

@@ -74,10 +74,14 @@ class OcrViewModel @Inject constructor(
                     }
                     if (!textResponse.isNullOrEmpty())
                         updateRecognizedText(textResponse)
-                    else
-                        updateRecognizedText(textOnExtractionError)
-                } else
-                    updateRecognizedText(textOnExtractionError)
+                    else {
+                        updateOcrError(Throwable(textOnExtractionError))
+                        updateRecognizedText("")
+                    }
+                } else {
+                    updateOcrError(Throwable(textOnExtractionError))
+                    updateRecognizedText("")
+                }
             }
 
             fileUriResult.onFailure { updateOcrError(it) }
