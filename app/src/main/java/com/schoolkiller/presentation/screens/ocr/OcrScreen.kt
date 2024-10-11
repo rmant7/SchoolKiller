@@ -2,14 +2,19 @@ package com.schoolkiller.presentation.screens.ocr
 
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -92,7 +97,7 @@ fun OcrScreen(
                 // editable prompt
                 Text(recognizedTextLabel, fontSize = 30.sp)
 
-                SelectionContainer {
+                SelectionContainer (Modifier.fillMaxHeight(0.7f)){
                     OutlinedTextField(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -108,6 +113,7 @@ fun OcrScreen(
                         readOnly = isPromptReadOnly.value
                     )
                 }
+
 
                 Row {
 
@@ -177,3 +183,4 @@ fun OcrScreen(
         })
 
 }
+

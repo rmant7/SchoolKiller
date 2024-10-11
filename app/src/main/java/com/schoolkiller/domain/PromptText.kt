@@ -5,12 +5,14 @@ enum class PromptText(val promptText: String) {
         "Solve this task (as grade+th grader). " +
                 "Show the solution and explain (briefly) how to get there. " +
                 // changed to system_instruction
-               // "Explain only in (language identified on the sent file). " +
+                // "Explain only in (language identified on the sent file). " +
+                "If there are multiple tasks, solve them all separately." +
                 "Use a chain of thoughts before answering."
     ),
     CHECK_SOLUTION_PROMPT(
         "As a (grade+th grader) explain in detail" +
-                " why this solution is correct or not, rate it on scale (1–100)."
+                " why this solution is correct or not, rate it on scale (1–100)." +
+                "If there are multiple tasks, check them all separately."
         /*
         "Check the solution depicted on the sent file. " +
                 "Rate it on scale (1–100)." +

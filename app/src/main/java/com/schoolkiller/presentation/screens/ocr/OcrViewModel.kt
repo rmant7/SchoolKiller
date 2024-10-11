@@ -45,8 +45,12 @@ class OcrViewModel @Inject constructor(
     ) = viewModelScope.launch {
 
         val prompt = "Recognize text from this image. " +
-                "If picture doesn't have text, describe what you see in it."
-        val systemInstruction = ""
+                "If picture doesn't have text, describe what you see in it. "
+        val systemInstruction = "Answer only in language identified on the picture." +
+                "Don't use markdown." +
+                "Describe in details in language identified on the picture " +
+                "geometric figures and which variables are known if you recognize any."+
+                "Separate each task if you see multiple ones."
 
         val fileByteArray = getImageByteArrayUseCase.invoke(imageUri = imageUri)
         val uploadResult = geminiApiService.uploadFileWithProgress(

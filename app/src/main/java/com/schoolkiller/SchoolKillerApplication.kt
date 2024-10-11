@@ -60,11 +60,17 @@ class SchoolKillerApplication : Application() {
 
 
         // it's recommended to initialize AppMetrica in the main process instead
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             Timber.d("Creating an extended library configuration.")
-            val config = AppMetricaConfig.newConfigBuilder(BuildConfig.app_metrica_api_key).build()
+            val config = AppMetricaConfig
+                .newConfigBuilder(BuildConfig.app_metrica_api_key)
+                .handleFirstActivationAsUpdate(true)
+                .withLogs()
+                .build()
             Timber.d("Initializing the AppMetrica SDK.")
             AppMetrica.activate(applicationContext, config)
+            // Automatic tracking of user activity.
+            AppMetrica.enableActivityAutoTracking(this@SchoolKillerApplication)
             Timber.d("Initializing the AppMetricaPush.")
             AppMetricaPush.activate(applicationContext)
         }

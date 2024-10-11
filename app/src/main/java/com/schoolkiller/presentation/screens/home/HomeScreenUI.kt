@@ -1,6 +1,8 @@
 package com.schoolkiller.presentation.screens.home
 
 import android.net.Uri
+import android.view.LayoutInflater
+import android.widget.TextView
 import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,8 +34,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.gms.ads.AdView
 import com.schoolkiller.R
 import com.schoolkiller.domain.UploadFileMethodOptions
 import com.schoolkiller.presentation.RequestState
@@ -215,7 +219,7 @@ fun HomeScreenUI(
                             val isUriValid = viewModel.checkUriValidity(selectedImageUri!!)
                             if (isUriValid) {
                                 viewModel.updateSelectedUri(selectedImageUri)
-                               // onNavigate()
+                                // onNavigate()
                                 onNavigateToOcrScreen(selectedImageUri)
                             } else {
                                 ShowToastMessage.CORRUPTED_LOADED_FILE.showToast()
