@@ -187,7 +187,8 @@ fun ParametersScreen(
                     onNavigateToResultScreen(
                         parameterScreenProperties.solvePromptText
                                 + " User's solution is: $recognizedText",
-                        "Answer only in ${parameterScreenProperties.language.languageName}."
+                        "Answer only in ${parameterScreenProperties.language.languageName}." +
+                                "Answer only in plain text. Do not use markdown."
                     )
                     /** testing the prompt : uncomment */
 //                    }

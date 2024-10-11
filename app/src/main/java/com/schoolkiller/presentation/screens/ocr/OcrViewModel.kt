@@ -50,7 +50,11 @@ class OcrViewModel @Inject constructor(
                 "Don't use markdown." +
                 "Describe in details in language identified on the picture " +
                 "geometric figures and which variables are known if you recognize any."+
-                "Separate each task if you see multiple ones."
+                "Separate each task if you see multiple ones." +
+                "Express the answer in language identified on the picture " +
+                "using mathematical symbols if you recognize any." +
+                "Answer only in plain text in language identified on the picture. " +
+                "Do not use markdown."
 
         val fileByteArray = getImageByteArrayUseCase.invoke(imageUri = imageUri)
         val uploadResult = geminiApiService.uploadFileWithProgress(

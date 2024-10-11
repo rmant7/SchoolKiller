@@ -137,7 +137,8 @@ fun CheckSolutionScreen(
                 onNavigateToResultScreen(
                     solutionProperties.solutionPromptText
                             + " The task is: $recognizedText",
-                    "Answer only in language identified on the picture."
+                    "Answer only in language identified on the picture." +
+                            "Answer only in plain text. Do not use markdown."
                 )
                 /** testing the prompt : uncomment */
 //                }
