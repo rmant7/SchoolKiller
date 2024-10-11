@@ -58,9 +58,7 @@ class SchoolKillerApplication : Application() {
         bannerAdUseCase.loadAdWithNoAdsCheck()
         interstitialAdUseCase.loadAdWithNoAdsCheck()
 
-
-        // it's recommended to initialize AppMetrica in the main process instead
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             Timber.d("Creating an extended library configuration.")
             val config = AppMetricaConfig
                 .newConfigBuilder(BuildConfig.app_metrica_api_key)
