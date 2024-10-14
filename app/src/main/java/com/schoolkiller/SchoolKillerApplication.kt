@@ -1,11 +1,8 @@
 package com.schoolkiller
 
 import android.app.Application
-import android.os.Build
-import android.util.DisplayMetrics
-import android.view.WindowManager
-import com.schoolkiller.BuildConfig
 import com.google.android.gms.ads.MobileAds
+import com.google.firebase.FirebaseApp
 import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
 import com.schoolkiller.domain.usecases.ads.InterstitialAdUseCase
 import com.schoolkiller.presentation.toast.ShowToastMessage
@@ -59,10 +56,13 @@ class SchoolKillerApplication : Application() {
         interstitialAdUseCase.loadAdWithNoAdsCheck()
 
         CoroutineScope(Dispatchers.IO).launch {
+            // Init FirebaseApp for all processes
+            FirebaseApp.initializeApp(this@SchoolKillerApplication)
+
             Timber.d("Creating an extended library configuration.")
             val config = AppMetricaConfig
                 .newConfigBuilder(BuildConfig.app_metrica_api_key)
-                .handleFirstActivationAsUpdate(true)
+                //.handleFirstActivationAsUpdate(true)
                 .withLogs()
                 .build()
             Timber.d("Initializing the AppMetrica SDK.")

@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
                         isShowed = true,
                         topBar = {
                             TopAppBar(
-                               // modifier = Modifier.padding(0.dp, 25.dp),
+                                // modifier = Modifier.padding(0.dp, 25.dp),
                                 colors = TopAppBarDefaults.topAppBarColors(
                                     containerColor = MaterialTheme.colorScheme.primary,
                                     titleContentColor = MaterialTheme.colorScheme.onPrimary,

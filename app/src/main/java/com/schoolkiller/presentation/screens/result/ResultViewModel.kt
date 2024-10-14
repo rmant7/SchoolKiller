@@ -8,7 +8,6 @@ import com.schoolkiller.data.network.api.GeminiApiService
 import com.schoolkiller.data.network.response.GeminiResponse
 import com.schoolkiller.data.repositories.DataStoreRepository
 import com.schoolkiller.domain.model.ResultProperties
-import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
 import com.schoolkiller.domain.usecases.ads.InterstitialAdUseCase
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
@@ -21,9 +20,6 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -33,7 +29,7 @@ class ResultViewModel @Inject constructor(
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
     private val interstitialAdUseCase: InterstitialAdUseCase,
-   // private val bannerAdUseCase: BannerAdUseCase,
+    // private val bannerAdUseCase: BannerAdUseCase,
     private val dataStoreRepository: DataStoreRepository
 ) : ViewModel() {
 
@@ -149,8 +145,12 @@ class ResultViewModel @Inject constructor(
         textOnExtractionError: String
     ) = viewModelScope.launch {
 
+        val sysInstruction = systemInstruction +
+                "Use Html tags instead of markdown." +
+                "Don't include pictures in your response."
+
         val content = geminiApiService.generateContent(
-            "", prompt, systemInstruction
+            "", prompt, sysInstruction
         )
         val textResponse = if (content is GeminiResponse.Success) {
             extractGeminiResponseUseCase.invoke(content.data ?: "{}")

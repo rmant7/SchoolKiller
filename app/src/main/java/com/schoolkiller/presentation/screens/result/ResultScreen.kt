@@ -15,7 +15,6 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
@@ -25,8 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -34,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.ErrorAlertDialog
+import com.schoolkiller.presentation.common.HtmlTextView
 import com.schoolkiller.presentation.common.UniversalButton
 import io.ktor.client.plugins.ServerResponseException
 
@@ -165,7 +163,11 @@ fun ResultScreen(
                             Text(solutionTextLabel, fontSize = 30.sp)
 
                             SelectionContainer {
-                                OutlinedTextField(
+                                HtmlTextView(
+                                    resultProperties.textGenerationResult,
+                                    remember { mutableStateOf(false) }
+                                )
+                                /*OutlinedTextField(
                                     modifier = modifier
                                         //.fillMaxSize(),
                                         .fillMaxWidth()
@@ -177,7 +179,7 @@ fun ResultScreen(
                                         textAlign = TextAlign.Start
                                     ),
                                     readOnly = true
-                                )
+                                )*/
                             }
                         }
                     }
