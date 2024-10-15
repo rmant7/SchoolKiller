@@ -26,8 +26,10 @@ fun HtmlTextView(
             WebView(context).apply {
                 settings.javaScriptEnabled = true
                 webViewClient = AppWebView().getInstance {
+                    // get content every time page is loaded
+                    // so that viewmodel gets not null, but valid content value
                     evaluateJavascript("getContent()") {
-                        println("Loaded page content is: ${it.toJson()}")
+                       // println("Loaded page content is: ${it.toJson()}")
                         onValueChange(it.toJson())
                     }
                 }
@@ -43,13 +45,16 @@ fun HtmlTextView(
             }
         },
         update = { webView ->
+            // could be one function to avoid 2 update view calls
 
+            // set text to be editable or not
             webView.evaluateJavascript(
                 "setEditable(${isHtmlEditable.value})", null
             )
 
+            // get content every time user changes prompt
             webView.evaluateJavascript("getContent()") {
-                println("User changed content is: ${it.toJson()}")
+                //println("User changed content is: ${it.toJson()}")
                 onValueChange(it.toJson())
             }
         }

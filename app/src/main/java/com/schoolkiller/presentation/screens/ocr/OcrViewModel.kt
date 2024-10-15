@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.schoolkiller.data.network.api.GeminiApiService
 import com.schoolkiller.data.network.response.GeminiResponse
+import com.schoolkiller.domain.PromptText
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,6 +25,25 @@ class OcrViewModel @Inject constructor(
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
 ) : ViewModel() {
 
+    // if number of candidates can be more than 1
+
+
+    private val _recognizedTextList: MutableStateFlow<MutableList<String>> =
+        MutableStateFlow(mutableListOf())
+    val recognizedTextList: MutableStateFlow<MutableList<String>> = _recognizedTextList
+
+    fun updateRecognizedTextList(newList: MutableList<String>) {
+        _recognizedTextList.value = newList
+    }
+
+    fun updateRecognizedText(index: Int, recognizedText: String) {
+        // index out of bounds check
+        if (_recognizedTextList.value.size <= index)
+            _recognizedTextList.value.add(recognizedText)
+        else
+            _recognizedTextList.value[index] = recognizedText
+    }
+
     private val _recognizedText = MutableStateFlow("")
     val recognizedText: StateFlow<String?> = _recognizedText
 
@@ -41,29 +61,9 @@ class OcrViewModel @Inject constructor(
     fun geminiImageToText(
         imageUri: Uri,
         fileName: String,
-        textOnExtractionError: String
+        textOnExtractionError: String,
+        useHtml: Boolean
     ) = viewModelScope.launch {
-
-        val prompt = "Recognize text from this image. " +
-                "If picture doesn't have text, describe what you see in it. "
-        val systemInstruction =  "Answer only in language identified on the picture." +
-            "Use Html tags instead of markdown." +
-            "Describe in details in language identified on the picture " +
-            "geometric figures and which variables are known if you recognize any."+
-            "Separate each task if you see multiple ones." +
-            "Don't include pictures in your response."
-
-        /*
-        val systemInstructionOld = "Answer only in language identified on the picture." +
-                "Describe in details in language identified on the picture " +
-                "geometric figures and which variables are known if you recognize any."+
-                "Separate each task if you see multiple ones." +
-                "Don't include pictures in your response."
-                "Express the answer in language identified on the picture " +
-                "using mathematical symbols if you recognize any." +
-                "Answer only in plain text in language identified on the picture. " +
-                "Do not use markdown."
-         */
 
         val fileByteArray = getImageByteArrayUseCase.invoke(imageUri = imageUri)
         val uploadResult = geminiApiService.uploadFileWithProgress(
@@ -82,9 +82,37 @@ class OcrViewModel @Inject constructor(
                     .jsonObject["file"]?.jsonObject?.get("uri")?.jsonPrimitive?.content
 
                 if (actualFileUri != null) {
+                    /** For tests */
+                    val systemInstruction =
+                        if (useHtml) PromptText.HTML_REQUEST.promptText
+                        else PromptText.NO_HTML_REQUEST.promptText
+                    systemInstruction.plus(PromptText.OCR_SYSTEM_INSTRUCTION.promptText)
+
                     val content = geminiApiService.generateContent(
-                        actualFileUri, prompt, systemInstruction
+                        actualFileUri,
+                        PromptText.OCR_PROMPT.promptText,
+                        systemInstruction
                     )
+
+                    val list = ArrayList<String>()
+                    content.forEach { response ->
+                        val textResponse = if (response is GeminiResponse.Success) {
+                            extractGeminiResponseUseCase.invoke(response.data ?: "{}")
+                        } else {
+                            response.message
+                        }
+                        if (!textResponse.isNullOrEmpty())
+                            list.add(textResponse)
+                        else {
+                            updateOcrError(Throwable(textOnExtractionError))
+                            list.add("")
+                        }
+                    }
+                    updateRecognizedTextList(list)
+                    // update with the first result
+                    updateRecognizedText(recognizedTextList.value[0])
+
+                    /*
                     val textResponse = if (content is GeminiResponse.Success) {
                         extractGeminiResponseUseCase.invoke(content.data ?: "{}")
                     } else {
@@ -96,10 +124,12 @@ class OcrViewModel @Inject constructor(
                         updateOcrError(Throwable(textOnExtractionError))
                         updateRecognizedText("")
                     }
+                    */
                 } else {
                     updateOcrError(Throwable(textOnExtractionError))
                     updateRecognizedText("")
                 }
+
             }
 
             fileUriResult.onFailure { updateOcrError(it) }

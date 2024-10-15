@@ -29,7 +29,8 @@ class ParametersViewModel @Inject constructor(
 
     private val _parametersPropertiesState = MutableStateFlow(ParameterProperties())
     val parametersPropertiesState: StateFlow<ParameterProperties> = _parametersPropertiesState
-        .onStart { /** This is like the init block */
+        .onStart {
+            /** This is like the init block */
             readSolvePromptState()
             readDescriptionOptionState()
             readGradeOptionState()
@@ -44,13 +45,15 @@ class ParametersViewModel @Inject constructor(
     /** we can use this for handling errors, easier debugging with logging, and
      * show circular indicator when something is delaying to showed in the UI */
     private val _parametersScreenRequestState = MutableStateFlow<RequestState<ParameterProperties>>(
-        RequestState.Idle)
-    val parametersScreenRequestState: StateFlow<RequestState<ParameterProperties>> = _parametersScreenRequestState
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = RequestState.Idle
-        )
+        RequestState.Idle
+    )
+    val parametersScreenRequestState: StateFlow<RequestState<ParameterProperties>> =
+        _parametersScreenRequestState
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000L),
+                initialValue = RequestState.Idle
+            )
 
     /*
     init {
@@ -129,6 +132,25 @@ class ParametersViewModel @Inject constructor(
         val promptWithDescription = promptWithExplanationOption.plus(description)
 
         updateSolvePromptText(promptWithDescription)
+    }
+
+    fun getSystemInstruction(hasHtmlTags: Boolean): String {
+        val strBuilder = StringBuilder(
+            "Answer only in ${parametersPropertiesState.value.language.languageName}."
+        )
+        if (hasHtmlTags)
+            strBuilder.append(PromptText.HTML_REQUEST.promptText)
+        else
+            strBuilder.append(PromptText.NO_HTML_REQUEST.promptText)
+        return strBuilder.toString()
+    }
+
+    /** This should be inside buildSolvingPrompt.
+     *  Maybe even let user to choose if they want to do OCR or not.
+     */
+    fun getPrompt(recognizedText: String?): String {
+        return parametersPropertiesState.value.solvePromptText +
+                " User's solution is: $recognizedText"
     }
 
 

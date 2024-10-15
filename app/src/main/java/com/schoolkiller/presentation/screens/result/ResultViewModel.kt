@@ -29,12 +29,8 @@ class ResultViewModel @Inject constructor(
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
     private val interstitialAdUseCase: InterstitialAdUseCase,
-    // private val bannerAdUseCase: BannerAdUseCase,
     private val dataStoreRepository: DataStoreRepository
 ) : ViewModel() {
-
-    /*private val _recognizedText = MutableStateFlow("")
-    val recognizedText: StateFlow<String?> = _recognizedText*/
 
     private val _resultPropertiesState = MutableStateFlow(ResultProperties())
     val resultPropertiesState: StateFlow<ResultProperties> = _resultPropertiesState
@@ -50,10 +46,6 @@ class ResultViewModel @Inject constructor(
             initialValue = ResultProperties()
         )
 
-    /*fun updateRecognizedText(recognizedText: String) {
-        _recognizedText.update { recognizedText }
-    }*/
-
     /** we can use this for handling errors, easier debugging with logging, and
      * show circular indicator when something is delaying to showed in the UI */
     private val _resultScreenRequestState = MutableStateFlow<RequestState<ResultProperties>>(
@@ -68,20 +60,14 @@ class ResultViewModel @Inject constructor(
             )
 
     /*
-//    init {
-//        updateAdview(bannerAdUseCase.getMediumBannerAdView())
-//        readImageState()
-//        readConvertedSolvePromptState()
-//        readConvertedSolutionPromptTextState()
-//    }
+    init {
+        updateAdview(bannerAdUseCase.getMediumBannerAdView())
+        readImageState()
+        readConvertedSolvePromptState()
+        readConvertedSolutionPromptTextState()
+    }
 
      */
-
-    /*fun updateAdview(adView: AdView?) {
-        _resultPropertiesState.update { currentState ->
-            currentState.copy(mediumBannerAdview = adView)
-        }
-    }*/
 
     fun updateIsSolveActionRequested(isSolveActionRequested: Boolean) {
         _resultPropertiesState.update { currentState ->
@@ -145,12 +131,8 @@ class ResultViewModel @Inject constructor(
         textOnExtractionError: String
     ) = viewModelScope.launch {
 
-        val sysInstruction = systemInstruction +
-                "Use Html tags instead of markdown." +
-                "Don't include pictures in your response."
-
         val content = geminiApiService.generateContent(
-            "", prompt, sysInstruction
+            prompt, systemInstruction
         )
         val textResponse = if (content is GeminiResponse.Success) {
             extractGeminiResponseUseCase.invoke(content.data ?: "{}")

@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
@@ -24,6 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -163,11 +166,17 @@ fun ResultScreen(
                             Text(solutionTextLabel, fontSize = 30.sp)
 
                             SelectionContainer {
+                                /** For tests */
+                                /*
                                 HtmlTextView(
                                     resultProperties.textGenerationResult,
+                                    // Should be just 2 Composables:
+                                    // one with mutable state and other one with boolean
                                     remember { mutableStateOf(false) }
                                 )
-                                /*OutlinedTextField(
+                                 */
+
+                                OutlinedTextField(
                                     modifier = modifier
                                         //.fillMaxSize(),
                                         .fillMaxWidth()
@@ -179,15 +188,12 @@ fun ResultScreen(
                                         textAlign = TextAlign.Start
                                     ),
                                     readOnly = true
-                                )*/
+                                )
                             }
                         }
                     }
                 }
             )
-            // it's a violation to use more than 2 types of ads on the same screen
-            // banners shouldn't be places between actual content's interactive elements
-            //BannerAdContainer(adView = resultProperties.mediumBannerAdview)
         },
         bottomBar = {
             Column(

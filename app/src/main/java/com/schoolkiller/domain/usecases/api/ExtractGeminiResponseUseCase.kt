@@ -16,6 +16,8 @@ class ExtractGeminiResponseUseCase @Inject constructor(
             //explicitNulls = false
         }
         val geminiResponse = json.decodeFromString<GeminiResponse>(jsonResponse)
+        // candidate.content.parts[2].text -> get second result,
+        // but multiple candidates aren't supported yet (?)
         return geminiResponse.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
     }
 }

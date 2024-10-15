@@ -100,15 +100,12 @@ class GeminiApiService @Inject constructor(
         }
     }
 
-    private fun getOcrBody(
-        fileUri: String,
+    private fun generateContent(
+        uriList: List<String>,
         prompt: String,
         systemInstruction: String
-    ): String {
-        val escapedFileUri = fileUri.replace("\"", "\\\"")
-        /*
-        val ocrBodyBuilder = StringBuilder()
-        ocrBodyBuilder.append(
+    ) {
+        val ocrBodyBuilder = StringBuilder(
             """
                 "system_instruction": {
                     "parts":
@@ -119,14 +116,16 @@ class GeminiApiService @Inject constructor(
                         {"text":"$prompt"},
         """.trimIndent()
         )
-        val i: List<String> = emptyList()
-        i.forEach { uri ->
+
+        uriList.forEach { uri ->
             val escapedFileUri = uri.replace("\"", "\\\"")
-            ocrBodyBuilder.append("""
+            ocrBodyBuilder.append(
+                """
                 {"file_data": {"mime_type": "image/jpeg", "file_uri": "$escapedFileUri"}}
                 """.trimIndent()
             )
         }
+
         ocrBodyBuilder.append(
             """
                     ]
@@ -134,8 +133,36 @@ class GeminiApiService @Inject constructor(
             }
         """.trimIndent()
         )
-        */
-        return """
+    }
+
+    suspend fun generateContent(
+        prompt: String,
+        systemInstruction: String
+    ): GeminiResponse<String> {
+        val request = """
+            { 
+                "system_instruction": {
+                    "parts":
+                        { "text": "$systemInstruction"}
+                },
+                "contents": [{
+                    "parts": [
+                        {"text":"$prompt"},
+                    ]
+                }]
+            }                 
+        """.trimIndent()
+        return generateContent(request)
+    }
+
+
+    suspend fun generateContent(
+        fileUri: String,
+        prompt: String,
+        systemInstruction: String
+    ): MutableList<GeminiResponse<String>> {
+        val escapedFileUri = fileUri.replace("\"", "\\\"")
+        val request = """
             { 
                 "system_instruction": {
                     "parts":
@@ -149,39 +176,24 @@ class GeminiApiService @Inject constructor(
                 }]
             }                 
         """.trimIndent()
+
+        // make 3 api calls instead config as multiple candidates aren't supported (?)
+        /*
+        "generationConfig": {
+            "candidateCount": "3"
+        }
+         */
+        val responses: MutableList<GeminiResponse<String>> = mutableListOf()
+        repeat(3){
+            val response = generateContent(request)
+            responses.add(response)
+        }
+        return responses//generateContent(request)
     }
 
-    private fun getTextGenerationBody(
-        prompt: String,
-        systemInstruction: String
-    ): String {
-        return """
-            { 
-                "system_instruction": {
-                    "parts":
-                        { "text": "$systemInstruction"}
-                },
-                "contents": [{
-                    "parts": [
-                        {"text":"$prompt"},
-                    ]
-                }]
-            }                 
-        """.trimIndent()
-    }
-
-    suspend fun generateContent(
-        fileUri: String,
-        prompt: String,
-        systemInstruction: String
-    ): GeminiResponse<String> {
+    private suspend fun generateContent(requestBody: String): GeminiResponse<String> {
 
         //  val escapedFileUri = fileUri.replace("\"", "\\\"")
-        val requestBody =
-            if (fileUri.isNotEmpty())
-                getOcrBody(fileUri, prompt, systemInstruction)
-            else
-                getTextGenerationBody(prompt, systemInstruction)
 
         return try {
             val response: HttpResponse = client.post(

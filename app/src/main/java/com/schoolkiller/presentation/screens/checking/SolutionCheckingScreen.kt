@@ -22,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
 import com.schoolkiller.domain.GradeOption
+import com.schoolkiller.domain.PromptText
 import com.schoolkiller.presentation.ads.BannerAdContainer
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.AttentionAlertDialog
@@ -135,10 +136,8 @@ fun CheckSolutionScreen(
 //                    viewModel.updateTextGenerationResult("")
 
                 onNavigateToResultScreen(
-                    solutionProperties.solutionPromptText
-                            + " The task is: $recognizedText",
-                    "Answer only in language identified on the picture." //+
-                            //"Answer only in plain text. Do not use markdown."
+                    viewModel.getPrompt(recognizedText), /** Should be inside buildSolutionPrompt ? */
+                    viewModel.getSystemInstruction(true)
                 )
                 /** testing the prompt : uncomment */
 //                }

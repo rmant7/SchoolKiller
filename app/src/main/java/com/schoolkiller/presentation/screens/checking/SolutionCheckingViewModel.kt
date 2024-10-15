@@ -45,13 +45,15 @@ class SolutionCheckingViewModel @Inject constructor(
     /** we can use this for handling errors, easier debugging with logging, and
      * show circular indicator when something is delaying to showed in the UI */
     private val _solutionScreenRequestState = MutableStateFlow<RequestState<SolutionProperties>>(
-        RequestState.Idle)
-    val solutionScreenRequestState: StateFlow<RequestState<SolutionProperties>> = _solutionScreenRequestState
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = RequestState.Idle
-        )
+        RequestState.Idle
+    )
+    val solutionScreenRequestState: StateFlow<RequestState<SolutionProperties>> =
+        _solutionScreenRequestState
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000L),
+                initialValue = RequestState.Idle
+            )
 
 
     /*
@@ -108,6 +110,21 @@ class SolutionCheckingViewModel @Inject constructor(
             originalPrompt
         }
         updateSolutionPromptText(promptWithGradeOption)
+    }
+
+    /** This should be inside buildSolutionPrompt.
+     *  Maybe even let user to choose if they want to do OCR or not.
+     */
+    fun getPrompt(recognizedText: String?): String {
+        return solutionPropertiesState.value.solutionPromptText +
+                " The task is: $recognizedText"
+    }
+
+    fun getSystemInstruction(hasHtml: Boolean): String {
+        val systemInstruction = PromptText
+            .CHECK_SOLUTION_SYSTEM_INSTRUCTION.promptText
+        if (hasHtml) systemInstruction.plus(PromptText.HTML_REQUEST)
+        return systemInstruction
     }
 
 

@@ -44,6 +44,8 @@ class MainActivity : ComponentActivity() {
                     ApplicationScaffold(
                         isShowed = true,
                         topBar = {
+                            // No header for Home page
+                            if (navController.previousBackStackEntry != null)
                             TopAppBar(
                                 // modifier = Modifier.padding(0.dp, 25.dp),
                                 colors = TopAppBarDefaults.topAppBarColors(
@@ -54,7 +56,6 @@ class MainActivity : ComponentActivity() {
                                 ),
                                 title = { Text(text = "SchoolKiller") },
                                 navigationIcon = {
-                                    if (navController.previousBackStackEntry != null)
                                         IconButton(onClick = { navController.navigateUp() }) {
                                             Icon(
                                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,

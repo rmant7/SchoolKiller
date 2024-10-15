@@ -185,10 +185,8 @@ fun ParametersScreen(
 //                        resultViewModel.updateTextGenerationResult("")
 
                     onNavigateToResultScreen(
-                        parameterScreenProperties.solvePromptText
-                                + " User's solution is: $recognizedText",
-                        "Answer only in ${parameterScreenProperties.language.languageName}." //+
-                               // "Answer only in plain text. Do not use markdown."
+                        viewModel.getPrompt(recognizedText), /** Should be inside buildSolvingPrompt() */
+                        viewModel.getSystemInstruction(true)
                     )
                     /** testing the prompt : uncomment */
 //                    }
