@@ -18,6 +18,7 @@
 
 
     // Button Labels
+    <string name="solution_text_value">פִּתָרוֹן:</string>
     <string name="next_button_label">הבא</string>
     <string name="solve_button_label">לפתור</string>
     <string name="check_solution_button_label">בדוק פתרון</string>
@@ -28,6 +29,7 @@
     <string name="Ok">בסדר.</string>
 
     // Text Field Labels
+    <string name="recognize_text_button_label">זיהוי טקסט</string>
     <string name="additional_information_TextField_label">מידע נוסף</string>
     <string name="What_to_solve_TextField_label">מה לפתור?</string>
 <!--    <string name="What_to_solve_TextField_label">מה לפתור?</string>-->
@@ -85,7 +87,7 @@
     </string-array>
 
     // Dialog text messages
-    <string name="invalid_images_message">נראה שמחקת כמה תמונות מאחסון הספריות של אפליקציית SchoolKiller. SchoolKiller ינסה לנקות תמונות אלה אחת אחת מהמטמון של האפליקציה. אנא אשר מחיקה של כל תמונה, במידת הצורך. כל תמונה שמופיעה ללא תמונה בה, היא פגומה. האם אתה רוצה להמשיך?</string>
+    <string name="invalid_images_message">נראה שמחקת כמה תמונות מאחסון הספריות של אפליקציית SchoolKiller. אל דאגה, SchoolKiller ינסה לנקות תמונות אלה אחת אחת מהמטמון של האפליקציה. אנא אשר מחיקה של כל תמונה, במידת הצורך. כל תמונה שמופיעה ריקה היא פגומה. האם אתה רוצה להמשיך?</string>
 
     //Errors
     <string name="error_service_not_available">מצטערים, השירות אינו זמין ברוסיה ובבלרוס, אנא השתמש ב-vpn</string>
@@ -94,6 +96,7 @@
     <string name="error_common_message">אירעה שגיאה בזמן שהאפליקציה פעלה. נסה לעדכן את האפליקציה או נסה שוב מאוחר יותר</string>
 
     // Toast
+    <string name="error_gemini_solution_result_extraction">AI לא הצליח לפתור את הבעיה הזו. בבקשה, נסה שוב.</string>
     <string name="something_went_wrong">אופס! משהו השתבש. בבקשה נסה שוב!</string>
     <string name="fail_to_load_Uri">טעינת התמונה לרשימה נכשלה. אנא נסה לטעון אותה ידנית!</string>
     <string name="corrupted_loaded_file">העלית קובץ פגום!</string>
@@ -110,5 +113,8 @@
     <string name="select_image_warning">אנא בחר תמונה מהמכשיר</string>
     <string name="upload_picture">להעלות תמונה</string>
     <string name="take_a_picture">לצלם תמונה</string>
+    <string name="recognized_text_value">טקסט מוכר:</string>
+    <string name="error_gemini_ocr_result_extraction">AI לא הצליח לזהות טקסט מהתמונה. בבקשה, נסה שוב.</string>
+    <string name="prompt_is_empty">הטקסט המזוהה ריק. אנא נסה שוב!</string>
 
 </resources>

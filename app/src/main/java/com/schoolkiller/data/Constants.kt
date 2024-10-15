@@ -2,6 +2,19 @@ package com.schoolkiller.data
 
 object Constants {
 
+    // Datastore Preference
+    const val PREFERENCE_NAME = "school_killer_preferences"
+    const val GRADE_OPTION = "grade_option"
+    const val SOLUTION_GRADE_OPTION = "solution_grade_option"
+    const val LANGUAGE_OPTION = "language_option"
+    const val EXPLANATION_LEVEL_OPTION = "explanation_level_option"
+    const val DESCRIPTION = "description"
+    const val SOLVE_PROMPT = "original_solve_prompt"
+    const val SOLUTION_PROMPT = "original_solution_prompt"
+    const val IMAGE_LIST = "image_list"
+    const val SELECTED_IMAGE_URI = "selected_image_uri"
+
+
     // Database
     const val DATABASE_NAME = "school_killer_database"
 

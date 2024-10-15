@@ -4,22 +4,23 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.ads.AdView
 import com.schoolkiller.data.network.api.GeminiApiService
 import com.schoolkiller.data.network.response.GeminiResponse
-import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
+import com.schoolkiller.data.repositories.DataStoreRepository
+import com.schoolkiller.domain.model.ResultProperties
 import com.schoolkiller.domain.usecases.ads.InterstitialAdUseCase
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
+import com.schoolkiller.presentation.RequestState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,47 +29,131 @@ class ResultViewModel @Inject constructor(
     private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
     private val interstitialAdUseCase: InterstitialAdUseCase,
-    private val bannerAdUseCase: BannerAdUseCase
+    private val dataStoreRepository: DataStoreRepository
 ) : ViewModel() {
 
-    // Medium Banner State
-    private var _adview = MutableStateFlow<AdView?>(null)
-    val adview: StateFlow<AdView?> = _adview
+    private val _resultPropertiesState = MutableStateFlow(ResultProperties())
+    val resultPropertiesState: StateFlow<ResultProperties> = _resultPropertiesState
+        .onStart {
+            /** This is like the init block */
+            // updateAdview(bannerAdUseCase.getMediumBannerAdView())
+            readImageState()
+            readConvertedSolvePromptState()
+            readConvertedSolutionPromptTextState()
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = ResultProperties()
+        )
 
-    private val _textGenerationResult = MutableStateFlow("")
-    val textGenerationResult = _textGenerationResult.asStateFlow()
+    /** we can use this for handling errors, easier debugging with logging, and
+     * show circular indicator when something is delaying to showed in the UI */
+    private val _resultScreenRequestState = MutableStateFlow<RequestState<ResultProperties>>(
+        RequestState.Idle
+    )
+    val resultScreenRequestState: StateFlow<RequestState<ResultProperties>> =
+        _resultScreenRequestState
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000L),
+                initialValue = RequestState.Idle
+            )
 
-    private var _error = MutableStateFlow<Throwable?>(null)
-    val error: StateFlow<Throwable?>
-        get() = _error.asStateFlow()
+    /*
+    init {
+        updateAdview(bannerAdUseCase.getMediumBannerAdView())
+        readImageState()
+        readConvertedSolvePromptState()
+        readConvertedSolutionPromptTextState()
+    }
 
-    private var _requestGeminiResponse = MutableStateFlow(true)
-    val requestGeminiResponse: StateFlow<Boolean> = _requestGeminiResponse
+     */
 
-    private var _isResultFetchedStatus = MutableStateFlow(false)
-    val isResultFetchedStatus: StateFlow<Boolean> = _isResultFetchedStatus
+    fun updateIsSolveActionRequested(isSolveActionRequested: Boolean) {
+        _resultPropertiesState.update { currentState ->
+            currentState.copy(isSolveActionRequested = isSolveActionRequested)
+        }
+    }
 
     fun updateResultFetchedStatus(isResultFetchedStatus: Boolean) {
-        _isResultFetchedStatus.update { isResultFetchedStatus }
+        _resultPropertiesState.update { currentState ->
+            currentState.copy(isResultFetchedStatus = isResultFetchedStatus)
+        }
     }
 
     fun updateTextGenerationResult(resultText: String?, error: Throwable? = null) {
-        resultText?.let { text -> _textGenerationResult.update { text } }
-        error?.let { err -> _error.update { err } }
+        _resultPropertiesState.update { currentState ->
+            currentState.copy(
+                textGenerationResult = resultText ?: currentState.textGenerationResult,
+                error = error ?: currentState.error
+            )
+        }
     }
 
-    init {
-        _adview.update { bannerAdUseCase.getMediumBannerAdView() }
+    fun updatePassedImageUri(uri: Uri?) {
+        _resultPropertiesState.update { currentState ->
+            currentState.copy(passedImageUri = uri)
+        }
+    }
+
+
+    fun updatePassedConvertedSolutionPrompt(solutionPrompt: String) {
+        _resultPropertiesState.update { currentState ->
+            currentState.copy(passedConvertedSolutionPrompt = solutionPrompt)
+        }
+    }
+
+    fun updatePassedConvertedSolvePrompt(solvePrompt: String) {
+        _resultPropertiesState.update { currentState ->
+            currentState.copy(passedConvertedSolvePrompt = solvePrompt)
+        }
+    }
+
+    fun updateRequestGeminiResponse(requestResponse: Boolean) {
+        _resultPropertiesState.update { currentState ->
+            currentState.copy(requestGeminiResponse = requestResponse)
+        }
+    }
+
+    fun clearError() {
+        _resultPropertiesState.update { currentState ->
+            currentState.copy(error = null)
+        }
     }
 
     fun showInterstitialAd(context: Context) {
         interstitialAdUseCase.show(context)
     }
 
+    fun geminiGenerateSolution(
+        systemInstruction: String,
+        prompt: String,
+        textOnExtractionError: String
+    ) = viewModelScope.launch {
+
+        val content = geminiApiService.generateContent(
+            prompt, systemInstruction
+        )
+        val textResponse = if (content is GeminiResponse.Success) {
+            extractGeminiResponseUseCase.invoke(content.data ?: "{}")
+        } else {
+            content.message
+        }
+
+        if (!textResponse.isNullOrEmpty())
+            updateTextGenerationResult(textResponse)
+        else {
+            updateTextGenerationResult(textOnExtractionError)
+            //updateError(Throwable("Extraction failure"))
+        }
+    }
+
+    /*
     fun fetchGeminiResponse(
         imageUri: Uri,
         fileName: String,
-        prompt: String
+        prompt: String,
+        systemInstruction: String
     ) {
         viewModelScope.launch {
             val fileByteArray = getImageByteArrayUseCase.invoke(imageUri = imageUri)
@@ -88,7 +173,11 @@ class ResultViewModel @Inject constructor(
                         .jsonObject["file"]?.jsonObject?.get("uri")?.jsonPrimitive?.content
 
                     if (actualFileUri != null) {
-                        val content = geminiApiService.generateContent(actualFileUri, prompt)
+                        val content = geminiApiService.generateContent(
+                            actualFileUri,
+                            prompt,
+                            systemInstruction
+                        )
                         val textResponse = if (content is GeminiResponse.Success) {
                             extractGeminiResponseUseCase.invoke(content.data ?: "{}")
                         } else {
@@ -105,22 +194,59 @@ class ResultViewModel @Inject constructor(
                 }
 
                 fileUriResult.onFailure { throwable ->
-                    _error.update { throwable }
+                    _resultPropertiesState.update { currentState ->
+                        currentState.copy(error = throwable)
+                    }
                 }
             }
             uploadResult.onFailure { throwable ->
-                _error.update { throwable }
+                _resultPropertiesState.update { currentState ->
+                    currentState.copy(error = throwable)
+                }
+            }
+        }
+    }
+*/
+
+    private fun readImageState() {
+        viewModelScope.launch {
+            try {
+                dataStoreRepository.readImageState.collect { imageUri ->
+                    updatePassedImageUri(imageUri)
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Error reading image state")
+                updatePassedImageUri(null)
             }
         }
     }
 
-    fun updateRequestGeminiResponse(requestResponse: Boolean) {
-        _requestGeminiResponse.update { requestResponse }
+    private fun readConvertedSolvePromptState() {
+        try {
+            viewModelScope.launch {
+                dataStoreRepository.readSolvePromptState.collect { solvePromptText ->
+                    updatePassedConvertedSolvePrompt(solvePromptText)
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error reading solve prompt text state")
+            updatePassedConvertedSolvePrompt(resultPropertiesState.value.passedConvertedSolvePrompt)
+        }
     }
 
-    fun clearError() {
-        _error.value = null
+    private fun readConvertedSolutionPromptTextState() {
+        try {
+            viewModelScope.launch {
+                dataStoreRepository.readSolutionPromptState.collect { solutionPromptText ->
+                    updatePassedConvertedSolutionPrompt(solutionPromptText)
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error reading solution prompt text state")
+            updatePassedConvertedSolutionPrompt(resultPropertiesState.value.passedConvertedSolutionPrompt)
+        }
     }
+
 
     //Don't remove, for future development
     /*

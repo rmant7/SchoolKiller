@@ -1,6 +1,5 @@
 package com.schoolkiller.presentation.screens.result
 
-import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,24 +16,25 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
-import com.schoolkiller.presentation.ads.BannerAdContainer
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.ErrorAlertDialog
+import com.schoolkiller.presentation.common.HtmlTextView
 import com.schoolkiller.presentation.common.UniversalButton
 import io.ktor.client.plugins.ServerResponseException
 
@@ -42,44 +42,57 @@ import io.ktor.client.plugins.ServerResponseException
 @Composable
 fun ResultScreen(
     modifier: Modifier = Modifier,
-    context: Context,
-    originalPrompt: String,
-    selectedImageUri: String,
+    passedPrompt: String,
+    passedSystemInstruction: String,
+    //passedImageUri: Uri?,
     onNavigateToHomeScreen: () -> Unit,
 ) {
     val viewModel: ResultViewModel = hiltViewModel()
-    val resultText: String by viewModel.textGenerationResult.collectAsState()
-    val resultError: Throwable? by viewModel.error.collectAsState()
-
+    val resultProperties = viewModel.resultPropertiesState.collectAsStateWithLifecycle().value
+    val context = LocalContext.current
     val responseListState = rememberLazyListState()
-    val requestGeminiResponse = viewModel.requestGeminiResponse.collectAsState()
-    val openAlertDialog = remember { mutableStateOf(resultError != null) }
+    val openAlertDialog = remember { mutableStateOf(resultProperties.error != null) }
 
-    val isResultFetched = viewModel.isResultFetchedStatus.collectAsState()
-    val adView = viewModel.adview.collectAsState()
+    // ad views count, ad plays every 2 clicks or on first try
+    val interstitialAdViewCount = remember { mutableIntStateOf(1) }
 
-    // fetch only when user requested AI response
-    // and result wasn't fetched yet
-    if (requestGeminiResponse.value && !isResultFetched.value) {
-        viewModel.fetchGeminiResponse(
-            imageUri = selectedImageUri.toUri(),
-            fileName = selectedImageUri.toUri().toString(),
-            prompt = originalPrompt
+    val solutionTextLabel = stringResource(R.string.solution_text_value)
+    val invalidSolutionGenerationText = stringResource(
+        R.string.error_gemini_solution_result_extraction
+    )
+
+    if (resultProperties.requestGeminiResponse && !resultProperties.isResultFetchedStatus) {
+        //if (passedImageUri != null) {
+
+        viewModel.geminiGenerateSolution(
+            //imageUri = passedImageUri,
+            //fileName = passedImageUri.toString(),
+            systemInstruction = passedSystemInstruction,
+            prompt = passedPrompt,
+            textOnExtractionError = invalidSolutionGenerationText
         )
         // result is fetched and this block wouldn't run
         // until new try request from user
         viewModel.updateResultFetchedStatus(true)
+
+        interstitialAdViewCount.value += 1
+        if (interstitialAdViewCount.intValue == 2)
+            interstitialAdViewCount.intValue = 0
+
+        /*} else {
+            ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
+        }*/
     }
 
-
     ApplicationScaffold(
+        isShowed = true,
         content = {
             // only show ad if it's loaded and user requested AI response
 
-            if (resultError != null) {
+            if (resultProperties.error != null) {
                 openAlertDialog.value = true
 
-                val dialogData = getAlertWindowData(resultError)
+                val dialogData = getAlertWindowData(resultProperties.error)
 
                 ErrorAlertDialog(
                     onDismissRequest = { openAlertDialog.value = false },
@@ -116,7 +129,7 @@ fun ResultScreen(
 
             LazyColumn(
                 modifier = modifier
-                    .fillMaxHeight(0.65f)
+                    .fillMaxHeight(/*0.65f*/)
                     .padding(0.dp, 10.dp),
                 state = responseListState,
                 content = {
@@ -126,7 +139,9 @@ fun ResultScreen(
 
 
                     item {
-                        if (resultText.isBlank() && resultError == null) {
+                        if (resultProperties.textGenerationResult.isBlank()
+                            && resultProperties.error == null
+                        ) {
                             Box(
                                 modifier = modifier
                                     .fillMaxWidth()
@@ -134,9 +149,11 @@ fun ResultScreen(
                                 contentAlignment = Alignment.Center,
                                 content = {
 
-                                    if (requestGeminiResponse.value) {
-                                       viewModel.showInterstitialAd(context)
-                                       viewModel.updateRequestGeminiResponse(false)
+                                    if (resultProperties.requestGeminiResponse
+                                        && interstitialAdViewCount.intValue == 0
+                                    ) {
+                                        viewModel.showInterstitialAd(context)
+                                        viewModel.updateRequestGeminiResponse(false)
                                     } else {
                                         CircularProgressIndicator(modifier = modifier.size(80.dp))
                                     }
@@ -145,14 +162,29 @@ fun ResultScreen(
                             )
                         } else {
 
+                            // AI response
+                            Text(solutionTextLabel, fontSize = 30.sp)
+
                             SelectionContainer {
+                                /** For tests */
+                                /*
+                                HtmlTextView(
+                                    resultProperties.textGenerationResult,
+                                    // Should be just 2 Composables:
+                                    // one with mutable state and other one with boolean
+                                    remember { mutableStateOf(false) }
+                                )
+                                 */
+
                                 OutlinedTextField(
                                     modifier = modifier
-                                        .fillMaxWidth(),
-                                    value = resultText,
+                                        //.fillMaxSize(),
+                                        .fillMaxWidth()
+                                        .padding(0.dp, 10.dp),
+                                    value = resultProperties.textGenerationResult,
                                     onValueChange = {},
                                     textStyle = TextStyle(
-                                        fontSize = 20.sp,
+                                        fontSize = 25.sp,
                                         textAlign = TextAlign.Start
                                     ),
                                     readOnly = true
@@ -162,7 +194,6 @@ fun ResultScreen(
                     }
                 }
             )
-            BannerAdContainer(adView = adView.value)
         },
         bottomBar = {
             Column(
@@ -186,9 +217,10 @@ fun ResultScreen(
                     }
                 }
             )
-        })
-}
+        }
 
+    )
+}
 
 private fun getAlertWindowData(t: Throwable?): Pair<Int, Int> {
     return when (t) {

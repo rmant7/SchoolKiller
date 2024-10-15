@@ -17,6 +17,7 @@
 -->
 
 	// Button Labels
+    <string name="solution_text_value">Решение:</string>
     <string name="next_button_label">Дальше</string>
     <string name="solve_button_label">Решить</string>
     <string name="check_solution_button_label">Проверить решение</string>
@@ -27,6 +28,7 @@
     <string name="Ok">Ок</string>
 
     // Text Field Labels
+    <string name="recognize_text_button_label">Распознать текст</string>
     <string name="additional_information_TextField_label">Дополнительная информация</string>
     <string name="What_to_solve_TextField_label">Что решить?</string>
 
@@ -78,7 +80,7 @@
     <string name="additional_info_TextField_placeholder_text">Реши только задачу 5</string>
 
     // Dialog text messages
-    <string name="invalid_images_message">Похоже, вы удалили некоторые изображения из хранилища каталога приложения SchoolKiller. SchoolKiller попытается очистить эти изображения одно за другим из кеша приложения. Пожалуйста, подтвердите удаление каждого изображения, если это необходимо. Любое изображение, которое отображается без картинки, является поврежденным. Вы хотите продолжить?</string>
+    <string name="invalid_images_message">Похоже, вы удалили некоторые изображения из хранилища каталога приложения SchoolKiller. Не беспокойтесь, SchoolKiller попытается очистить эти изображения одно за другим из кеша приложения. Пожалуйста, подтвердите удаление каждого изображения, если это необходимо. Любое изображение, которое отображается пустым, является поврежденным. Вы хотите продолжить?</string>
 
 
 
@@ -86,9 +88,10 @@
     <string name="error_service_not_available">Извините, сервис не доступен на территории РФ и Белорусии, пожалуйста, используйте vpn.</string>
     <string name="error_service_not_available_title">Сервис недоступен</string>
     <string name="error_common_title">Ошибка</string>
-    <string name="error_common_message">Во вреремя работы приложения произошла ошибка. Попробуйте обновить приложение или повторить попытку позднее</string>
+    <string name="error_common_message">Во время работы приложения произошла ошибка. Попробуйте обновить приложение или повторить попытку позднее</string>
 
     // Toast
+    <string name="error_gemini_solution_result_extraction">ИИ не смог решить задачу. Пожалуйста, попробуйте снова.</string>
     <string name="something_went_wrong">Упс! Что-то пошло не так. Пожалуйста, попробуйте еще раз!</string>
     <string name="fail_to_load_Uri">Не удалось загрузить изображение в список. Пожалуйста, попробуйте загрузить его вручную!</string>
     <string name="corrupted_loaded_file">Вы загрузили поврежденный файл!</string>
@@ -105,5 +108,8 @@
     <string name="select_image_warning">Пожалуйста, выберите изображение с устройства</string>
     <string name="upload_picture">Загрузить картинку</string>
     <string name="take_a_picture">Фото</string>
+    <string name="recognized_text_value">Распознанный текст:</string>
+    <string name="error_gemini_ocr_result_extraction">ИИ не смог распознать текст. Пожалуйста, попробуйте снова.</string>
+    <string name="prompt_is_empty">Поле распознанного текста пустое. Пожалуйста, попробуйте снова!</string>
 
 </resources>

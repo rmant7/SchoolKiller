@@ -9,11 +9,13 @@
     <string name="add_image">Add task</string>
 
     // Prompt
-    //changed (the original task language/ chosen language) to (language shown on this picture or text)
     <string name="prompt_text" translatable="false">solve this task (as grade+th grader). show the solution and explain (briefly) how to get there, explain in (language shown on this picture). use a chain of thoughts before answering.</string>
     <string name="check_solution_text" translatable="false">check this solution and rate it on scale (1–100), explain in (language shown on this picture), use a chain of thoughts before answering</string>
 
-
+    // Text values
+    <string name="recognized_text_value">Recognized text:</string>
+    <string name="solution_text_value">Solution:</string>
+    
     // Button Labels
     <string name="next_button_label">Next</string>
     <string name="solve_button_label">Solve</string>
@@ -25,6 +27,7 @@
     <string name="Ok">Ok</string>
     <string name="upload_picture">Upload Picture</string>
     <string name="take_a_picture">Take a Picture</string>
+    <string name="recognize_text_button_label">Recognize text</string>
 
     // Text Field Labels
     <string name="additional_information_TextField_label">Additional Information</string>
@@ -87,7 +90,7 @@
     </string-array>
 
     // Dialog text messages
-    <string name="invalid_images_message">Seems that you have deleted some images of the SchoolKiller app directory storage. SchoolKiller will attempt to clear these images one by one from the application cache. Please confirm each image deletion if needed. Any image that appear with no picture in it, is a corrupted one. Are you want to proceed?</string>
+    <string name="invalid_images_message">It seems you have deleted some images from the SchoolKiller app\'s directory storage. Not to worry, SchoolKiller will attempt to clear these images one by one from the application cache. Please confirm each image deletion, if needed. Any image that appears blank is a corrupted one. Do you want to proceed?</string>
 
 
     // Errors
@@ -95,6 +98,8 @@
     <string name="error_service_not_available_title">Service is not available</string>
     <string name="error_common_title">Error</string>
     <string name="error_common_message">An error occurred while the application was running. Try updating the app or try again later</string>
+    <string name="error_gemini_ocr_result_extraction">AI wasn\'t able to recognize text from the image. Please, try again.</string>
+    <string name="error_gemini_solution_result_extraction">>AI wasn\'t able to solve this problem. Please, try again.</string>
 
     // Toast messages
     <string name="something_went_wrong">Whoops! Something went wrong. Please try again!</string>
@@ -111,5 +116,6 @@
     <string name="read_storage_permission_rationale">SchoolKiller needs access to your device\'s storage to read files, like photos or documents, that you might want to use in the app.</string>
     <string name="upload_image_warning">Please upload an image from the device</string>
     <string name="select_image_warning">Please select an image from the list</string>
+    <string name="prompt_is_empty">Recognized text is empty. Please try again!</string>
 
 </resources>

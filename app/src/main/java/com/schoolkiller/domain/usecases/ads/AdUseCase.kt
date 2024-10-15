@@ -4,10 +4,12 @@ import com.google.android.gms.ads.LoadAdError
 import com.schoolkiller.BuildConfig
 import timber.log.Timber
 
+
+
 abstract class AdUseCase {
 
     private var onFailedError: (LoadAdError) -> Unit = {
-        println(Timber.d(it.message))
+        Timber.d(it.message)
     }
 
     private val isAdDisabled = BuildConfig.is_advertisement_disabled.toBoolean()

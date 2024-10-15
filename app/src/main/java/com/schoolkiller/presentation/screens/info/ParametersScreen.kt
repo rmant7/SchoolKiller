@@ -1,19 +1,20 @@
 package com.schoolkiller.presentation.screens.info
 
 import ExposedDropBox
-import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -25,30 +26,44 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
 import com.schoolkiller.domain.ExplanationLevelOption
 import com.schoolkiller.domain.GradeOption
 import com.schoolkiller.domain.SolutionLanguageOption
 import com.schoolkiller.presentation.common.ApplicationScaffold
+import com.schoolkiller.presentation.common.AttentionAlertDialog
 import com.schoolkiller.presentation.common.ScreenImage
 import com.schoolkiller.presentation.common.UniversalButton
-import com.schoolkiller.presentation.screens.result.ResultViewModel
+
 
 @Composable
 fun ParametersScreen(
     modifier: Modifier = Modifier,
-    context: Context,
-    //selectedImageUri: String, // Received argument
-    onNavigateToResultScreen: (String) -> Unit
+    recognizedText: String?,
+    onNavigateToResultScreen: (String, String) -> Unit
 ) {
     val viewModel: ParametersViewModel = hiltViewModel()
-    val resultViewModel: ResultViewModel = hiltViewModel()
-    //val homeViewModel: HomeViewModel = hiltViewModel()
-    //val imageUri = homeViewModel.selectedUri
-    val parameterScreenProperties = viewModel.parameterPropertiesState.collectAsState().value
+    val parameterScreenProperties =
+        viewModel.parametersPropertiesState.collectAsStateWithLifecycle().value
+
+    /** Testing the prompt in a dialog if the values are correct. Check also the solve button*/
+    var isAttentionDialogShowed by remember { mutableStateOf(false) }
+    var proceedToResultScreen by remember { mutableStateOf(false) }
+    AttentionAlertDialog(
+        isShowed = isAttentionDialogShowed,
+        message = parameterScreenProperties.solvePromptText,
+        onDismiss = { isAttentionDialogShowed = false },
+        onCancel = { isAttentionDialogShowed = false },
+        onConfirm = {
+            isAttentionDialogShowed = false
+            proceedToResultScreen = true
+        }
+    )
 
 
     ApplicationScaffold(
+        isShowed = true,
         content = {
 
             ScreenImage(
@@ -72,7 +87,6 @@ fun ParametersScreen(
             //Reused Component
             ExposedDropBox(
                 maxHeightIn = 200.dp,
-                context = context,
                 label = R.string.grade_label,
                 selectedOption = parameterScreenProperties.grade,
                 options = GradeOption.entries.toList(),
@@ -84,7 +98,6 @@ fun ParametersScreen(
 
             ExposedDropBox(
                 maxHeightIn = 200.dp,
-                context = context,
                 label = R.string.solution_language_label,
                 selectedOption = parameterScreenProperties.language,
                 options = SolutionLanguageOption.entries.toList(),
@@ -96,7 +109,6 @@ fun ParametersScreen(
 
             ExposedDropBox(
                 maxHeightIn = 200.dp,
-                context = context,
                 label = R.string.explanations_label,
                 selectedOption = parameterScreenProperties.explanationLevel,
                 options = ExplanationLevelOption.entries.toList(),
@@ -142,14 +154,15 @@ fun ParametersScreen(
                 else VisualTransformation.None,
                 textStyle = TextStyle(color = textColor)
             )
+
+        }, bottomBar = {
             Row(
                 modifier = modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(),
+                    .navigationBarsPadding(),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
 
                 //Reused Component
                 UniversalButton(
@@ -157,15 +170,27 @@ fun ParametersScreen(
                     label = R.string.solve_button_label,
                 ) {
 
-                    viewModel.buildPropertiesPrompt()
+                    viewModel.buildSolvingPrompt()
+                    /** testing the prompt : uncomment */
+//                    isAttentionDialogShowed = true
+                    /** testing the prompt : uncomment */
+//                    if (proceedToResultScreen) {
+                    /** testing the prompt : uncomment */
+//                        isAttentionDialogShowed = false
 
                     // on back press from ResultScreen we have to restore requestGeminiResponse back to true
-                    resultViewModel.updateRequestGeminiResponse(true)
+//                        resultViewModel.updateRequestGeminiResponse(true)
 
                     // reset TextGenerationResult to initialize the loading indicator
-                    resultViewModel.updateTextGenerationResult("")
+//                        resultViewModel.updateTextGenerationResult("")
 
-                    onNavigateToResultScreen(viewModel.originalPrompt.value)
+                    onNavigateToResultScreen(
+                        viewModel.getPrompt(recognizedText), /** Should be inside buildSolvingPrompt() */
+                        viewModel.getSystemInstruction(true)
+                    )
+                    /** testing the prompt : uncomment */
+//                    }
+
                 }
             }
         }

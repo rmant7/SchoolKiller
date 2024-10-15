@@ -86,7 +86,7 @@ class SaveFileRepository @Inject constructor(
         return getUri
     }
 
-    fun getSavedImageUri() : Uri? {
+    fun getCameraSavedImageUri() : Uri? {
         return getUri
     }
 }

@@ -1,5 +1,6 @@
 package com.schoolkiller.data.network.api
 
+
 import com.schoolkiller.BuildConfig
 import com.schoolkiller.data.Constants
 import com.schoolkiller.data.network.HttpRoutes
@@ -99,8 +100,95 @@ class GeminiApiService @Inject constructor(
         }
     }
 
-    suspend fun generateContent(fileUri: String, prompt: String): GeminiResponse<String> {
+    private fun generateContent(
+        uriList: List<String>,
+        prompt: String,
+        systemInstruction: String
+    ) {
+        val ocrBodyBuilder = StringBuilder(
+            """
+                "system_instruction": {
+                    "parts":
+                        { "text": "$systemInstruction"}
+                },
+                "contents": [{
+                    "parts": [
+                        {"text":"$prompt"},
+        """.trimIndent()
+        )
+
+        uriList.forEach { uri ->
+            val escapedFileUri = uri.replace("\"", "\\\"")
+            ocrBodyBuilder.append(
+                """
+                {"file_data": {"mime_type": "image/jpeg", "file_uri": "$escapedFileUri"}}
+                """.trimIndent()
+            )
+        }
+
+        ocrBodyBuilder.append(
+            """
+                    ]
+                }]
+            }
+        """.trimIndent()
+        )
+    }
+
+    suspend fun generateContent(
+        prompt: String,
+        systemInstruction: String
+    ): GeminiResponse<String> {
+        val request = """
+            { 
+                "system_instruction": {
+                    "parts":
+                        { "text": "$systemInstruction"}
+                },
+                "contents": [{
+                    "parts": [
+                        {"text":"$prompt"},
+                    ]
+                }]
+            }                 
+        """.trimIndent()
+        return generateContent(request)
+    }
+
+
+    suspend fun generateContent(
+        fileUri: String,
+        prompt: String,
+        systemInstruction: String
+    ): GeminiResponse<String> { /*MutableList<GeminiResponse<String>>*/
         val escapedFileUri = fileUri.replace("\"", "\\\"")
+        val request = """
+            { 
+                "system_instruction": {
+                    "parts":
+                        { "text": "$systemInstruction"}
+                },
+                "contents": [{
+                    "parts": [
+                        {"text":"$prompt"},
+                        {"file_data": {"mime_type": "image/jpeg", "file_uri": "$escapedFileUri"}}
+                    ]
+                }]
+            }                 
+        """.trimIndent()
+
+        // 3 api calls instead config as multiple candidates aren't supported (?)
+        /*
+        "generationConfig": {
+            "candidateCount": "3"
+        }
+         */
+        return generateContent(request)
+    }
+
+    private suspend fun generateContent(requestBody: String): GeminiResponse<String> {
+
+        //  val escapedFileUri = fileUri.replace("\"", "\\\"")
 
         return try {
             val response: HttpResponse = client.post(
@@ -109,16 +197,17 @@ class GeminiApiService @Inject constructor(
             ) {
                 contentType(ContentType.Application.Json)
                 setBody(
-                    """
-                        {
-                            "contents": [{
-                                "parts":[
-                                    {"text": "$prompt"},
-                                    {"file_data": {"mime_type": "image/jpeg", "file_uri": "$escapedFileUri"}}
-                                ]
-                            }]
-                        }
-                """.trimIndent()
+                    requestBody
+                    /*"""
+                            {
+                                "contents": [{
+                                    "parts":[
+                                        {"text": "$prompt"},
+                                        {"file_data": {"mime_type": "image/jpeg", "file_uri": "$escapedFileUri"}}
+                                    ]
+                                }]
+                            }
+                    """.trimIndent()*/
                 )
             }
             GeminiResponse.Success(response.bodyAsText())

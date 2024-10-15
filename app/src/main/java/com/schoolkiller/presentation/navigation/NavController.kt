@@ -1,29 +1,51 @@
 package com.schoolkiller.presentation.navigation
 
 import android.net.Uri
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.schoolkiller.presentation.screens.checking.CheckSolutionScreen
 import com.schoolkiller.presentation.screens.home.HomeScreen
 import com.schoolkiller.presentation.screens.info.ParametersScreen
+import com.schoolkiller.presentation.screens.ocr.OcrScreen
 import com.schoolkiller.presentation.screens.result.ResultScreen
+import com.schoolkiller.presentation.screens.result.ResultViewModel
 import kotlinx.serialization.Serializable
 
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun NavigationController() {
-    val navController = rememberNavController()
-    val context = LocalContext.current
-    val listOfImages = remember { mutableStateListOf<Uri>() }
+fun NavigationController(navController: NavHostController) {
+
+    //val navController = rememberNavController()
+
+//    val homeViewModel: HomeViewModel = hiltViewModel()
+//    val homeProperties = homeViewModel.homePropertiesState.collectAsStateWithLifecycle().value
+//    val solutionViewModel: SolutionCheckingViewModel = hiltViewModel()
+//    val solutionProperties = solutionViewModel.solutionPropertiesState.collectAsStateWithLifecycle().value
+//    val parametersProperties = parametersViewModel.parametersPropertiesState.collectAsStateWithLifecycle().value
+
+    /*val resultViewModel: ResultViewModel = hiltViewModel()
+    val resultProperties = resultViewModel.resultPropertiesState.collectAsStateWithLifecycle().value
+
+   val prompt =
+        if (resultProperties.isSolveActionRequested)
+            resultProperties.passedConvertedSolvePrompt //+ " The task is: $recognizedText"
+        else
+            resultProperties.passedConvertedSolutionPrompt //+ " User's solution is: $recognizedText"
+        */
+
+
+    /** Maybe the best place to init the ads. here would be initialized before user goes to the screen
+     * and will kept active. I have ready all view models instances for testing */
+
+    /**
+     * We can try it. In the past I had the same idea and asked Gleb if it's a good practise.
+     * He said architecture wise it's better not to, but if it works we can add it.
+     */
 
     NavHost(
         navController = navController,
@@ -31,52 +53,54 @@ fun NavigationController() {
     ) {
         composable<Screens.HomeScreen> {
             HomeScreen(
-                context = context,
-                listOfImages = listOfImages,
-                onNavigateToParametersScreen = { selectedImageUri ->
-                    navController.navigate(
-                        Screens.ParametersScreen(
-                            selectedImageUri = selectedImageUri.toString()
-                        )
-                    )
-                },
-                onNavigateToCheckSolutionOptionsScreen = { selectedImageUri ->
-                    navController.navigate(
-                        Screens.CheckSolutionInformationScreen(
-                            selectedImageUri = selectedImageUri.toString()
-                        )
-                    )
+                onNavigateToOcrScreen = { uri ->
+                    navController.navigate(Screens.OcrScreen(uri.toString()))
                 }
             )
         }
 
+        composable<Screens.OcrScreen> {
+            val args = it.toRoute<Screens.OcrScreen>()
+            OcrScreen(
+                onNavigateToParametersScreen = { recognizedText ->
+                    navController.navigate(
+                        Screens.ParametersScreen(recognizedText)
+                    )
+                },
+                onNavigateToCheckSolutionOptionsScreen = { recognizedText ->
+                    navController.navigate(
+                        Screens.CheckSolutionInformationScreen(recognizedText)
+                    )
+                },
+                passedImageUri = Uri.parse(args.selectedImageUri)
+            )
+        }
+
+
         composable<Screens.ParametersScreen> {
+            //resultViewModel.updateIsSolveActionRequested(true)
+            /** If it's not inconveniencing you, it's easier for me to work with
+             * passed arguments than check through if-else or switch-case
+             * */
             val args = it.toRoute<Screens.ParametersScreen>()
             ParametersScreen(
-                context = context,
-                //selectedImageUri = args.selectedImageUri,
-                onNavigateToResultScreen = { originalPrompt ->
+                recognizedText = args.recognizedText,
+                onNavigateToResultScreen = { prompt: String, systemInstruction: String ->
                     navController.navigate(
-                        Screens.ResultScreen(
-                            originalPrompt = originalPrompt,
-                            selectedImageUri = args.selectedImageUri
-                        )
+                        Screens.ResultScreen(prompt, systemInstruction)
                     )
                 }
             )
         }
 
         composable<Screens.CheckSolutionInformationScreen> {
+            //resultViewModel.updateIsSolveActionRequested(false)
             val args = it.toRoute<Screens.CheckSolutionInformationScreen>()
             CheckSolutionScreen(
-                context = context,
-               // selectedImageUri = args.selectedImageUri,
-                onNavigateToResultScreen = { originalPrompt ->
+                recognizedText = args.recognizedText,
+                onNavigateToResultScreen = { prompt: String, systemInstruction: String ->
                     navController.navigate(
-                        Screens.ResultScreen(
-                            originalPrompt = originalPrompt,
-                            selectedImageUri = args.selectedImageUri
-                        )
+                        Screens.ResultScreen(prompt, systemInstruction)
                     )
                 }
             )
@@ -84,14 +108,15 @@ fun NavigationController() {
 
         composable<Screens.ResultScreen> {
             val args = it.toRoute<Screens.ResultScreen>()
-
             ResultScreen(
-                context = context,
+                // passedImageUri = resultProperties.passedImageUri,
+                passedPrompt = args.prompt,
+                passedSystemInstruction = args.systemInstruction,
                 onNavigateToHomeScreen = {
-                    navController.navigate(Screens.HomeScreen)
-                },
-                originalPrompt = args.originalPrompt,
-                selectedImageUri = args.selectedImageUri
+                    // Navigate to Home screen and clear back stack
+                    // so that user can't navigate back to Result screen there
+                    navController.popBackStack(Screens.HomeScreen, false)
+                }
             )
         }
     }
@@ -102,21 +127,26 @@ fun NavigationController() {
 sealed class Screens {
 
     @Serializable
-    data object HomeScreen: Screens()
+    data object HomeScreen : Screens()
+
+    @Serializable
+    data class OcrScreen(
+        val selectedImageUri: String //List<String>
+    ) : Screens()
 
     @Serializable
     data class ParametersScreen(
-        val selectedImageUri: String
+        val recognizedText: String
     ) : Screens()
 
     @Serializable
     data class ResultScreen(
-        val originalPrompt: String,
-        val selectedImageUri: String
+        val prompt: String,
+        val systemInstruction: String
     ) : Screens()
 
     @Serializable
     data class CheckSolutionInformationScreen(
-        val selectedImageUri: String
+        val recognizedText: String
     ) : Screens()
 }

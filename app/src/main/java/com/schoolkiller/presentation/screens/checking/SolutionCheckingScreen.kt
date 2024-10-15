@@ -1,7 +1,6 @@
 package com.schoolkiller.presentation.screens.checking
 
 import ExposedDropBox
-import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,44 +10,58 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
 import com.schoolkiller.domain.GradeOption
+import com.schoolkiller.domain.PromptText
 import com.schoolkiller.presentation.ads.BannerAdContainer
 import com.schoolkiller.presentation.common.ApplicationScaffold
+import com.schoolkiller.presentation.common.AttentionAlertDialog
 import com.schoolkiller.presentation.common.UniversalButton
-import com.schoolkiller.presentation.screens.result.ResultViewModel
+
 
 @Composable
 fun CheckSolutionScreen(
     modifier: Modifier = Modifier,
-    context: Context,
-    //selectedImageUri: String, // Received argument
-    onNavigateToResultScreen: (String) -> Unit
+    recognizedText: String?,
+    onNavigateToResultScreen: (String, String) -> Unit
 ) {
     val viewModel: SolutionCheckingViewModel = hiltViewModel()
-    val resultViewModel: ResultViewModel = hiltViewModel()
-    val solutionProperties = viewModel.solutionPropertiesState.collectAsState().value
+    val solutionProperties = viewModel.solutionPropertiesState.collectAsStateWithLifecycle().value
 
-    val adView = viewModel.adview.collectAsState()
 
+    /** Testing the prompt in a dialog if the values are correct. Check also the solve button*/
+    var isAttentionDialogShowed by remember { mutableStateOf(false) }
+    var proceedToResultScreen by remember { mutableStateOf(false) }
+    AttentionAlertDialog(
+        isShowed = isAttentionDialogShowed,
+        message = solutionProperties.solutionPromptText,
+        onDismiss = { isAttentionDialogShowed = false },
+        onCancel = { isAttentionDialogShowed = false },
+        onConfirm = {
+            isAttentionDialogShowed = false
+            proceedToResultScreen = true
+        }
+    )
 
 
     ApplicationScaffold(
+        isShowed = true,
         columnHorizontalAlignment = Alignment.CenterHorizontally,
         content =
         {
 
             // Banner ad
-            BannerAdContainer(adView = adView.value)
+            BannerAdContainer(adView = solutionProperties.adView)
 
             /*ScreenImage(
                 modifier = modifier
@@ -60,7 +73,6 @@ fun CheckSolutionScreen(
 
             ExposedDropBox(
                 maxHeightIn = 200.dp,
-                context = context,
                 label = R.string.grade_label,
                 selectedOption = solutionProperties.grade,
                 options = GradeOption.entries.toList(),
@@ -90,7 +102,8 @@ fun CheckSolutionScreen(
                 }
             )
 
-        }, bottomBar = {
+        },
+        bottomBar = {
             UniversalButton(
                 modifier = modifier
                     .navigationBarsPadding()
@@ -98,24 +111,37 @@ fun CheckSolutionScreen(
                 label = R.string.check_solution_button_label,
             ) {
 
-                    //Updating rating scale in prompt, don't remove.
-                    /*val originalPrompt = viewModel.originalPrompt.value
-                    val selectedMaxRate = viewModel.selectedRateMax
-                    viewModel.updatePrompt(
-                        originalPrompt.replace(
-                            "(1–100)", selectedMaxRate.toString()
-                        )
-                    )*/
+                //Updating rating scale in prompt, don't remove.
+                /*val originalPrompt = viewModel.originalPrompt.value
+                val selectedMaxRate = viewModel.selectedRateMax
+                viewModel.updatePrompt(
+                    originalPrompt.replace(
+                        "(1–100)", selectedMaxRate.toString()
+                    )
+                )*/
 
-                viewModel.buildPropertiesPrompt()
+
+                viewModel.buildSolutionPrompt()
+                /** testing the prompt : uncomment */
+//                isAttentionDialogShowed = true
+                /** testing the prompt : uncomment */
+//                if (proceedToResultScreen) {
+                /** testing the prompt : uncomment */
+//                    isAttentionDialogShowed = false
 
                 // on back press from ResultScreen we have to restore requestGeminiResponse back to true
-                resultViewModel.updateRequestGeminiResponse(true)
+//                    resultViewModel.updateRequestGeminiResponse(true)
 
                 // reset TextGenerationResult to initialize the loading indicator
-                viewModel.updateTextGenerationResult("")
+//                    viewModel.updateTextGenerationResult("")
 
-                onNavigateToResultScreen(viewModel.originalPrompt.value)
+                onNavigateToResultScreen(
+                    viewModel.getPrompt(recognizedText), /** Should be inside buildSolutionPrompt ? */
+                    viewModel.getSystemInstruction(true)
+                )
+                /** testing the prompt : uncomment */
+//                }
+
             }
         }
     )
