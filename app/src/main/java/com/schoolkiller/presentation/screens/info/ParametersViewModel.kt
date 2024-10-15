@@ -106,7 +106,7 @@ class ParametersViewModel @Inject constructor(
     fun buildSolvingPrompt() {
         val originalPrompt = PromptText.SOLVE_PROMPT.promptText
         val selectedGradeStr = "${parametersPropertiesState.value.grade.arrayIndex}"
-        val selectedLanguageStr = "${parametersPropertiesState.value.language.languageName}"
+       // val selectedLanguageStr = "${parametersPropertiesState.value.language.languageName}"
         val selectedExplanationStr = "${parametersPropertiesState.value.explanationLevel.code}"
         val description = " ${parametersPropertiesState.value.description}"
 
@@ -115,19 +115,20 @@ class ParametersViewModel @Inject constructor(
         } else {
             originalPrompt
         }
+/*
         val promptWithLanguageOption =
-            if (promptWithGradeOption.contains("(language identified on the sent file)")) {
+            if (promptWithGradeOption.contains("(language in the user's task in prompt.)")) {
                 promptWithGradeOption.replace(
-                    "(language identified on the sent file)",
+                    "(language in the user's task in prompt.)",
                     "${selectedLanguageStr.uppercase()} ONLY"
                 )
             } else {
                 promptWithGradeOption
-            }
-        val promptWithExplanationOption = if (promptWithLanguageOption.contains("(briefly)")) {
-            promptWithLanguageOption.replace("(briefly)", selectedExplanationStr)
+            }*/
+        val promptWithExplanationOption = if (promptWithGradeOption.contains("(briefly)")) {
+            promptWithGradeOption.replace("(briefly)", selectedExplanationStr)
         } else {
-            promptWithLanguageOption
+            promptWithGradeOption
         }
         val promptWithDescription = promptWithExplanationOption.plus(description)
 

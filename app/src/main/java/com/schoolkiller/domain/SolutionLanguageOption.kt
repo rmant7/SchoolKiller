@@ -4,7 +4,8 @@ import android.content.Context
 import com.schoolkiller.R
 
 enum class SolutionLanguageOption(private val arrayIndex: Int, val languageName: String) {
-    ORIGINAL_TASK_LANGUAGE(0, "language identified on the sent file"),
+    // language identified on the sent file
+    ORIGINAL_TASK_LANGUAGE(0, "language identified in User's solution in prompt"),
     ENGLISH(1, "English language"),
     RUSSIAN(2, "Russian language"),
     HEBREW(3, "Hebrew language");

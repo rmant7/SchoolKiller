@@ -85,7 +85,7 @@ class OcrViewModel @Inject constructor(
                     /** For tests */
                     val systemInstruction =
                         if (useHtml) PromptText.HTML_REQUEST.promptText
-                        else PromptText.NO_HTML_REQUEST.promptText
+                        else PromptText.NO_HTML_OCR_SYSTEM_INSTRUCTION.promptText
                     systemInstruction.plus(PromptText.OCR_SYSTEM_INSTRUCTION.promptText)
 
                     val content = geminiApiService.generateContent(
