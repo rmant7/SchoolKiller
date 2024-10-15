@@ -113,13 +113,15 @@ fun OcrScreen(
                      * Both views are left for testing along with old and new prompts
                      */
                     // HTML view
-                    /*
+                /*
                     HtmlTextView(
                         recognizedText.value!!,
                         isPromptEditable
                     )
                     { viewModel.updateRecognizedText(it) }
-                    */
+
+                 */
+
 
 
                     // Compose text field
