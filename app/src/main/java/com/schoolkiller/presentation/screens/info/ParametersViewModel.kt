@@ -32,7 +32,6 @@ class ParametersViewModel @Inject constructor(
         .onStart {
             /** This is like the init block */
             readSolvePromptState()
-            readDescriptionOptionState()
             readGradeOptionState()
             readLanguageOptionState()
             readExplanationLevelOptionState()
