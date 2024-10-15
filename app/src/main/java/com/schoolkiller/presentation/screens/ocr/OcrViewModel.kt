@@ -9,6 +9,8 @@ import com.schoolkiller.domain.PromptText
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -58,6 +60,32 @@ class OcrViewModel @Inject constructor(
         _ocrError.update { ocrError }
     }
 
+    private suspend fun fetchResponse(
+        actualFileUri: String,
+        systemInstruction: String,
+        textOnExtractionError: String,
+        //list: ArrayList<String>
+    ): String {
+
+        val content = geminiApiService.generateContent(
+            actualFileUri,
+            PromptText.OCR_PROMPT.promptText,
+            systemInstruction
+        )
+
+        val textResponse = if (content is GeminiResponse.Success) {
+            extractGeminiResponseUseCase.invoke(content.data ?: "{}")
+        } else {
+            content.message
+        }
+        if (!textResponse.isNullOrEmpty())
+            return textResponse
+        else {
+            updateOcrError(Throwable(textOnExtractionError))
+            return ""
+        }
+    }
+
     fun geminiImageToText(
         imageUri: Uri,
         fileName: String,
@@ -88,29 +116,26 @@ class OcrViewModel @Inject constructor(
                         else PromptText.NO_HTML_OCR_SYSTEM_INSTRUCTION.promptText
                     systemInstruction.plus(PromptText.OCR_SYSTEM_INSTRUCTION.promptText)
 
-                    val content = geminiApiService.generateContent(
-                        actualFileUri,
-                        PromptText.OCR_PROMPT.promptText,
-                        systemInstruction
-                    )
 
                     val list = ArrayList<String>()
-                    content.forEach { response ->
-                        val textResponse = if (response is GeminiResponse.Success) {
-                            extractGeminiResponseUseCase.invoke(response.data ?: "{}")
-                        } else {
-                            response.message
-                        }
-                        if (!textResponse.isNullOrEmpty())
-                            list.add(textResponse)
-                        else {
-                            updateOcrError(Throwable(textOnExtractionError))
-                            list.add("")
+                    repeat(3) {
+                        // async calls
+                        launch {
+                            val f = fetchResponse(
+                                actualFileUri,
+                                systemInstruction,
+                                textOnExtractionError,
+                                // list
+                            )
+                            list.add(f)
+                            if (list.size == 3) {
+                                updateRecognizedTextList(list)
+                                // update with the first result
+                                updateRecognizedText(recognizedTextList.value[0])
+                            }
                         }
                     }
-                    updateRecognizedTextList(list)
-                    // update with the first result
-                    updateRecognizedText(recognizedTextList.value[0])
+
 
                     /*
                     val textResponse = if (content is GeminiResponse.Success) {

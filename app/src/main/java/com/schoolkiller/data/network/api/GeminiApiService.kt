@@ -160,7 +160,7 @@ class GeminiApiService @Inject constructor(
         fileUri: String,
         prompt: String,
         systemInstruction: String
-    ): MutableList<GeminiResponse<String>> {
+    ): GeminiResponse<String> { /*MutableList<GeminiResponse<String>>*/
         val escapedFileUri = fileUri.replace("\"", "\\\"")
         val request = """
             { 
@@ -177,18 +177,13 @@ class GeminiApiService @Inject constructor(
             }                 
         """.trimIndent()
 
-        // make 3 api calls instead config as multiple candidates aren't supported (?)
+        // 3 api calls instead config as multiple candidates aren't supported (?)
         /*
         "generationConfig": {
             "candidateCount": "3"
         }
          */
-        val responses: MutableList<GeminiResponse<String>> = mutableListOf()
-        repeat(3){
-            val response = generateContent(request)
-            responses.add(response)
-        }
-        return responses//generateContent(request)
+        return generateContent(request)
     }
 
     private suspend fun generateContent(requestBody: String): GeminiResponse<String> {
