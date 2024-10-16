@@ -5,16 +5,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,19 +30,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
 import com.schoolkiller.presentation.common.ApplicationScaffold
-import com.schoolkiller.presentation.common.HtmlTextView
+import com.schoolkiller.presentation.common.ErrorAlertDialog
 import com.schoolkiller.presentation.common.RoundIconButton
 import com.schoolkiller.presentation.common.UniversalButton
 import com.schoolkiller.presentation.toast.ShowToastMessage
 
 @Composable
 fun OcrScreen(
+    passedImageUri: Uri?,
     onNavigateToParametersScreen: (String) -> Unit,
     onNavigateToCheckSolutionOptionsScreen: (String) -> Unit,
-    passedImageUri: Uri?,
+    onNavigateToHomeScreen: () -> Unit
 ) {
 
     val viewModel: OcrViewModel = hiltViewModel()
@@ -77,11 +78,9 @@ fun OcrScreen(
             viewModel.geminiImageToText(
                 imageUri = passedImageUri,
                 fileName = passedImageUri.toString(),
-                textOnExtractionError = invalidOcrResultText,
                 false
-                /** For tests */
             )
-        else ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
+        else viewModel.updateOcrError(RuntimeException()) // ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
         // and close the call
         shouldRecognizeText.value = false
     }
@@ -89,7 +88,8 @@ fun OcrScreen(
     ApplicationScaffold(
         isShowed = true,
         content = {
-            if (ocrError.value == null && recognizedTextList.value.size == 0) { //recognizedText.value.isNullOrEmpty()
+            // replaced -> recognizedText.value.isNullOrEmpty()
+            if (ocrError.value == null && recognizedTextList.value.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -102,37 +102,49 @@ fun OcrScreen(
             } else {
 
                 if (ocrError.value != null && shouldShowErrorMessage.value) {
-                    ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
-                    shouldShowErrorMessage.value = false
+
+                    ErrorAlertDialog(
+                        onDismissRequest = {
+                            shouldShowErrorMessage.value = false
+                        },
+                        onConfirmation = {
+                            shouldShowErrorMessage.value = false
+                            viewModel.updateOcrError(null)
+                            onNavigateToHomeScreen()
+                        },
+                        throwable = ocrError.value!!,
+                        icon = Icons.Default.Info
+                    )
                 }
+
                 // editable prompt
                 Text(recognizedTextLabel, fontSize = 30.sp)
 
                 SelectionContainer(Modifier.fillMaxHeight(0.7f)) {
+
                     /**
                      * Both views are left for testing along with old and new prompts
                      */
+
                     // HTML view
-                /*
-                    HtmlTextView(
-                        recognizedText.value!!,
-                        isPromptEditable
-                    )
-                    { viewModel.updateRecognizedText(it) }
+                    /*
+                        HtmlTextView(
+                            recognizedText.value!!,
+                            isPromptEditable
+                        )
+                        { viewModel.updateRecognizedText(it) }
 
-                 */
-
-
+                     */
 
                     // Compose text field
                     OutlinedTextField(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(0.dp, 10.dp),
-                        value = recognizedText.value!!, //recognizedTextList.value[selectedOcrResultId.intValue]
+                        value = recognizedText.value!!,
                         onValueChange = {
                             viewModel.updateRecognizedText(selectedOcrResultId.intValue, it)
-                            //viewModel.updateRecognizedText(it)
+                            viewModel.updateRecognizedText(it)
                         },
                         textStyle = TextStyle(
                             fontSize = 25.sp,
@@ -142,43 +154,10 @@ fun OcrScreen(
                     )
                 }
 
-                Row (
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ){
-
-                    fun changeTextVariant(index:Int){
-                        selectedOcrResultId.intValue = index
-                        viewModel.updateRecognizedText(
-                            recognizedTextList.value[index]
-                        )
-                    }
-
-                    IconToggleButton(
-                        checked = true,
-                        onCheckedChange = { changeTextVariant(0) }
-                    ) {
-                        Text("1")
-                    }
-
-                    IconToggleButton(
-                        checked = false,
-                        onCheckedChange = { changeTextVariant(1) }
-                    ) {
-                        Text("2")
-                    }
-
-                    IconToggleButton(
-                        checked = false,
-                        onCheckedChange = { changeTextVariant(2) }
-                    ) {
-                        Text("3")
-                    }
-
-                }
-
-
-                Row {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
 
                     RoundIconButton(
                         icon = R.drawable.retry_svg
@@ -188,7 +167,41 @@ fun OcrScreen(
                         viewModel.updateRecognizedText("")
                     }
 
-                    Spacer(Modifier.weight(1f))
+                    // Toggle buttons
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        fun changeTextVariant(index: Int) {
+                            selectedOcrResultId.intValue = index
+                            viewModel.updateRecognizedText(
+                                recognizedTextList.value[index]
+                            )
+                        }
+
+                        fun isSelected(index: Int): Boolean {
+                            return selectedOcrResultId.intValue == index
+                        }
+
+                        RadioButton(
+                            selected = isSelected(0),
+                            onClick = { changeTextVariant(0) }
+                        )
+
+                        RadioButton(
+                            selected = isSelected(1),
+                            onClick = { changeTextVariant(1) }
+                        )
+
+                        RadioButton(
+                            selected = isSelected(2),
+                            onClick = { changeTextVariant(2) }
+                        )
+
+                    }
+
+                    //Spacer(Modifier.weight(1f))
                     if (isEditButtonVisible.value)
                         RoundIconButton(
                             iconModifier = Modifier.size(30.dp),
@@ -246,4 +259,5 @@ fun OcrScreen(
         })
 
 }
+
 

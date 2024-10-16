@@ -8,24 +8,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.schoolkiller.R
+import io.ktor.client.plugins.ServerResponseException
 
 @Composable
 fun ErrorAlertDialog(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
-    dialogTitle: String,
-    dialogText: String,
+    throwable: Throwable,
     icon: ImageVector,
 ) {
+    val dialogData = getAlertWindowData(throwable)
+
     AlertDialog(
         icon = {
             Icon(icon, contentDescription = "Icon")
         },
         title = {
-            Text(text = dialogTitle)
+            Text(text = stringResource(dialogData.first))
         },
         text = {
-            Text(text = dialogText)
+            Text(text = stringResource(dialogData.second))
         },
         onDismissRequest = {
             onDismissRequest()
@@ -40,4 +42,11 @@ fun ErrorAlertDialog(
             }
         }
     )
+}
+
+private fun getAlertWindowData(t: Throwable?): Pair<Int, Int> {
+    return when (t) {
+        is ServerResponseException -> R.string.error_service_not_available_title to R.string.error_service_not_available
+        else -> R.string.error_common_title to R.string.error_common_message
+    }
 }

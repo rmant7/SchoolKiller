@@ -62,6 +62,7 @@ fun NavigationController(navController: NavHostController) {
         composable<Screens.OcrScreen> {
             val args = it.toRoute<Screens.OcrScreen>()
             OcrScreen(
+                passedImageUri = Uri.parse(args.selectedImageUri),
                 onNavigateToParametersScreen = { recognizedText ->
                     navController.navigate(
                         Screens.ParametersScreen(recognizedText)
@@ -72,7 +73,7 @@ fun NavigationController(navController: NavHostController) {
                         Screens.CheckSolutionInformationScreen(recognizedText)
                     )
                 },
-                passedImageUri = Uri.parse(args.selectedImageUri)
+                onNavigateToHomeScreen = { navController.navigate(Screens.HomeScreen) }
             )
         }
 

@@ -9,8 +9,6 @@ import com.schoolkiller.domain.PromptText
 import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
 import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -27,8 +25,7 @@ class OcrViewModel @Inject constructor(
     private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
 ) : ViewModel() {
 
-    // if number of candidates can be more than 1
-
+    private val maxOcrRequests = 3
 
     private val _recognizedTextList: MutableStateFlow<MutableList<String>> =
         MutableStateFlow(mutableListOf())
@@ -53,6 +50,7 @@ class OcrViewModel @Inject constructor(
         _recognizedText.update { recognizedText }
     }
 
+    // a pair of error title and error message
     private val _ocrError = MutableStateFlow<Throwable?>(null)
     val ocrError: StateFlow<Throwable?> = _ocrError
 
@@ -62,9 +60,7 @@ class OcrViewModel @Inject constructor(
 
     private suspend fun fetchResponse(
         actualFileUri: String,
-        systemInstruction: String,
-        textOnExtractionError: String,
-        //list: ArrayList<String>
+        systemInstruction: String
     ): String {
 
         val content = geminiApiService.generateContent(
@@ -76,12 +72,13 @@ class OcrViewModel @Inject constructor(
         val textResponse = if (content is GeminiResponse.Success) {
             extractGeminiResponseUseCase.invoke(content.data ?: "{}")
         } else {
+            // updateOcrError(RuntimeException())
             content.message
         }
         if (!textResponse.isNullOrEmpty())
             return textResponse
         else {
-            updateOcrError(Throwable(textOnExtractionError))
+            // updateOcrError(RuntimeException())
             return ""
         }
     }
@@ -89,7 +86,6 @@ class OcrViewModel @Inject constructor(
     fun geminiImageToText(
         imageUri: Uri,
         fileName: String,
-        textOnExtractionError: String,
         useHtml: Boolean
     ) = viewModelScope.launch {
 
@@ -112,46 +108,28 @@ class OcrViewModel @Inject constructor(
                 if (actualFileUri != null) {
                     /** For tests */
                     val systemInstruction =
-                        if (useHtml) PromptText.HTML_REQUEST.promptText
+                        if (useHtml) PromptText.HTML_OCR_SYSTEM_INSTRUCTION.promptText
                         else PromptText.NO_HTML_OCR_SYSTEM_INSTRUCTION.promptText
-                    systemInstruction.plus(PromptText.OCR_SYSTEM_INSTRUCTION.promptText)
 
 
                     val list = ArrayList<String>()
-                    repeat(3) {
+                    repeat(maxOcrRequests) {
                         // async calls
                         launch {
-                            val f = fetchResponse(
+                            val response = fetchResponse(
                                 actualFileUri,
                                 systemInstruction,
-                                textOnExtractionError,
-                                // list
                             )
-                            list.add(f)
-                            if (list.size == 3) {
+                            list.add(response)
+                            if (list.size == maxOcrRequests) {
                                 updateRecognizedTextList(list)
-                                // update with the first result
                                 updateRecognizedText(recognizedTextList.value[0])
                             }
                         }
                     }
 
-
-                    /*
-                    val textResponse = if (content is GeminiResponse.Success) {
-                        extractGeminiResponseUseCase.invoke(content.data ?: "{}")
-                    } else {
-                        content.message
-                    }
-                    if (!textResponse.isNullOrEmpty())
-                        updateRecognizedText(textResponse)
-                    else {
-                        updateOcrError(Throwable(textOnExtractionError))
-                        updateRecognizedText("")
-                    }
-                    */
                 } else {
-                    updateOcrError(Throwable(textOnExtractionError))
+                    updateOcrError(RuntimeException())
                     updateRecognizedText("")
                 }
 
