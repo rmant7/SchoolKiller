@@ -61,7 +61,6 @@ fun ResultScreen(
 
     if (resultProperties.requestGeminiResponse && !resultProperties.isResultFetchedStatus) {
         //if (passedImageUri != null) {
-
         viewModel.geminiGenerateSolution(
             //imageUri = passedImageUri,
             //fileName = passedImageUri.toString(),

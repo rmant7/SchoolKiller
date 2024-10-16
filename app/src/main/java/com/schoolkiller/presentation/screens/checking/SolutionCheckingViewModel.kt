@@ -121,17 +121,19 @@ class SolutionCheckingViewModel @Inject constructor(
             .append("As a ${selectedGradeStr}th explain in detail ")
             .append("why this solution is correct or not, rate it on scale $ratingScale.")
             .append("If there are multiple tasks, check them all separately. ")
+            .append("Answer only in language identified in the (User's solution).")
             // Can be optional if user doesn't want to use Ocr
-            .append("The task is: $recognizedText")
+            .append("(User's solution) is: $recognizedText")
 
         return solutionPrompt.toString()
     }
 
     fun buildSystemInstruction(hasHtml: Boolean): String {
-        val systemInstruction = StringBuilder()
-            .append("Answer only in language identified in the user's task in prompt.")
-
-        if (hasHtml) systemInstruction.append(PromptText.HTML_REQUEST)
+        val systemInstruction = StringBuilder(
+            "Answer only in language identified in the (User's solution)."
+        )
+        if (hasHtml) systemInstruction.append(PromptText.HTML_REQUEST.promptText)
+        else systemInstruction.append(PromptText.NO_HTML_REQUEST.promptText)
 
         return systemInstruction.toString()
     }

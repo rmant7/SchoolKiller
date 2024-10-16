@@ -137,6 +137,7 @@ class ParametersViewModel @Inject constructor(
 
     // Alternative string builder
     fun buildSolvingPrompt(recognizedText: String?) : String{
+        val selectedLanguageStr = parametersPropertiesState.value.language.languageName
         val selectedGradeStr = "${parametersPropertiesState.value.grade.arrayIndex}"
         val selectedExplanationStr = parametersPropertiesState.value.explanationLevel.code
         val description = " ${parametersPropertiesState.value.description}"
@@ -147,15 +148,15 @@ class ParametersViewModel @Inject constructor(
             .append("If there are multiple tasks, solve them all separately. ")
             .append("Use a chain of thoughts before answering. ")
             .append("$description ")
-            .append("User's solution is: $recognizedText")
+            .append("Answer only in ${selectedLanguageStr}.")
+            .append("(User's task) is: $recognizedText")
         return solvingPrompt.toString()
     }
 
     fun buildSystemInstruction(hasHtmlTags: Boolean): String {
         val selectedLanguageStr = parametersPropertiesState.value.language.languageName
 
-        val systemInstruction = StringBuilder()
-            .append("Answer only in ${selectedLanguageStr}.")
+        val systemInstruction = StringBuilder("Answer only in ${selectedLanguageStr}.")
 
         if (hasHtmlTags)
             systemInstruction.append(PromptText.HTML_REQUEST.promptText)
@@ -164,16 +165,6 @@ class ParametersViewModel @Inject constructor(
 
         return systemInstruction.toString()
     }
-
-
-    /** This should be inside buildSolvingPrompt.
-     *  Maybe even let user to choose if they want to do OCR or not.
-     */
-    fun getPrompt(recognizedText: String?): String {
-        return parametersPropertiesState.value.solvePromptText +
-                " User's solution is: $recognizedText"
-    }
-
 
     private fun persistGradeOptionState(gradeOption: GradeOption) {
         viewModelScope.launch(Dispatchers.IO) {

@@ -1,6 +1,7 @@
 package com.schoolkiller.domain
 
 enum class PromptText(val promptText: String) {
+    // Were moved to StringBuilder in viewModels
     /*
     SOLVE_PROMPT(
         "Solve this task (as grade+th grader). " +
@@ -40,7 +41,7 @@ enum class PromptText(val promptText: String) {
                 "AD = 8, CD = 14. Angle ABC is 120 degrees. " +
                 */
                 "If you recognize math formulas format them using math symbols, example: " +
-                "sin (ω θ) → T = 2π/ω " +
+                "sin (ω θ) → T = 2π/ω. " +
 
                 // This line removed ** symbols
                 "Don't include font style formatting."
@@ -60,7 +61,7 @@ enum class PromptText(val promptText: String) {
         "Use mathematical symbols instead of markdown. "
                 +
                 "If you recognize math formulas format them using math symbols, example: " +
-                "sin (ω θ) → T = 2π/ω"
+                "sin (ω θ) → T = 2π/ω. "
                 +
                 // This line removed ** symbols
                 "Don't include font style formatting."
