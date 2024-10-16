@@ -34,9 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.ErrorAlertDialog
-import com.schoolkiller.presentation.common.HtmlTextView
 import com.schoolkiller.presentation.common.UniversalButton
-import io.ktor.client.plugins.ServerResponseException
 
 
 @Composable
@@ -63,7 +61,6 @@ fun ResultScreen(
 
     if (resultProperties.requestGeminiResponse && !resultProperties.isResultFetchedStatus) {
         //if (passedImageUri != null) {
-
         viewModel.geminiGenerateSolution(
             //imageUri = passedImageUri,
             //fileName = passedImageUri.toString(),
@@ -92,8 +89,6 @@ fun ResultScreen(
             if (resultProperties.error != null) {
                 openAlertDialog.value = true
 
-                val dialogData = getAlertWindowData(resultProperties.error)
-
                 ErrorAlertDialog(
                     onDismissRequest = { openAlertDialog.value = false },
                     onConfirmation = {
@@ -101,8 +96,7 @@ fun ResultScreen(
                         viewModel.clearError()
                         onNavigateToHomeScreen()
                     },
-                    dialogTitle = stringResource(dialogData.first),
-                    dialogText = stringResource(dialogData.second),
+                    throwable = resultProperties.error,
                     icon = Icons.Default.Info
                 )
             }
@@ -166,7 +160,9 @@ fun ResultScreen(
                             Text(solutionTextLabel, fontSize = 30.sp)
 
                             SelectionContainer {
+
                                 /** For tests */
+
                                 /*
                                 HtmlTextView(
                                     resultProperties.textGenerationResult,
@@ -220,13 +216,6 @@ fun ResultScreen(
         }
 
     )
-}
-
-private fun getAlertWindowData(t: Throwable?): Pair<Int, Int> {
-    return when (t) {
-        is ServerResponseException -> R.string.error_service_not_available_title to R.string.error_service_not_available
-        else -> R.string.error_common_title to R.string.error_common_message
-    }
 }
 
 

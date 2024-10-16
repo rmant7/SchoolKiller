@@ -99,32 +99,43 @@ class SolutionCheckingViewModel @Inject constructor(
         }
     }
 
+    /*
+        fun buildSolutionPrompt() {
+            val originalPrompt = PromptText.CHECK_SOLUTION_PROMPT.promptText
+            val selectedGradeStr = "${solutionPropertiesState.value.grade.arrayIndex}"
 
-    fun buildSolutionPrompt() {
-        val originalPrompt = PromptText.CHECK_SOLUTION_PROMPT.promptText
-        val selectedGradeStr = "${solutionPropertiesState.value.grade.arrayIndex}"
-
-        val promptWithGradeOption = if (originalPrompt.contains("(as grade+th grader)")) {
-            originalPrompt.replace("(as grade+th grader)", "as ${selectedGradeStr}th grader")
-        } else {
-            originalPrompt
+            val promptWithGradeOption = if (originalPrompt.contains("(as grade+th grader)")) {
+                originalPrompt.replace("(as grade+th grader)", "as ${selectedGradeStr}th grader")
+            } else {
+                originalPrompt
+            }
+            updateSolutionPromptText(promptWithGradeOption)
         }
-        updateSolutionPromptText(promptWithGradeOption)
+    */
+    // Alternative solution prompt builder
+    fun buildSolutionPrompt(recognizedText: String?): String {
+        val selectedGradeStr = "${solutionPropertiesState.value.grade.arrayIndex}"
+        val ratingScale = 1-100 // "${solutionPropertiesState.value.rating.scale}"
+
+        val solutionPrompt = StringBuilder()
+            .append("As a ${selectedGradeStr}th explain in detail ")
+            .append("why this solution is correct or not, rate it on scale $ratingScale.")
+            .append("If there are multiple tasks, check them all separately. ")
+            .append("Answer only in language identified in the (User's solution).")
+            // Can be optional if user doesn't want to use Ocr
+            .append("(User's solution) is: $recognizedText")
+
+        return solutionPrompt.toString()
     }
 
-    /** This should be inside buildSolutionPrompt.
-     *  Maybe even let user to choose if they want to do OCR or not.
-     */
-    fun getPrompt(recognizedText: String?): String {
-        return solutionPropertiesState.value.solutionPromptText +
-                " The task is: $recognizedText"
-    }
+    fun buildSystemInstruction(hasHtml: Boolean): String {
+        val systemInstruction = StringBuilder(
+            "Answer only in language identified in the (User's solution)."
+        )
+        if (hasHtml) systemInstruction.append(PromptText.HTML_REQUEST.promptText)
+        else systemInstruction.append(PromptText.NO_HTML_REQUEST.promptText)
 
-    fun getSystemInstruction(hasHtml: Boolean): String {
-        val systemInstruction = PromptText
-            .CHECK_SOLUTION_SYSTEM_INSTRUCTION.promptText
-        if (hasHtml) systemInstruction.plus(PromptText.HTML_REQUEST)
-        return systemInstruction
+        return systemInstruction.toString()
     }
 
 
@@ -163,7 +174,8 @@ class SolutionCheckingViewModel @Inject constructor(
             }
         } catch (e: Exception) {
             Timber.e(e, "Error reading solution prompt text state")
-            updateSolutionPromptText(PromptText.CHECK_SOLUTION_PROMPT.promptText)
+            updateSolutionPromptText("")
+            // updateSolutionPromptText(PromptText.CHECK_SOLUTION_PROMPT.promptText)
         }
     }
 

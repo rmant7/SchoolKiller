@@ -101,11 +101,11 @@ class ParametersViewModel @Inject constructor(
         persistSolvePromptTextState(newSolvePromptText)
     }
 
-
+/*
     fun buildSolvingPrompt() {
         val originalPrompt = PromptText.SOLVE_PROMPT.promptText
         val selectedGradeStr = "${parametersPropertiesState.value.grade.arrayIndex}"
-       // val selectedLanguageStr = "${parametersPropertiesState.value.language.languageName}"
+        // val selectedLanguageStr = "${parametersPropertiesState.value.language.languageName}"
         val selectedExplanationStr = "${parametersPropertiesState.value.explanationLevel.code}"
         val description = " ${parametersPropertiesState.value.description}"
 
@@ -114,16 +114,16 @@ class ParametersViewModel @Inject constructor(
         } else {
             originalPrompt
         }
-/*
-        val promptWithLanguageOption =
-            if (promptWithGradeOption.contains("(language in the user's task in prompt.)")) {
-                promptWithGradeOption.replace(
-                    "(language in the user's task in prompt.)",
-                    "${selectedLanguageStr.uppercase()} ONLY"
-                )
-            } else {
-                promptWithGradeOption
-            }*/
+        /*
+                val promptWithLanguageOption =
+                    if (promptWithGradeOption.contains("(language in the user's task in prompt.)")) {
+                        promptWithGradeOption.replace(
+                            "(language in the user's task in prompt.)",
+                            "${selectedLanguageStr.uppercase()} ONLY"
+                        )
+                    } else {
+                        promptWithGradeOption
+                    }*/
         val promptWithExplanationOption = if (promptWithGradeOption.contains("(briefly)")) {
             promptWithGradeOption.replace("(briefly)", selectedExplanationStr)
         } else {
@@ -133,26 +133,38 @@ class ParametersViewModel @Inject constructor(
 
         updateSolvePromptText(promptWithDescription)
     }
+*/
 
-    fun getSystemInstruction(hasHtmlTags: Boolean): String {
-        val strBuilder = StringBuilder(
-            "Answer only in ${parametersPropertiesState.value.language.languageName}."
-        )
+    // Alternative string builder
+    fun buildSolvingPrompt(recognizedText: String?) : String{
+        val selectedLanguageStr = parametersPropertiesState.value.language.languageName
+        val selectedGradeStr = "${parametersPropertiesState.value.grade.arrayIndex}"
+        val selectedExplanationStr = parametersPropertiesState.value.explanationLevel.code
+        val description = " ${parametersPropertiesState.value.description}"
+
+        val solvingPrompt = StringBuilder()
+            .append("Solve this task as $selectedGradeStr}th grader. ")
+            .append("Show the solution and explain $selectedExplanationStr how to get there. ")
+            .append("If there are multiple tasks, solve them all separately. ")
+            .append("Use a chain of thoughts before answering. ")
+            .append("$description ")
+            .append("Answer only in ${selectedLanguageStr}.")
+            .append("(User's task) is: $recognizedText")
+        return solvingPrompt.toString()
+    }
+
+    fun buildSystemInstruction(hasHtmlTags: Boolean): String {
+        val selectedLanguageStr = parametersPropertiesState.value.language.languageName
+
+        val systemInstruction = StringBuilder("Answer only in ${selectedLanguageStr}.")
+
         if (hasHtmlTags)
-            strBuilder.append(PromptText.HTML_REQUEST.promptText)
+            systemInstruction.append(PromptText.HTML_REQUEST.promptText)
         else
-            strBuilder.append(PromptText.NO_HTML_REQUEST.promptText)
-        return strBuilder.toString()
-    }
+            systemInstruction.append(PromptText.NO_HTML_REQUEST.promptText)
 
-    /** This should be inside buildSolvingPrompt.
-     *  Maybe even let user to choose if they want to do OCR or not.
-     */
-    fun getPrompt(recognizedText: String?): String {
-        return parametersPropertiesState.value.solvePromptText +
-                " User's solution is: $recognizedText"
+        return systemInstruction.toString()
     }
-
 
     private fun persistGradeOptionState(gradeOption: GradeOption) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -254,7 +266,8 @@ class ParametersViewModel @Inject constructor(
             }
         } catch (e: Exception) {
             Timber.e(e, "Error reading solve prompt text state")
-            updateSolvePromptText(PromptText.SOLVE_PROMPT.promptText)
+            updateSolvePromptText("")
+            //updateSolvePromptText(PromptText.SOLVE_PROMPT.promptText)
         }
     }
 

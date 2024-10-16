@@ -170,7 +170,7 @@ fun ParametersScreen(
                     label = R.string.solve_button_label,
                 ) {
 
-                    viewModel.buildSolvingPrompt()
+                    //viewModel.buildSolvingPrompt()
                     /** testing the prompt : uncomment */
 //                    isAttentionDialogShowed = true
                     /** testing the prompt : uncomment */
@@ -185,8 +185,8 @@ fun ParametersScreen(
 //                        resultViewModel.updateTextGenerationResult("")
 
                     onNavigateToResultScreen(
-                        viewModel.getPrompt(recognizedText), /** Should be inside buildSolvingPrompt() */
-                        viewModel.getSystemInstruction(true)
+                        viewModel.buildSolvingPrompt(recognizedText),
+                        viewModel.buildSystemInstruction(false)
                     )
                     /** testing the prompt : uncomment */
 //                    }

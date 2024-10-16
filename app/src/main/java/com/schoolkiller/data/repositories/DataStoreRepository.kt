@@ -182,7 +182,7 @@ class DataStoreRepository @Inject constructor(
             }
         }.map { preferences ->
             val solvePromptState =
-                preferences[PreferenceKeys.solvePromptState] ?: PromptText.SOLVE_PROMPT.promptText
+                preferences[PreferenceKeys.solvePromptState] ?: "" // PromptText.SOLVE_PROMPT.promptText
             solvePromptState
         }
 
@@ -196,7 +196,7 @@ class DataStoreRepository @Inject constructor(
             }
         }.map { preferences ->
             val solutionPromptState = preferences[PreferenceKeys.solutionPromptState]
-                ?: PromptText.CHECK_SOLUTION_PROMPT.promptText
+                ?: "" // PromptText.CHECK_SOLUTION_PROMPT.promptText
             solutionPromptState
         }
 
