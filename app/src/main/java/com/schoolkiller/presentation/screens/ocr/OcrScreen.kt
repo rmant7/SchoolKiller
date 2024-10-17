@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
 import com.schoolkiller.presentation.common.ApplicationScaffold
+import com.schoolkiller.presentation.common.button.RadioIndexButton
 import com.schoolkiller.presentation.common.dialog.ErrorAlertDialog
 import com.schoolkiller.presentation.common.button.RoundIconButton
 import com.schoolkiller.presentation.common.button.UniversalButton
@@ -50,8 +51,7 @@ fun OcrScreen(
     val recognizedText = viewModel.recognizedText.collectAsState()
     val selectedOcrResultId = remember { mutableIntStateOf(0) }
     // 3 variations of ocr
-    val recognizedTextList =
-        remember { viewModel.recognizedList }//viewModel.recognizedTextList.collectAsState()
+    val recognizedTextList = remember { viewModel.recognizedList }
     val ocrError = viewModel.ocrError.collectAsState()
 
     val shouldRecognizeText = remember { mutableStateOf(true) }
@@ -77,8 +77,6 @@ fun OcrScreen(
         // reset list
         if (recognizedTextList.isNotEmpty())
             viewModel.clearRecognizedTextList()
-        /*if (recognizedTextList.value.isNotEmpty())
-            viewModel.updateRecognizedTextList(mutableListOf())*/
 
         viewModel.updateOcrError(null)
 
@@ -89,7 +87,7 @@ fun OcrScreen(
                 false,
                 invalidOcrResultText
             )
-        else viewModel.updateOcrError(RuntimeException()) // ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
+        else viewModel.updateOcrError(RuntimeException())
         // and close the call
         shouldRecognizeText.value = false
     }
@@ -183,38 +181,43 @@ fun OcrScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    fun changeTextVariant(index: Int) {
-                        selectedOcrResultId.intValue = index
-                        viewModel.updateRecognizedText(
-                            recognizedTextList[index]
-                            //recognizedTextList.value[index]
-                        )
-                    }
-
-                    fun isSelected(index: Int): Boolean {
-                        return selectedOcrResultId.intValue == index
-                    }
-
-                    fun isEnabled(index: Int): Boolean {
-                        return recognizedTextList.size - 1 >= index
-                    }
-
-                    RadioButton(
-                        selected = isSelected(0),
-                        onClick = { changeTextVariant(0) },
-                        enabled = isEnabled(0)
+                    RadioIndexButton(
+                        index = 0,
+                        selectedIndex = selectedOcrResultId,
+                        onClick = {
+                            viewModel.updateRecognizedText(
+                                recognizedTextList[it]
+                            )
+                        },
+                        indexMax = {
+                            recognizedTextList.size
+                        }
                     )
 
-                    RadioButton(
-                        selected = isSelected(1),
-                        onClick = { changeTextVariant(1) },
-                        enabled = isEnabled(1)
+                    RadioIndexButton(
+                        index = 1,
+                        selectedIndex = selectedOcrResultId,
+                        onClick = {
+                            viewModel.updateRecognizedText(
+                                recognizedTextList[it]
+                            )
+                        },
+                        indexMax = {
+                            recognizedTextList.size
+                        }
                     )
 
-                    RadioButton(
-                        selected = isSelected(2),
-                        onClick = { changeTextVariant(2) },
-                        enabled = isEnabled(2)
+                    RadioIndexButton(
+                        index = 2,
+                        selectedIndex = selectedOcrResultId,
+                        onClick = {
+                            viewModel.updateRecognizedText(
+                                recognizedTextList[it]
+                            )
+                        },
+                        indexMax = {
+                            recognizedTextList.size
+                        }
                     )
 
                 }
@@ -249,8 +252,10 @@ fun OcrScreen(
 
                 fun onNextClick(onNavigate: () -> Unit) {
                     if (recognizedText.value.isNullOrBlank())
-                        Toast.makeText(context,
-                            promptIsEmptyWarning, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            promptIsEmptyWarning, Toast.LENGTH_SHORT
+                        ).show()
                     else onNavigate()
                 }
 
