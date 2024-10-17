@@ -36,6 +36,7 @@
 
     // Text Field PlaceHolders
     <string name="additional_info_TextField_placeholder_text">Solve just task 5</string>
+    <string name="first_ocr_result_is_not_ready">Text is being recognized, please, wait…</string>
 
     // Drop Down Menu Labels
     <string name="solution_language_label">Solution language</string>
@@ -99,7 +100,7 @@
     <string name="error_common_title">Error</string>
     <string name="error_common_message">An error occurred while the application was running. Try updating the app or try again later</string>
     <string name="error_gemini_ocr_result_extraction">AI wasn\'t able to recognize text from the image. Please, try again.</string>
-    <string name="error_gemini_solution_result_extraction">>AI wasn\'t able to solve this problem. Please, try again.</string>
+    <string name="error_gemini_solution_result_extraction">AI wasn\'t able to solve this problem. Please, try again.</string>
 
     // Toast messages
     <string name="something_went_wrong">Whoops! Something went wrong. Please try again!</string>

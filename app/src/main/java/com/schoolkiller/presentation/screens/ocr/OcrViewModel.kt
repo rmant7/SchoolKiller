@@ -1,6 +1,7 @@
 package com.schoolkiller.presentation.screens.ocr
 
 import android.net.Uri
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.schoolkiller.data.network.api.GeminiApiService
@@ -27,6 +28,23 @@ class OcrViewModel @Inject constructor(
 
     private val maxOcrRequests = 3
 
+    var recognizedList: MutableList<String> = mutableStateListOf()
+
+    fun insertText(index: Int, recognizedText: String) {
+        if (index < recognizedList.size)
+            recognizedList[index] = recognizedText
+    }
+
+    fun addText(recognizedText: String) {
+        if (recognizedList.size < maxOcrRequests)
+            recognizedList.add(recognizedText)
+    }
+
+    fun clearList() {
+        recognizedList.clear() //= mutableListOf()
+    }
+
+    /*
     private val _recognizedTextList: MutableStateFlow<MutableList<String>> =
         MutableStateFlow(mutableListOf())
     val recognizedTextList: MutableStateFlow<MutableList<String>> = _recognizedTextList
@@ -42,7 +60,7 @@ class OcrViewModel @Inject constructor(
         else
             _recognizedTextList.value[index] = recognizedText
     }
-
+*/
     private val _recognizedText = MutableStateFlow("")
     val recognizedText: StateFlow<String?> = _recognizedText
 
@@ -60,7 +78,8 @@ class OcrViewModel @Inject constructor(
 
     private suspend fun fetchResponse(
         actualFileUri: String,
-        systemInstruction: String
+        systemInstruction: String,
+        invalidOcrResultText: String
     ): String {
 
         val content = geminiApiService.generateContent(
@@ -73,20 +92,22 @@ class OcrViewModel @Inject constructor(
             extractGeminiResponseUseCase.invoke(content.data ?: "{}")
         } else {
             // updateOcrError(RuntimeException())
-            content.message
+            //content.message
+            invalidOcrResultText
         }
-        if (!textResponse.isNullOrEmpty())
-            return textResponse
+        return if (!textResponse.isNullOrEmpty())
+            textResponse
         else {
             // updateOcrError(RuntimeException())
-            return ""
+            invalidOcrResultText
         }
     }
 
     fun geminiImageToText(
         imageUri: Uri,
         fileName: String,
-        useHtml: Boolean
+        useHtml: Boolean,
+        invalidOcrResultText: String
     ) = viewModelScope.launch {
 
         val fileByteArray = getImageByteArrayUseCase.invoke(imageUri = imageUri)
@@ -112,25 +133,29 @@ class OcrViewModel @Inject constructor(
                         else PromptText.NO_HTML_OCR_SYSTEM_INSTRUCTION.promptText
 
 
-                    val list = ArrayList<String>()
+                    //val list = ArrayList<String>()
                     repeat(maxOcrRequests) {
                         // async calls
                         launch {
                             val response = fetchResponse(
                                 actualFileUri,
                                 systemInstruction,
-                            )
-                            list.add(response)
-                            if (list.size == maxOcrRequests) {
+                                invalidOcrResultText
+                            ).trim()
+                            addText(response)
+                            if (recognizedList.size == 1)
+                                updateRecognizedText(response)
+                            //list.add(response)
+                            /*if (list.size == maxOcrRequests) {
                                 updateRecognizedTextList(list)
                                 updateRecognizedText(recognizedTextList.value[0])
-                            }
+                            }*/
                         }
                     }
 
                 } else {
                     updateOcrError(RuntimeException())
-                    updateRecognizedText("")
+                    updateRecognizedText(invalidOcrResultText)
                 }
 
             }

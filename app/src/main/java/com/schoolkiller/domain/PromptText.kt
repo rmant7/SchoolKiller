@@ -1,20 +1,7 @@
 package com.schoolkiller.domain
 
 enum class PromptText(val promptText: String) {
-    // Were moved to StringBuilder in viewModels
-    /*
-    SOLVE_PROMPT(
-        "Solve this task (as grade+th grader). " +
-                "Show the solution and explain (briefly) how to get there. " +
-                "If there are multiple tasks, solve them all separately." +
-                "Use a chain of thoughts before answering."
-    ),
-    CHECK_SOLUTION_PROMPT(
-        "As a (grade+th grader) explain in detail" +
-                " why this solution is correct or not, rate it on scale (1–100)." +
-                "If there are multiple tasks, check them all separately."
-    ),
-     */
+
     OCR_PROMPT(
         "Recognize text from this image. " +
                 "If image doesn't have text, describe what you see in it. " +
@@ -33,18 +20,13 @@ enum class PromptText(val promptText: String) {
                 "If you recognize any geometric figures describe in language " +
                 "identified on the image recognized shapes, " +
                 "known and unknown variables if you see any. " +
-                /*
-                "If you recognize any geometric figures follow this example " +
-                "using the language identified on the image: " +
-                "The image shows several parallelograms. " +
-                "1. Parallelogram ABCD has sides AB = 8, BC = 14, " +
-                "AD = 8, CD = 14. Angle ABC is 120 degrees. " +
-                */
+
                 "If you recognize math formulas format them using math symbols, example: " +
                 "sin (ω θ) → T = 2π/ω. " +
 
                 // This line removed ** symbols
-                "Don't include font style formatting."
+                "Don't include font style formatting." +
+                "Don't include images in your response. "
     ),
     HTML_OCR_SYSTEM_INSTRUCTION(
         "Answer only in language identified on the image." +

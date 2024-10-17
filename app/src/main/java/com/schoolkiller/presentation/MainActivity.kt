@@ -31,7 +31,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
         setContent {
             SchoolKillerTheme {
                 MaterialTheme(
@@ -46,24 +45,24 @@ class MainActivity : ComponentActivity() {
                         topBar = {
                             // No header for Home page
                             if (navController.previousBackStackEntry != null)
-                            TopAppBar(
-                                // modifier = Modifier.padding(0.dp, 25.dp),
-                                colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.primary,
-                                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                                    actionIconContentColor = MaterialTheme.colorScheme.onSecondary
-                                ),
-                                title = { Text(text = "SchoolKiller") },
-                                navigationIcon = {
+                                TopAppBar(
+                                    // modifier = Modifier.padding(0.dp, 25.dp),
+                                    colors = TopAppBarDefaults.topAppBarColors(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                                        actionIconContentColor = MaterialTheme.colorScheme.onSecondary
+                                    ),
+                                    title = { Text(text = "SchoolKiller") },
+                                    navigationIcon = {
                                         IconButton(onClick = { navController.navigateUp() }) {
                                             Icon(
                                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                                 contentDescription = "Back"
                                             )
                                         }
-                                }
-                            )
+                                    }
+                                )
                         },
                         content = {
                             NavigationController(navController)
@@ -75,6 +74,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-
-

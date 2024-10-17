@@ -1,12 +1,10 @@
-
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
 
     // Room
-    id ("androidx.room")
+    id("androidx.room")
     // KSP
     id("com.google.devtools.ksp")
     // Dagger-Hilt
@@ -65,7 +63,7 @@ android {
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/{AL2.0,LGPL2.1,DEPENDENCIES}"
         }
     }
 
@@ -73,14 +71,33 @@ android {
 
 dependencies {
 
+    // Google's "fix" of Guava duplicate issue.
+    implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
+    // Google cloud vision
+    implementation("com.google.apis:google-api-services-vision:v1-rev369-1.23.0"){
+        exclude(group="com.google.guava", module="guava-jdk5")
+    }
+    implementation("com.google.api-client:google-api-client-android:1.23.0") {
+        exclude(module = "httpclient")
+        exclude (group="com.google.guava", module="guava-jdk5")
+    }
+    implementation("com.google.http-client:google-http-client-gson:1.23.0"){
+        exclude(module="httpclient")
+        exclude (group="com.google.guava", module="guava-jdk5")
+    }
+
+    //Scroll bars
+    implementation(libs.composescrollbars)
+
     // AppMetrica SDK.
     implementation(libs.analytics)
     // AppMetrica Push SDK.
-    implementation("io.appmetrica.analytics:push:4.0.0")
-    implementation("androidx.legacy:legacy-support-v4:1.0.0")
-    // minimum support version 20.3.0
-    implementation("com.google.firebase:firebase-messaging:22.0.0")
-    implementation("com.google.android.gms:play-services-base:17.5.0")
+    implementation(libs.push)
+    implementation(libs.androidx.legacy.support.v4)
+    // Firebase, inimum support version 20.3.0
+    implementation(libs.firebase.messaging)
+    // Google services
+    implementation(libs.play.services.base)
 
     // AdMob advertisement
     implementation(libs.play.services.ads)
@@ -88,20 +105,15 @@ dependencies {
     //implementation(libs.guava)/** CameraX not used anymore */
 
     // Accompanist Permissions
-    implementation (libs.accompanist.permissions)
+    implementation(libs.accompanist.permissions)
 
     // Logging
-    implementation (libs.timber)
+    implementation(libs.timber)
 
     // LangChain4j
-    implementation (libs.dev.langchain4j.langchain4j.open.ai)
-    implementation (libs.langchain4j)
+    implementation(libs.dev.langchain4j.langchain4j.open.ai)
+    implementation(libs.langchain4j)
 
-    // CameraX (not in use anymore)
-//    implementation (libs.androidx.camera.core)
-//    implementation (libs.androidx.camera.camera2)
-//    implementation (libs.androidx.camera.lifecycle)
-//    implementation (libs.androidx.camera.view)
 
     // Coil
     implementation(libs.coil.compose)
@@ -124,9 +136,9 @@ dependencies {
 
     // Dagger - Hilt
     implementation(libs.hilt.android)
-    ksp (libs.dagger.compiler)
-    ksp (libs.hilt.compiler)
-    ksp (libs.hilt.android.compiler)
+    ksp(libs.dagger.compiler)
+    ksp(libs.hilt.compiler)
+    ksp(libs.hilt.android.compiler)
 
     // Ktor & kotlin Serialization
     implementation(libs.ktor.client.android)
