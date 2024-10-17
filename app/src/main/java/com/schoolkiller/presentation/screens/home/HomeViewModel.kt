@@ -11,9 +11,9 @@ import androidx.lifecycle.viewModelScope
 import com.schoolkiller.data.repositories.DataStoreRepository
 import com.schoolkiller.data.repositories.DeleteFileRepository
 import com.schoolkiller.data.repositories.SaveFileRepository
-import com.schoolkiller.domain.UploadFileMethodOptions
+import com.schoolkiller.domain.prompt.UploadFileMethodOptions
 import com.schoolkiller.domain.model.HomeProperties
-import com.schoolkiller.domain.usecases.ads.OpenAdUseCase
+import com.schoolkiller.presentation.ads.OpenAdUseCase
 import com.schoolkiller.presentation.RequestState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

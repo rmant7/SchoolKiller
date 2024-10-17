@@ -1,6 +1,7 @@
 package com.schoolkiller.presentation.screens.ocr
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -30,10 +32,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
 import com.schoolkiller.presentation.common.ApplicationScaffold
-import com.schoolkiller.presentation.common.ErrorAlertDialog
-import com.schoolkiller.presentation.common.RoundIconButton
-import com.schoolkiller.presentation.common.UniversalButton
-import com.schoolkiller.presentation.toast.ShowToastMessage
+import com.schoolkiller.presentation.common.dialog.ErrorAlertDialog
+import com.schoolkiller.presentation.common.button.RoundIconButton
+import com.schoolkiller.presentation.common.button.UniversalButton
 
 @Composable
 fun OcrScreen(
@@ -44,6 +45,7 @@ fun OcrScreen(
 ) {
 
     val viewModel: OcrViewModel = hiltViewModel()
+    val context = LocalContext.current
     // user chosen version of ocr
     val recognizedText = viewModel.recognizedText.collectAsState()
     val selectedOcrResultId = remember { mutableIntStateOf(0) }
@@ -57,6 +59,7 @@ fun OcrScreen(
     val recognizedTextLabel = stringResource(R.string.recognized_text_value)
     val invalidOcrResultText = stringResource(R.string.error_gemini_ocr_result_extraction)
     val firstOcrResultIsNotReady = stringResource(R.string.first_ocr_result_is_not_ready)
+    val promptIsEmptyWarning = stringResource(R.string.prompt_is_empty)
 
     val isPromptEditable = remember { mutableStateOf(false) }
     val isEditButtonVisible = remember { mutableStateOf(true) }
@@ -67,12 +70,13 @@ fun OcrScreen(
     val shouldShowErrorMessage = remember { mutableStateOf(true) }
 
     if (shouldRecognizeText.value) {
+        viewModel.fetchOpenAiResponse(imageUri = passedImageUri!!)
         //viewModel.updateRecognizedText("")
         viewModel.updateRecognizedText(firstOcrResultIsNotReady)
         selectedOcrResultId.intValue = 0
         // reset list
         if (recognizedTextList.isNotEmpty())
-            viewModel.clearList()
+            viewModel.clearRecognizedTextList()
         /*if (recognizedTextList.value.isNotEmpty())
             viewModel.updateRecognizedTextList(mutableListOf())*/
 
@@ -148,7 +152,7 @@ fun OcrScreen(
                         .padding(0.dp, 10.dp),
                     value = recognizedText.value!!,
                     onValueChange = {
-                        viewModel.insertText(selectedOcrResultId.intValue, it)
+                        viewModel.replaceRecognizedText(selectedOcrResultId.intValue, it)
                         //viewModel.updateRecognizedText(selectedOcrResultId.intValue, it)
                         viewModel.updateRecognizedText(it)
                     },
@@ -245,7 +249,8 @@ fun OcrScreen(
 
                 fun onNextClick(onNavigate: () -> Unit) {
                     if (recognizedText.value.isNullOrBlank())
-                        ShowToastMessage.PROMPT_IS_EMPTY.showToast()
+                        Toast.makeText(context,
+                            promptIsEmptyWarning, Toast.LENGTH_SHORT).show()
                     else onNavigate()
                 }
 

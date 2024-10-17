@@ -3,10 +3,10 @@ package com.schoolkiller.presentation.screens.info
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.schoolkiller.data.repositories.DataStoreRepository
-import com.schoolkiller.domain.ExplanationLevelOption
-import com.schoolkiller.domain.GradeOption
-import com.schoolkiller.domain.PromptText
-import com.schoolkiller.domain.SolutionLanguageOption
+import com.schoolkiller.domain.prompt.ExplanationLevelOption
+import com.schoolkiller.domain.prompt.GradeOption
+import com.schoolkiller.domain.prompt.Prompt
+import com.schoolkiller.domain.prompt.SolutionLanguageOption
 import com.schoolkiller.domain.model.ParameterProperties
 import com.schoolkiller.presentation.RequestState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -159,9 +159,9 @@ class ParametersViewModel @Inject constructor(
         val systemInstruction = StringBuilder("Answer only in ${selectedLanguageStr}.")
 
         if (hasHtmlTags)
-            systemInstruction.append(PromptText.HTML_REQUEST.promptText)
+            systemInstruction.append(Prompt.HTML_REQUEST.text)
         else
-            systemInstruction.append(PromptText.NO_HTML_REQUEST.promptText)
+            systemInstruction.append(Prompt.NO_HTML_REQUEST.text)
 
         return systemInstruction.toString()
     }

@@ -4,10 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.ads.AdView
 import com.schoolkiller.data.repositories.DataStoreRepository
-import com.schoolkiller.domain.GradeOption
-import com.schoolkiller.domain.PromptText
+import com.schoolkiller.domain.prompt.GradeOption
+import com.schoolkiller.domain.prompt.Prompt
 import com.schoolkiller.domain.model.SolutionProperties
-import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
+import com.schoolkiller.presentation.ads.BannerAdUseCase
 import com.schoolkiller.presentation.RequestState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -132,8 +132,8 @@ class SolutionCheckingViewModel @Inject constructor(
         val systemInstruction = StringBuilder(
             "Answer only in language identified in the (User's solution)."
         )
-        if (hasHtml) systemInstruction.append(PromptText.HTML_REQUEST.promptText)
-        else systemInstruction.append(PromptText.NO_HTML_REQUEST.promptText)
+        if (hasHtml) systemInstruction.append(Prompt.HTML_REQUEST.text)
+        else systemInstruction.append(Prompt.NO_HTML_REQUEST.text)
 
         return systemInstruction.toString()
     }

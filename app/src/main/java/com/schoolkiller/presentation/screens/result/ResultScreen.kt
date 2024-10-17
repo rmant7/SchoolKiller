@@ -33,8 +33,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
 import com.schoolkiller.presentation.common.ApplicationScaffold
-import com.schoolkiller.presentation.common.ErrorAlertDialog
-import com.schoolkiller.presentation.common.UniversalButton
+import com.schoolkiller.presentation.common.dialog.ErrorAlertDialog
+import com.schoolkiller.presentation.common.button.UniversalButton
 
 
 @Composable

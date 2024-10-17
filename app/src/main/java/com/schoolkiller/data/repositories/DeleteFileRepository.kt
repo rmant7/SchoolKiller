@@ -174,7 +174,9 @@ class DeleteFileRepository @Inject constructor(
             false // File not found
         } catch (e: IOException) {
             false // Other IO exceptions
-        }
+        } /*catch (e: SecurityException){
+            false
+        }*/
     }
 
 }

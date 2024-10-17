@@ -1,9 +1,8 @@
 package com.schoolkiller.domain.model
 
-import com.schoolkiller.domain.ExplanationLevelOption
-import com.schoolkiller.domain.GradeOption
-import com.schoolkiller.domain.PromptText
-import com.schoolkiller.domain.SolutionLanguageOption
+import com.schoolkiller.domain.prompt.ExplanationLevelOption
+import com.schoolkiller.domain.prompt.GradeOption
+import com.schoolkiller.domain.prompt.SolutionLanguageOption
 
 data class ParameterProperties(
     val grade: GradeOption = GradeOption.CLASS_5,

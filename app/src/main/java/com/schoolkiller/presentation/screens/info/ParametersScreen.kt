@@ -28,13 +28,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
-import com.schoolkiller.domain.ExplanationLevelOption
-import com.schoolkiller.domain.GradeOption
-import com.schoolkiller.domain.SolutionLanguageOption
+import com.schoolkiller.domain.prompt.ExplanationLevelOption
+import com.schoolkiller.domain.prompt.GradeOption
+import com.schoolkiller.domain.prompt.SolutionLanguageOption
 import com.schoolkiller.presentation.common.ApplicationScaffold
-import com.schoolkiller.presentation.common.AttentionAlertDialog
-import com.schoolkiller.presentation.common.ScreenImage
-import com.schoolkiller.presentation.common.UniversalButton
+import com.schoolkiller.presentation.common.dialog.AttentionAlertDialog
+import com.schoolkiller.presentation.common.image.ScreenImage
+import com.schoolkiller.presentation.common.button.UniversalButton
 
 
 @Composable
@@ -172,9 +172,12 @@ fun ParametersScreen(
 
                     //viewModel.buildSolvingPrompt()
                     /** testing the prompt : uncomment */
+                    /** testing the prompt : uncomment */
 //                    isAttentionDialogShowed = true
                     /** testing the prompt : uncomment */
+                    /** testing the prompt : uncomment */
 //                    if (proceedToResultScreen) {
+                    /** testing the prompt : uncomment */
                     /** testing the prompt : uncomment */
 //                        isAttentionDialogShowed = false
 
@@ -188,6 +191,7 @@ fun ParametersScreen(
                         viewModel.buildSolvingPrompt(recognizedText),
                         viewModel.buildSystemInstruction(false)
                     )
+                    /** testing the prompt : uncomment */
                     /** testing the prompt : uncomment */
 //                    }
 

@@ -1,66 +1,53 @@
 package com.schoolkiller.presentation.screens.ocr
 
+
 import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.schoolkiller.data.network.api.GeminiApiService
-import com.schoolkiller.data.network.response.GeminiResponse
-import com.schoolkiller.domain.PromptText
-import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
-import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
+import com.schoolkiller.data.network.gemini_api.GeminiApiService
+import com.schoolkiller.data.network.gemini_api.GeminiRequest
+import com.schoolkiller.data.network.gemini_api.GeminiResponse
+import com.schoolkiller.domain.prompt.Prompt
+import com.schoolkiller.domain.usecases.ImageUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.langchain4j.data.message.AiMessage
+import dev.langchain4j.data.message.ImageContent
+import dev.langchain4j.data.message.TextContent
+import dev.langchain4j.data.message.UserMessage
+import dev.langchain4j.model.openai.OpenAiChatModel
+import dev.langchain4j.model.output.Response
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import javax.inject.Inject
 
 @HiltViewModel
 class OcrViewModel @Inject constructor(
     private val geminiApiService: GeminiApiService,
-    private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
-    private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
+    private val imageUtils: ImageUtils,
 ) : ViewModel() {
 
     private val maxOcrRequests = 3
 
     var recognizedList: MutableList<String> = mutableStateListOf()
 
-    fun insertText(index: Int, recognizedText: String) {
+    fun replaceRecognizedText(index: Int, recognizedText: String) {
         if (index < recognizedList.size)
             recognizedList[index] = recognizedText
     }
 
-    fun addText(recognizedText: String) {
+    private fun addRecognizedText(recognizedText: String) {
         if (recognizedList.size < maxOcrRequests)
             recognizedList.add(recognizedText)
     }
 
-    fun clearList() {
-        recognizedList.clear() //= mutableListOf()
+    fun clearRecognizedTextList() {
+        recognizedList.clear()
     }
 
-    /*
-    private val _recognizedTextList: MutableStateFlow<MutableList<String>> =
-        MutableStateFlow(mutableListOf())
-    val recognizedTextList: MutableStateFlow<MutableList<String>> = _recognizedTextList
-
-    fun updateRecognizedTextList(newList: MutableList<String>) {
-        _recognizedTextList.value = newList
-    }
-
-    fun updateRecognizedText(index: Int, recognizedText: String) {
-        // index out of bounds check
-        if (_recognizedTextList.value.size <= index)
-            _recognizedTextList.value.add(recognizedText)
-        else
-            _recognizedTextList.value[index] = recognizedText
-    }
-*/
     private val _recognizedText = MutableStateFlow("")
     val recognizedText: StateFlow<String?> = _recognizedText
 
@@ -82,25 +69,18 @@ class OcrViewModel @Inject constructor(
         invalidOcrResultText: String
     ): String {
 
-        val content = geminiApiService.generateContent(
+        val request = GeminiRequest.buildGeminiRequest(
             actualFileUri,
-            PromptText.OCR_PROMPT.promptText,
+            Prompt.OCR_PROMPT.text,
             systemInstruction
         )
 
-        val textResponse = if (content is GeminiResponse.Success) {
-            extractGeminiResponseUseCase.invoke(content.data ?: "{}")
-        } else {
-            // updateOcrError(RuntimeException())
-            //content.message
+        val content = geminiApiService.generateContent(request)
+
+        return if (content is GeminiResponse.Success)
+            content.data!!
+        else
             invalidOcrResultText
-        }
-        return if (!textResponse.isNullOrEmpty())
-            textResponse
-        else {
-            // updateOcrError(RuntimeException())
-            invalidOcrResultText
-        }
     }
 
     fun geminiImageToText(
@@ -110,7 +90,7 @@ class OcrViewModel @Inject constructor(
         invalidOcrResultText: String
     ) = viewModelScope.launch {
 
-        val fileByteArray = getImageByteArrayUseCase.invoke(imageUri = imageUri)
+        val fileByteArray = imageUtils.convertUriToByteArray(imageUri = imageUri)
         val uploadResult = geminiApiService.uploadFileWithProgress(
             fileByteArray,
             fileName
@@ -122,47 +102,74 @@ class OcrViewModel @Inject constructor(
                 fileByteArray
             )
 
-            fileUriResult.onSuccess { fileUriJson ->
-                val actualFileUri = Json.parseToJsonElement(fileUriJson)
-                    .jsonObject["file"]?.jsonObject?.get("uri")?.jsonPrimitive?.content
+            fileUriResult.onSuccess { actualFileUri ->
 
-                if (actualFileUri != null) {
-                    /** For tests */
-                    val systemInstruction =
-                        if (useHtml) PromptText.HTML_OCR_SYSTEM_INSTRUCTION.promptText
-                        else PromptText.NO_HTML_OCR_SYSTEM_INSTRUCTION.promptText
+                /** For tests */
+                val systemInstruction =
+                    if (useHtml) Prompt.HTML_OCR_SYSTEM_INSTRUCTION.text
+                    else Prompt.NO_HTML_OCR_SYSTEM_INSTRUCTION.text
 
+                repeat(maxOcrRequests) {
+                    // async calls
+                    launch {
+                        val response = fetchResponse(
+                            actualFileUri,
+                            systemInstruction,
+                            invalidOcrResultText
+                        ).trim()
+                        addRecognizedText(response)
+                        if (recognizedList.size == 1)
+                            updateRecognizedText(response)
 
-                    //val list = ArrayList<String>()
-                    repeat(maxOcrRequests) {
-                        // async calls
-                        launch {
-                            val response = fetchResponse(
-                                actualFileUri,
-                                systemInstruction,
-                                invalidOcrResultText
-                            ).trim()
-                            addText(response)
-                            if (recognizedList.size == 1)
-                                updateRecognizedText(response)
-                            //list.add(response)
-                            /*if (list.size == maxOcrRequests) {
-                                updateRecognizedTextList(list)
-                                updateRecognizedText(recognizedTextList.value[0])
-                            }*/
-                        }
+                        /*if (list.size == maxOcrRequests) {
+                            updateRecognizedTextList(list)
+                            updateRecognizedText(recognizedTextList.value[0])
+                        }*/
                     }
-
-                } else {
-                    updateOcrError(RuntimeException())
-                    updateRecognizedText(invalidOcrResultText)
                 }
 
             }
 
-            fileUriResult.onFailure { updateOcrError(it) }
+            fileUriResult.onFailure {
+                updateOcrError(it)
+                updateRecognizedText(invalidOcrResultText)
+            }
         }
         uploadResult.onFailure { updateOcrError(it) }
+    }
+
+    //Don't remove, for future development
+
+    fun fetchOpenAiResponse(imageUri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            // val key = "API_KEY"
+
+            val model: OpenAiChatModel = OpenAiChatModel.builder()
+                .apiKey("demo")
+                .modelName("gpt-4o-mini")
+                .build()
+
+            val userMessage: UserMessage = UserMessage.from(
+                TextContent.from(
+                    "Describe each math problem in this image " +
+                            "Describe shapes, known and unknown variables. " +
+                            "Separate each math problem" +
+                            "Don't use markdown or html tags."
+                ),
+                ImageContent.from(
+                    "https://i.imgur.com/udmUVd0.jpeg",
+                    ImageContent.DetailLevel.HIGH
+                )
+                /* ImageContent.from(
+                     imageUtils.convertToBase64(imageUri), "image/jpg",
+                     ImageContent.DetailLevel.LOW
+                 )*/
+            )
+
+            val response: Response<AiMessage> = model.generate(userMessage)
+            println(response)
+            // updateTextGenerationResult(response.content().text())
+        }
     }
 
 }

@@ -18,16 +18,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import com.schoolkiller.domain.UploadFileMethodOptions
-import com.schoolkiller.presentation.common.EnlargedImage
-import com.schoolkiller.presentation.common.PermissionMessageRationale
-import com.schoolkiller.presentation.common.PermissionRequestDialog
+import com.schoolkiller.R
+import com.schoolkiller.domain.prompt.UploadFileMethodOptions
+import com.schoolkiller.presentation.common.image.EnlargedImage
+import com.schoolkiller.presentation.common.dialog.PermissionMessageRationale
+import com.schoolkiller.presentation.common.dialog.PermissionRequestDialog
 import com.schoolkiller.presentation.permissions.PermissionSet
-import com.schoolkiller.presentation.toast.ShowToastMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -51,6 +52,10 @@ fun HomeScreen(
     var launchGallery by remember { mutableStateOf<Boolean?>(null) }
     var launchCamera by remember { mutableStateOf<Boolean?>(null) }
 
+    val somethingWentWrongMessage = stringResource(R.string.something_went_wrong)
+    val imageFailedToLoad = stringResource(R.string.fail_to_load_Uri)
+    val corruptedLoadedFile = stringResource(R.string.corrupted_loaded_file)
+    val cameraFailedToOpen = stringResource(R.string.camera_fail_to_open)
 
     /** Invalid images auto cleaned on every HomeScreen creation*/
     LaunchedEffect(Unit) {
@@ -149,7 +154,7 @@ fun HomeScreen(
                 viewModel.insertImagesOnTheList(uris)
             } catch (e: Exception) {
                 Timber.w(e, "Image don`t inserted to the list")
-                ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
+                Toast.makeText(context,somethingWentWrongMessage, Toast.LENGTH_SHORT).show()
             }
         }
     )
@@ -163,7 +168,7 @@ fun HomeScreen(
                 )
             } catch (e: Exception) {
                 Timber.w(e, "gallery launcher activity failed")
-                ShowToastMessage.SOMETHING_WENT_WRONG.showToast()
+                Toast.makeText(context,imageFailedToLoad, Toast.LENGTH_SHORT).show()
             }
             launchGallery = null
         }
@@ -182,7 +187,7 @@ fun HomeScreen(
                         val getBitmapUri =
                             viewModel.getCameraSavedImageUri() // load bitmap uri to the list
                         getBitmapUri?.let { viewModel.insertImagesOnTheList(listOf(it)) } ?: run {
-                            ShowToastMessage.IMAGE_FAIL_TO_LOAD_TO_THE_LIST.showToast()
+                            Toast.makeText(context, imageFailedToLoad, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -195,7 +200,7 @@ fun HomeScreen(
                 cameraLauncher.launch(takePictureIntent)
             } catch (e: Exception) {
                 Timber.w(e, "camera launcher activity failed")
-                ShowToastMessage.CAMERA_FAIL_TO_OPEN.showToast()
+                Toast.makeText(context, cameraFailedToOpen, Toast.LENGTH_SHORT).show()
             }
             launchCamera = null
         }
@@ -213,17 +218,10 @@ fun HomeScreen(
             )
         } else {
             viewModel.updateIsImageEnlarged(false)
-            ShowToastMessage.CORRUPTED_LOADED_FILE.showToast()
+            Toast.makeText(context, corruptedLoadedFile, Toast.LENGTH_SHORT).show()
         }
     }
 
-
-    /** This is not in a good place, like just as a raw call. Every time screen load or refresh will call this function.
-     * This brings unnecessary calls because of the cooldown and will impact performance.
-     * Try to condition it with the cooldown.
-     */
-    // Show App Open Ad
-    //viewModel.showAppOpenAd(context)
 
     /** Button Cases */
     when (stateProperties.selectedUploadMethodOption) {
@@ -261,8 +259,8 @@ fun HomeScreen(
         }
     }
 
-    /** Main UI screen */
-    HomeScreenUI(
+    /** Home Screen main content */
+    HomeScreenContent(
         isHomeScreenUIShowed = isHomeScreenUIShowed,
         onNavigateToOcrScreen = onNavigateToOcrScreen,
         /*onNavigateToParametersScreen = { onNavigateToParametersScreen() },
