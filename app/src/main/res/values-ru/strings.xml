@@ -33,6 +33,7 @@
     <string name="What_to_solve_TextField_label">Что решить?</string>
 
     // Drop Down Menu Labels
+    <string name="first_ocr_result_is_not_ready">Текст распознается, пожалуйста, подождите...</string>
     <string name="solution_language_label">Язык решения</string>
     <string name="upload_a_file_label">Загрузить файл</string>
     <string name="explanations_label">Пояснения</string>

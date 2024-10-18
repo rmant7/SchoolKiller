@@ -21,11 +21,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
-import com.schoolkiller.domain.GradeOption
+import com.schoolkiller.domain.prompt.GradeOption
 import com.schoolkiller.presentation.ads.BannerAdContainer
 import com.schoolkiller.presentation.common.ApplicationScaffold
-import com.schoolkiller.presentation.common.AttentionAlertDialog
-import com.schoolkiller.presentation.common.UniversalButton
+import com.schoolkiller.presentation.common.dialog.AttentionAlertDialog
+import com.schoolkiller.presentation.common.button.UniversalButton
 
 
 @Composable
@@ -86,9 +86,6 @@ fun CheckSolutionScreen(
             // Text(stringResource(R.string.rating_TextField_label))
             // RatingSlider(viewModel)
 
-            /**
-             * PlaceHolder in the screen to place what needed
-             */
             Column(
                 modifier = modifier
                     .fillMaxWidth()
@@ -109,37 +106,12 @@ fun CheckSolutionScreen(
                     .fillMaxWidth(),
                 label = R.string.check_solution_button_label,
             ) {
-
-                //Updating rating scale in prompt, don't remove.
-                /*val originalPrompt = viewModel.originalPrompt.value
-                val selectedMaxRate = viewModel.selectedRateMax
-                viewModel.updatePrompt(
-                    originalPrompt.replace(
-                        "(1–100)", selectedMaxRate.toString()
-                    )
-                )*/
-
-
-                //viewModel.buildSolutionPrompt()
-                /** testing the prompt : uncomment */
-//                isAttentionDialogShowed = true
-                /** testing the prompt : uncomment */
-//                if (proceedToResultScreen) {
-                /** testing the prompt : uncomment */
-//                    isAttentionDialogShowed = false
-
-                // on back press from ResultScreen we have to restore requestGeminiResponse back to true
-//                    resultViewModel.updateRequestGeminiResponse(true)
-
-                // reset TextGenerationResult to initialize the loading indicator
-//                    viewModel.updateTextGenerationResult("")
+                // isAttentionDialogShowed = true
 
                 onNavigateToResultScreen(
                     viewModel.buildSolutionPrompt(recognizedText),
                     viewModel.buildSystemInstruction(false)
                 )
-                /** testing the prompt : uncomment */
-//                }
 
             }
         }

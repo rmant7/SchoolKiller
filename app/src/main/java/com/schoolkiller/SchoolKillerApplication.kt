@@ -3,9 +3,6 @@ package com.schoolkiller
 import android.app.Application
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
-import com.schoolkiller.domain.usecases.ads.BannerAdUseCase
-import com.schoolkiller.domain.usecases.ads.InterstitialAdUseCase
-import com.schoolkiller.presentation.toast.ShowToastMessage
 import dagger.hilt.android.HiltAndroidApp
 import io.appmetrica.analytics.AppMetrica
 import io.appmetrica.analytics.AppMetricaConfig
@@ -15,20 +12,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 @HiltAndroidApp
 class SchoolKillerApplication : Application() {
-
-    /* @Inject
-     lateinit var openAppAdUseCase: OpenAdUseCase*/
-
-    @Inject
-    lateinit var bannerAdUseCase: BannerAdUseCase
-
-    @Inject
-    lateinit var interstitialAdUseCase: InterstitialAdUseCase
-
 
     private val adsScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -40,21 +26,13 @@ class SchoolKillerApplication : Application() {
             Timber.plant(Timber.DebugTree())
         }
 
-        // initialize early the context of showToast function
-        ShowToastMessage.init(this@SchoolKillerApplication)
-
-
+        // Initialize the Google Mobile Ads SDK on a background thread.
         adsScope.launch(Dispatchers.IO + SupervisorJob()) {
-            // Initialize the Google Mobile Ads SDK on a background thread.
             MobileAds.initialize(this@SchoolKillerApplication) {}
             MobileAds.setAppMuted(true)
         }
 
-        // preloading ads
-        // openAppAdUseCase.loadAdWithNoAdsCheck()
-        bannerAdUseCase.loadAdWithNoAdsCheck()
-        interstitialAdUseCase.loadAdWithNoAdsCheck()
-
+        // Initialize AppMetrica on a background thread.
         CoroutineScope(Dispatchers.IO).launch {
             // Init FirebaseApp for all processes
             FirebaseApp.initializeApp(this@SchoolKillerApplication)

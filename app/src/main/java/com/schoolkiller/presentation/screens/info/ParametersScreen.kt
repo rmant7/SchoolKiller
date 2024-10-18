@@ -28,13 +28,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
-import com.schoolkiller.domain.ExplanationLevelOption
-import com.schoolkiller.domain.GradeOption
-import com.schoolkiller.domain.SolutionLanguageOption
+import com.schoolkiller.domain.prompt.ExplanationLevelOption
+import com.schoolkiller.domain.prompt.GradeOption
+import com.schoolkiller.domain.prompt.SolutionLanguageOption
 import com.schoolkiller.presentation.common.ApplicationScaffold
-import com.schoolkiller.presentation.common.AttentionAlertDialog
-import com.schoolkiller.presentation.common.ScreenImage
-import com.schoolkiller.presentation.common.UniversalButton
+import com.schoolkiller.presentation.common.dialog.AttentionAlertDialog
+import com.schoolkiller.presentation.common.image.ScreenImage
+import com.schoolkiller.presentation.common.button.UniversalButton
 
 
 @Composable
@@ -47,7 +47,6 @@ fun ParametersScreen(
     val parameterScreenProperties =
         viewModel.parametersPropertiesState.collectAsStateWithLifecycle().value
 
-    /** Testing the prompt in a dialog if the values are correct. Check also the solve button*/
     var isAttentionDialogShowed by remember { mutableStateOf(false) }
     var proceedToResultScreen by remember { mutableStateOf(false) }
     AttentionAlertDialog(
@@ -73,18 +72,6 @@ fun ParametersScreen(
                 contentDescription = R.string.ai_school_assistant_image_content_description
             )
 
-            //Don't remove, for feature development
-            /*        ExposedDropBox(
-                        maxHeightIn = 200.dp,
-                        context = context,
-                        label = R.string.grade_label,
-                        selectedOption = selectedAiModel,
-                        options = AiModelOptions.entries.toList(),
-                        onOptionSelected = { viewModel.updateSelectedAiModelOption(it) },
-                        optionToString = { option, context -> option.getString(context) }
-                    )
-            */
-            //Reused Component
             ExposedDropBox(
                 maxHeightIn = 200.dp,
                 label = R.string.grade_label,
@@ -170,26 +157,10 @@ fun ParametersScreen(
                     label = R.string.solve_button_label,
                 ) {
 
-                    //viewModel.buildSolvingPrompt()
-                    /** testing the prompt : uncomment */
-//                    isAttentionDialogShowed = true
-                    /** testing the prompt : uncomment */
-//                    if (proceedToResultScreen) {
-                    /** testing the prompt : uncomment */
-//                        isAttentionDialogShowed = false
-
-                    // on back press from ResultScreen we have to restore requestGeminiResponse back to true
-//                        resultViewModel.updateRequestGeminiResponse(true)
-
-                    // reset TextGenerationResult to initialize the loading indicator
-//                        resultViewModel.updateTextGenerationResult("")
-
                     onNavigateToResultScreen(
                         viewModel.buildSolvingPrompt(recognizedText),
                         viewModel.buildSystemInstruction(false)
                     )
-                    /** testing the prompt : uncomment */
-//                    }
 
                 }
             }

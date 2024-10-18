@@ -9,10 +9,9 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.schoolkiller.data.Constants
-import com.schoolkiller.domain.ExplanationLevelOption
-import com.schoolkiller.domain.GradeOption
-import com.schoolkiller.domain.PromptText
-import com.schoolkiller.domain.SolutionLanguageOption
+import com.schoolkiller.domain.prompt.ExplanationLevelOption
+import com.schoolkiller.domain.prompt.GradeOption
+import com.schoolkiller.domain.prompt.SolutionLanguageOption
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.Dispatchers

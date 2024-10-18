@@ -4,14 +4,14 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.schoolkiller.data.network.api.GeminiApiService
-import com.schoolkiller.data.network.response.GeminiResponse
+import com.schoolkiller.data.network.gemini_api.GeminiApiService
+import com.schoolkiller.data.network.gemini_api.GeminiRequest
+import com.schoolkiller.data.network.gemini_api.GeminiResponse
 import com.schoolkiller.data.repositories.DataStoreRepository
 import com.schoolkiller.domain.model.ResultProperties
-import com.schoolkiller.domain.usecases.ads.InterstitialAdUseCase
-import com.schoolkiller.domain.usecases.api.ExtractGeminiResponseUseCase
-import com.schoolkiller.domain.usecases.api.GetImageByteArrayUseCase
+import com.schoolkiller.domain.usecases.ImageUtils
 import com.schoolkiller.presentation.RequestState
+import com.schoolkiller.presentation.ads.InterstitialAdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,8 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ResultViewModel @Inject constructor(
     private val geminiApiService: GeminiApiService,
-    private val getImageByteArrayUseCase: GetImageByteArrayUseCase,
-    private val extractGeminiResponseUseCase: ExtractGeminiResponseUseCase,
+    //private val imageUtils: ImageUtils,
     private val interstitialAdUseCase: InterstitialAdUseCase,
     private val dataStoreRepository: DataStoreRepository
 ) : ViewModel() {
@@ -131,82 +130,33 @@ class ResultViewModel @Inject constructor(
         textOnExtractionError: String
     ) = viewModelScope.launch {
 
-        val content = geminiApiService.generateContent(
-            prompt, systemInstruction
-        )
-        val textResponse = if (content is GeminiResponse.Success) {
-            extractGeminiResponseUseCase.invoke(content.data ?: "{}")
+        val request = GeminiRequest.buildGeminiRequest(prompt, systemInstruction)
+        val content = geminiApiService.generateContent(request)
+        if (content is GeminiResponse.Success) {
+            updateTextGenerationResult(content.data)
         } else {
-            content.message
-        }
-
-        if (!textResponse.isNullOrEmpty())
-            updateTextGenerationResult(textResponse)
-        else {
             updateTextGenerationResult(textOnExtractionError)
-            //updateError(Throwable("Extraction failure"))
+
         }
     }
 
+    //Don't remove, for future development
     /*
-    fun fetchGeminiResponse(
-        imageUri: Uri,
-        fileName: String,
-        prompt: String,
-        systemInstruction: String
-    ) {
-        viewModelScope.launch {
-            val fileByteArray = getImageByteArrayUseCase.invoke(imageUri = imageUri)
-            val uploadResult = geminiApiService.uploadFileWithProgress(
-                fileByteArray,
-                fileName
-            )
+       fun fetchAIResponse(
+           imageUri: Uri,
+           fileName: String,
+           context: Context
+           aiModelOption: AiModelOptions
+       ) {
 
-            uploadResult.onSuccess { uploadModel ->
-                val fileUriResult = geminiApiService.uploadFileBytes(
-                    uploadModel.uploadUrl,
-                    fileByteArray
-                )
-
-                fileUriResult.onSuccess { fileUriJson ->
-                    val actualFileUri = Json.parseToJsonElement(fileUriJson)
-                        .jsonObject["file"]?.jsonObject?.get("uri")?.jsonPrimitive?.content
-
-                    if (actualFileUri != null) {
-                        val content = geminiApiService.generateContent(
-                            actualFileUri,
-                            prompt,
-                            systemInstruction
-                        )
-                        val textResponse = if (content is GeminiResponse.Success) {
-                            extractGeminiResponseUseCase.invoke(content.data ?: "{}")
-                        } else {
-                            content.message
-                        }
-                        updateTextGenerationResult(textResponse)
-                    } else {
-                        // Handle the case where the URI couldn't be extracted
-                        updateTextGenerationResult(
-                            null,
-                            RuntimeException(" URI couldn't be extracted")
-                        )
-                    }
-                }
-
-                fileUriResult.onFailure { throwable ->
-                    _resultPropertiesState.update { currentState ->
-                        currentState.copy(error = throwable)
-                    }
-                }
-            }
-            uploadResult.onFailure { throwable ->
-                _resultPropertiesState.update { currentState ->
-                    currentState.copy(error = throwable)
-                }
-            }
-        }
-    }
-*/
+           when (aiModelOption) {
+             AiModelOptions.MODEL_ONE -> fetchOpenAiResponse(imageUri)
+               AiModelOptions.MODEL_TWO -> fetchGeminiResponse(
+                   imageUri, fileName, ""
+               )
+           }
+       }
+   */
 
     private fun readImageState() {
         viewModelScope.launch {
@@ -246,67 +196,5 @@ class ResultViewModel @Inject constructor(
             updatePassedConvertedSolutionPrompt(resultPropertiesState.value.passedConvertedSolutionPrompt)
         }
     }
-
-
-    //Don't remove, for future development
-    /*
-       fun fetchAIResponse(
-           imageUri: Uri,
-           fileName: String,
-           context: Context
-           aiModelOption: AiModelOptions
-       ) {
-
-           when (aiModelOption) {
-             AiModelOptions.MODEL_ONE -> fetchOpenAiResponse(imageUri)
-               AiModelOptions.MODEL_TWO -> fetchGeminiResponse(
-                   imageUri, fileName, ""
-               )
-           }
-       }
-   */
-
-    //Don't remove, for future development
-    /*
-       private fun convertToBase64(selectedUri: Uri, context: Context): String {
-           val bitmap = MediaStore.Images.Media.getBitmap(
-               context.contentResolver,
-               selectedUri
-           )
-           val outputStream = ByteArrayOutputStream()
-           bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-           val byteArray = outputStream.toByteArray()
-
-           val encodedString: String = Base64.encodeToString(
-               byteArray, Base64.DEFAULT
-           )
-           return encodedString
-       }
-   */
-
-    //Don't remove, for future development
-    /*
-    fun fetchOpenAiResponse(imageUri: Uri, context: Context) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val key = "API_KEY"
-
-            val model: OpenAiChatModel = OpenAiChatModel.builder()
-                .apiKey(key)
-                .modelName("gpt-4o")
-                .build()
-
-            val userMessage: UserMessage = UserMessage.from(
-                TextContent.from("What is in this picture?"),
-                ImageContent.from(
-                    convertToBase64(imageUri, context), "image/png",
-                    ImageContent.DetailLevel.LOW
-                )
-            )
-            val response: Response<AiMessage> = model.generate(userMessage)
-
-            updateTextGenerationResult(response.content().text())
-        }
-    }
-*/
 
 }

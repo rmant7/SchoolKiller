@@ -2,7 +2,7 @@ package com.schoolkiller.domain.model
 
 import android.net.Uri
 import com.google.android.gms.ads.appopen.AppOpenAd
-import com.schoolkiller.domain.UploadFileMethodOptions
+import com.schoolkiller.domain.prompt.UploadFileMethodOptions
 
 data class HomeProperties(
     val appOpenAdd : AppOpenAd? = null,

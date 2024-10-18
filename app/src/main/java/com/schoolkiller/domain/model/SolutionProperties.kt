@@ -1,8 +1,7 @@
 package com.schoolkiller.domain.model
 
 import com.google.android.gms.ads.AdView
-import com.schoolkiller.domain.GradeOption
-import com.schoolkiller.domain.PromptText
+import com.schoolkiller.domain.prompt.GradeOption
 
 data class SolutionProperties(
     val adView: AdView? = null,
