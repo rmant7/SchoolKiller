@@ -86,13 +86,6 @@ fun HomeScreenContent(
                 contentDescription = R.string.upload_to_ai_school_image_assistant_content_description
             )
 
-            /**
-             * Image upload selection buttons
-             */
-
-            /**
-             * Image upload selection buttons
-             */
 
             Column(
                 modifier = modifier
@@ -110,6 +103,11 @@ fun HomeScreenContent(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Absolute.SpaceAround,
                         content = {
+
+                            /**
+                             * Image upload selection buttons
+                             */
+
                             RoundIconButton(
                                 modifier = Modifier.size(60.dp),
                                 icon = R.drawable.ic_add_image

@@ -30,6 +30,7 @@ lifecycleRuntimeKtx = "2.8.5"
 activityCompose = "1.9.2"
 composeBom = "2024.09.01"
 lifecycleViewmodelKtx = "2.8.5"
+listenablefuture = "9999.0-empty-to-avoid-conflict-with-guava"
 navigationCompose = "2.8.0"
 playServicesAds = "23.3.0"
 playServicesBase = "18.5.0"
@@ -99,6 +100,7 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 #secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
 common = { group = "com.google.ai.client.generativeai", name = "common", version.ref = "common" }
+listenablefuture = { module = "com.google.guava:listenablefuture", version.ref = "listenablefuture" }
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
 play-services-base = { module = "com.google.android.gms:play-services-base", version.ref = "playServicesBase" }
 push = { module = "io.appmetrica.analytics:push", version.ref = "push" }

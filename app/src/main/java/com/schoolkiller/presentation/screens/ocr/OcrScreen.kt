@@ -70,7 +70,6 @@ fun OcrScreen(
     val shouldShowErrorMessage = remember { mutableStateOf(true) }
 
     if (shouldRecognizeText.value) {
-        viewModel.fetchOpenAiResponse(imageUri = passedImageUri!!)
         //viewModel.updateRecognizedText("")
         viewModel.updateRecognizedText(firstOcrResultIsNotReady)
         selectedOcrResultId.intValue = 0

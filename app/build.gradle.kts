@@ -72,7 +72,7 @@ android {
 dependencies {
 
     // Google's "fix" of Guava duplicate issue.
-    implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
+    implementation(libs.listenablefuture)
     // Google cloud vision
     implementation("com.google.apis:google-api-services-vision:v1-rev369-1.23.0"){
         exclude(group="com.google.guava", module="guava-jdk5")
@@ -101,8 +101,6 @@ dependencies {
 
     // AdMob advertisement
     implementation(libs.play.services.ads)
-    // Added dependency on Guava to avoid conflicts with CameraX and AdMob
-    //implementation(libs.guava)/** CameraX not used anymore */
 
     // Accompanist Permissions
     implementation(libs.accompanist.permissions)
