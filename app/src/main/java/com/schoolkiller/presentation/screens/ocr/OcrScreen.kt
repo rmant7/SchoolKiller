@@ -14,7 +14,6 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -48,10 +47,8 @@ fun OcrScreen(
     val viewModel: OcrViewModel = hiltViewModel()
     val context = LocalContext.current
     // user chosen version of ocr
-    val recognizedText = viewModel.recognizedText.collectAsState()
     val selectedOcrResultId = remember { mutableIntStateOf(0) }
-    // 3 variations of ocr
-    val recognizedTextList = remember { viewModel.recognizedList }
+    val recognizedTextList = remember { viewModel.recognizedTextList }
     val ocrError = viewModel.ocrError.collectAsState()
 
     val shouldRecognizeText = remember { mutableStateOf(true) }
@@ -70,12 +67,14 @@ fun OcrScreen(
     val shouldShowErrorMessage = remember { mutableStateOf(true) }
 
     if (shouldRecognizeText.value) {
-        //viewModel.updateRecognizedText("")
-        viewModel.updateRecognizedText(firstOcrResultIsNotReady)
-        selectedOcrResultId.intValue = 0
+
         // reset list
         if (recognizedTextList.isNotEmpty())
             viewModel.clearRecognizedTextList()
+
+        // replace first recognized result with placeholder string
+        viewModel.replaceRecognizedText(0, firstOcrResultIsNotReady)
+        selectedOcrResultId.intValue = 0
 
         viewModel.updateOcrError(null)
 
@@ -94,8 +93,8 @@ fun OcrScreen(
     ApplicationScaffold(
         isShowed = true,
         content = {
-            // replaced -> recognizedText.value.isNullOrEmpty()
-            /*if (ocrError.value == null && recognizedTextList.isEmpty()) { //recognizedTextList.value.isEmpty()
+
+            /*if (ocrError.value == null && recognizedTextList.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -147,11 +146,9 @@ fun OcrScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(0.dp, 10.dp),
-                    value = recognizedText.value!!,
+                    value = recognizedTextList[selectedOcrResultId.intValue],
                     onValueChange = {
                         viewModel.replaceRecognizedText(selectedOcrResultId.intValue, it)
-                        //viewModel.updateRecognizedText(selectedOcrResultId.intValue, it)
-                        viewModel.updateRecognizedText(it)
                     },
                     textStyle = TextStyle(
                         fontSize = 25.sp,
@@ -171,7 +168,6 @@ fun OcrScreen(
                 ) {
                     shouldRecognizeText.value = true
                     viewModel.updateOcrError(null)
-                    viewModel.updateRecognizedText("")
                 }
 
                 // Toggle buttons
@@ -183,11 +179,6 @@ fun OcrScreen(
                     RadioIndexButton(
                         index = 0,
                         selectedIndex = selectedOcrResultId,
-                        onClick = {
-                            viewModel.updateRecognizedText(
-                                recognizedTextList[it]
-                            )
-                        },
                         indexMax = {
                             recognizedTextList.size
                         }
@@ -196,11 +187,6 @@ fun OcrScreen(
                     RadioIndexButton(
                         index = 1,
                         selectedIndex = selectedOcrResultId,
-                        onClick = {
-                            viewModel.updateRecognizedText(
-                                recognizedTextList[it]
-                            )
-                        },
                         indexMax = {
                             recognizedTextList.size
                         }
@@ -209,11 +195,6 @@ fun OcrScreen(
                     RadioIndexButton(
                         index = 2,
                         selectedIndex = selectedOcrResultId,
-                        onClick = {
-                            viewModel.updateRecognizedText(
-                                recognizedTextList[it]
-                            )
-                        },
                         indexMax = {
                             recognizedTextList.size
                         }
@@ -248,9 +229,12 @@ fun OcrScreen(
             Column(
                 modifier = Modifier.navigationBarsPadding()
             ) {
+                val selectedText = recognizedTextList[selectedOcrResultId.intValue]
 
-                fun onNextClick(onNavigate: () -> Unit) {
-                    if (recognizedText.value.isNullOrBlank())
+                fun onNextClick(
+                    onNavigate: () -> Unit
+                ) {
+                    if (selectedText.isBlank())
                         Toast.makeText(
                             context,
                             promptIsEmptyWarning, Toast.LENGTH_SHORT
@@ -264,7 +248,9 @@ fun OcrScreen(
                     label = R.string.check_solution_button_label,
                 ) {
                     onNextClick {
-                        onNavigateToCheckSolutionOptionsScreen(recognizedText.value!!)
+                        onNavigateToCheckSolutionOptionsScreen(
+                            selectedText
+                        )
                     }
                 }
 
@@ -274,7 +260,9 @@ fun OcrScreen(
                     label = R.string.solve_button_label,
                 ) {
                     onNextClick {
-                        onNavigateToParametersScreen(recognizedText.value!!)
+                        onNavigateToParametersScreen(
+                            selectedText
+                        )
                     }
                 }
             }

@@ -10,7 +10,6 @@ import androidx.compose.runtime.remember
 fun RadioIndexButton(
     index: Int,
     selectedIndex: MutableIntState,
-    onClick: (Int) -> Unit,
     indexMax: () -> Int
 ) {
 
@@ -18,7 +17,6 @@ fun RadioIndexButton(
 
     fun changeTextVariant() {
         selectedOcrResultId.value.intValue = index
-        onClick(index)
     }
 
     fun isSelected(): Boolean {

@@ -54,7 +54,8 @@ class MainActivity : ComponentActivity() {
                 ) {
 
                     navController = rememberNavController()
-
+                    // observe back stack entries
+                    navController.currentBackStackEntryAsState().value
                     ApplicationScaffold(
                         isShowed = true,
                         topBar = {
@@ -83,9 +84,6 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun AppTopBar() {
-
-        // observe back stack entries
-        navController.currentBackStackEntryAsState().value
 
         TopAppBar(
             // modifier = Modifier.padding(0.dp, 25.dp),

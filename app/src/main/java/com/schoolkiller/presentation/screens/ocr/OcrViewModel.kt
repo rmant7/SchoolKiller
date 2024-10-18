@@ -32,28 +32,32 @@ class OcrViewModel @Inject constructor(
 
     private val maxOcrRequests = 3
 
-    var recognizedList: MutableList<String> = mutableStateListOf()
+    var recognizedTextList: MutableList<String> = mutableStateListOf()
 
     fun replaceRecognizedText(index: Int, recognizedText: String) {
-        if (index < recognizedList.size)
-            recognizedList[index] = recognizedText
+        if (index < recognizedTextList.size)
+            recognizedTextList[index] = recognizedText
+        else addRecognizedText(recognizedText)
     }
 
     private fun addRecognizedText(recognizedText: String) {
-        if (recognizedList.size < maxOcrRequests)
-            recognizedList.add(recognizedText)
+        if (recognizedTextList.size < maxOcrRequests)
+            recognizedTextList.add(recognizedText)
     }
 
     fun clearRecognizedTextList() {
-        recognizedList.clear()
+        recognizedTextList.clear()
     }
 
+    // Was used when there was just one recognized result
+    /*
     private val _recognizedText = MutableStateFlow("")
     val recognizedText: StateFlow<String?> = _recognizedText
 
     fun updateRecognizedText(recognizedText: String) {
         _recognizedText.update { recognizedText }
     }
+    */
 
     // a pair of error title and error message
     private val _ocrError = MutableStateFlow<Throwable?>(null)
@@ -63,11 +67,12 @@ class OcrViewModel @Inject constructor(
         _ocrError.update { ocrError }
     }
 
-    private suspend fun fetchResponse(
+    private fun fetchResponse(
         actualFileUri: String,
         systemInstruction: String,
-        invalidOcrResultText: String
-    ): String {
+        invalidOcrResultText: String,
+        onFetch: (String) -> Unit
+    ) = viewModelScope.launch(Dispatchers.IO) {
 
         val request = GeminiRequest.buildGeminiRequest(
             actualFileUri,
@@ -77,10 +82,10 @@ class OcrViewModel @Inject constructor(
 
         val content = geminiApiService.generateContent(request)
 
-        return if (content is GeminiResponse.Success)
-            content.data!!
+        if (content is GeminiResponse.Success)
+            onFetch(content.data!!.trim())
         else
-            invalidOcrResultText
+            onFetch(invalidOcrResultText)
     }
 
     fun geminiImageToText(
@@ -109,37 +114,31 @@ class OcrViewModel @Inject constructor(
                     if (useHtml) Prompt.HTML_OCR_SYSTEM_INSTRUCTION.text
                     else Prompt.NO_HTML_OCR_SYSTEM_INSTRUCTION.text
 
-                repeat(maxOcrRequests) {
-                    // async calls
-                    launch {
-                        val response = fetchResponse(
-                            actualFileUri,
-                            systemInstruction,
-                            invalidOcrResultText
-                        ).trim()
-                        addRecognizedText(response)
-                        if (recognizedList.size == 1)
-                            updateRecognizedText(response)
 
-                        /*if (list.size == maxOcrRequests) {
-                            updateRecognizedTextList(list)
-                            updateRecognizedText(recognizedTextList.value[0])
-                        }*/
-                    }
+                var ind = 0
+                repeat(maxOcrRequests) {
+                    fetchResponse(
+                        actualFileUri,
+                        systemInstruction,
+                        invalidOcrResultText,
+                        onFetch = { response ->
+                            replaceRecognizedText(ind, response)
+                            ind++
+                        }
+                    )
                 }
 
             }
 
             fileUriResult.onFailure {
                 updateOcrError(it)
-                updateRecognizedText(invalidOcrResultText)
             }
         }
         uploadResult.onFailure { updateOcrError(it) }
     }
 
-    //Don't remove, for future development
-
+    // Don't remove, for future development
+    // ChatGpt response
     fun fetchOpenAiResponse(imageUri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             // val key = "API_KEY"
