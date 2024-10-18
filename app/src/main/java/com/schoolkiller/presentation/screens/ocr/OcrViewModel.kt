@@ -10,6 +10,7 @@ import com.schoolkiller.data.network.gemini_api.GeminiRequest
 import com.schoolkiller.data.network.gemini_api.GeminiResponse
 import com.schoolkiller.domain.prompt.Prompt
 import com.schoolkiller.domain.usecases.ImageUtils
+import com.schoolkiller.domain.usecases.tessaract.OrcProcess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.langchain4j.data.message.AiMessage
 import dev.langchain4j.data.message.ImageContent
@@ -83,6 +84,11 @@ class OcrViewModel @Inject constructor(
             invalidOcrResultText
     }
 
+    fun ocrImageToText(imageFile: File) = viewModelScope.launch {
+        processImage(imageFile)
+        addRecognizedText(/* something */)
+    }
+
     fun geminiImageToText(
         imageUri: Uri,
         fileName: String,
@@ -136,7 +142,7 @@ class OcrViewModel @Inject constructor(
             }
         }
         uploadResult.onFailure { updateOcrError(it) }
-    }
+    }*/
 
     //Don't remove, for future development
 
