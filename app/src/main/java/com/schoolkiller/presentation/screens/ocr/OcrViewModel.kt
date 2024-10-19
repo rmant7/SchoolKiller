@@ -84,9 +84,17 @@ class OcrViewModel @Inject constructor(
             invalidOcrResultText
     }
 
-    fun ocrImageToText(imageFile: File) = viewModelScope.launch {
-        processImage(imageFile)
-        addRecognizedText(/* something */)
+    fun tessaractImageToText(imageFile: File) = viewModelScope.launch {
+        val response = tessaractImage(imageFile)
+        response.onSuccess { res ->
+            addRecognizedText(response)
+            if (recognizedList.size == 1) {
+                updateRecognizedText(response)
+            }
+        }
+        response.onFailure { err ->
+            updateOcrError(err)
+        }
     }
 
     fun geminiImageToText(

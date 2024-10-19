@@ -81,7 +81,7 @@ fun OcrScreen(
         viewModel.updateOcrError(null)
 
         if (passedImageUri != null) {
-            viewModel.orcImageToText(File("app/src/main/resources/shalom.png"))
+            viewModel.tessaractImageToText(File("app/src/main/resources/shalom.png"))
             /*viewModel.geminiImageToText(
                 imageUri = passedImageUri,
                 fileName = passedImageUri.toString(),

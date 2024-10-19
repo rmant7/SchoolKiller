@@ -12,7 +12,7 @@ In addition, we can add custom Gradle tasks to check for required system depende
 (like Tesseract) */
 
 /* given an (image) file, extracts text out of it */
-fun processImage(ImageFile: File) {
+fun tessaractImage(ImageFile: File): Result<String> {
     // Get system-specific or environment-configured paths
     val tessLibraryPath = System.getenv("TESSERACT_LIBRARY_PATH") ?: getDefaultLibraryPath()
     println("lib path: ${tessLibraryPath}")
@@ -32,19 +32,16 @@ fun processImage(ImageFile: File) {
     tesseract.setLanguage("heb+eng")
 
     try {
-
         // Perform OCR on the image
         val result = tesseract.doOCR(imageFile)
-
-        // Print the extracted text
-        println("OCR Result: $result")
+        return Result.success(result)
     } catch (e: TesseractException) {
-        println("Error during OCR: ${e.message}")
+        return Result.failure("Error during OCR: ${e.message}")
     }
 }
 
 /* given a (pdf) file, extracts text out of it */
-fun processPDF(pdfFile: File) {
+fun tessaractPDF(pdfFile: File): Result<String> {
 
     // Get system-specific or environment-configured paths
     val tessLibraryPath = System.getenv("TESSERACT_LIBRARY_PATH") ?: getDefaultLibraryPath()
@@ -64,7 +61,10 @@ fun processPDF(pdfFile: File) {
     // Optionally, set the Tesseract language (e.g., "heb" for Hebrew)
     tesseract.setLanguage("heb+eng")
 
-    try {
+    // Collect OCR results from all pages
+    val extractedText = StringBuilder()
+
+    return try {
 
         // Load PDF document using PDFBox
         val document: PDDocument = PDDocument.load(pdfFile)
@@ -86,6 +86,14 @@ fun processPDF(pdfFile: File) {
             // Perform OCR on the image
             val result = tesseract.doOCR(bufferedImage)
 
+            // Append the result from the current page, separating pages with a line separator
+            extractedText.append(result).append(System.lineSeparator())
+
+            // Only add a line separator between pages, not after the last page
+            if (page < document.numberOfPages - 1) {
+                extractedText.append(System.lineSeparator())
+            }
+
             // Print the extracted text from the current page
             println("OCR Result for page ${page + 1}: $result")
         }
@@ -93,10 +101,14 @@ fun processPDF(pdfFile: File) {
         // Close the PDF document
         document.close()
 
+        return Result.success(extractedText.toString())
+
     } catch (e: IOException) {
         println("Error reading PDF file: ${e.message}")
+        Result.failure(e)
     } catch (e: TesseractException) {
         println("Error during OCR: ${e.message}")
+        Result.failure(e)
     }
 }
 
