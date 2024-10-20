@@ -85,8 +85,7 @@ dependencies {
         exclude(module="httpclient")
         exclude (group="com.google.guava", module="guava-jdk5")
     }
-    implementation("net.sourceforge.tess4j:tess4j:5.4.0")
-    implementation("org.apache.pdfbox:pdfbox:2.0.26")
+    implementation("com.github.rmtheis:tess-two:9.0.0")
 
     //Scroll bars
     implementation(libs.composescrollbars)

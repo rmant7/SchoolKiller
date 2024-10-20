@@ -1,6 +1,5 @@
 package com.schoolkiller.presentation.screens.ocr
 
-
 import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
@@ -8,9 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.schoolkiller.data.network.gemini_api.GeminiApiService
 import com.schoolkiller.data.network.gemini_api.GeminiRequest
 import com.schoolkiller.data.network.gemini_api.GeminiResponse
+import com.schoolkiller.domain.usecases.tessaractImage
 import com.schoolkiller.domain.prompt.Prompt
 import com.schoolkiller.domain.usecases.ImageUtils
-import com.schoolkiller.domain.usecases.tessaract.OrcProcess
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.langchain4j.data.message.AiMessage
 import dev.langchain4j.data.message.ImageContent
@@ -84,16 +83,16 @@ class OcrViewModel @Inject constructor(
             invalidOcrResultText
     }
 
-    fun tessaractImageToText(imageFile: File) = viewModelScope.launch {
-        val response = tessaractImage(imageFile)
+    fun tessaractImageToText(imagePath: String) = viewModelScope.launch {
+        val response = tessaractImage(imagePath)
         response.onSuccess { res ->
-            addRecognizedText(response)
+            addRecognizedText(res)
             if (recognizedList.size == 1) {
-                updateRecognizedText(response)
+                updateRecognizedText(res)
             }
         }
-        response.onFailure { err ->
-            updateOcrError(err)
+        response.onFailure {
+            updateOcrError(it)
         }
     }
 
@@ -150,7 +149,7 @@ class OcrViewModel @Inject constructor(
             }
         }
         uploadResult.onFailure { updateOcrError(it) }
-    }*/
+    }
 
     //Don't remove, for future development
 
