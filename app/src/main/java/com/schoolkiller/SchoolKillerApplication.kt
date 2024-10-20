@@ -1,6 +1,7 @@
 package com.schoolkiller
 
 import android.app.Application
+import android.webkit.WebView
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
 import dagger.hilt.android.HiltAndroidApp
@@ -24,6 +25,11 @@ class SchoolKillerApplication : Application() {
         // Take out logs of the release version with this set. logs decrease performance
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
+        }
+
+        val processName = getProcessName()
+        if (!packageName.equals(processName)) {
+            WebView.setDataDirectorySuffix(processName)
         }
 
         // Initialize the Google Mobile Ads SDK on a background thread.

@@ -2,7 +2,6 @@ package com.schoolkiller.presentation.screens.ocr
 
 
 import android.net.Uri
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.schoolkiller.data.network.gemini_api.GeminiApiService
@@ -30,8 +29,23 @@ class OcrViewModel @Inject constructor(
     private val imageUtils: ImageUtils,
 ) : ViewModel() {
 
-    private val maxOcrRequests = 3
+    private val maxOcrRequests = 2
 
+    private val _htmlGeminiResponse = MutableStateFlow("")
+    val htmlGeminiResponse: StateFlow<String> = _htmlGeminiResponse
+
+    fun updateHtmlGeminiResponse(recognizedText: String) {
+        _htmlGeminiResponse.update { recognizedText }
+    }
+
+    private val _noHtmlGeminiResponse = MutableStateFlow("")
+    val noHtmlGeminiResponse: StateFlow<String> = _noHtmlGeminiResponse
+
+    fun updateNoHtmlGeminiResponse(recognizedText: String) {
+        _noHtmlGeminiResponse.update { recognizedText }
+    }
+
+    /*
     var recognizedTextList: MutableList<String> = mutableStateListOf()
 
     fun replaceRecognizedText(index: Int, recognizedText: String) {
@@ -48,16 +62,19 @@ class OcrViewModel @Inject constructor(
     fun clearRecognizedTextList() {
         recognizedTextList.clear()
     }
+*/
 
-    // Was used when there was just one recognized result
-    /*
-    private val _recognizedText = MutableStateFlow("")
-    val recognizedText: StateFlow<String?> = _recognizedText
+    private val _selectedText = MutableStateFlow("")
+    val selectedText: StateFlow<String> = _selectedText
 
-    fun updateRecognizedText(recognizedText: String) {
-        _recognizedText.update { recognizedText }
+    fun updateSelectedText(recognizedText: String) {
+        _selectedText.update { recognizedText }
     }
-    */
+
+    /*fun updateSelectedText(selectedIndex: Int) {
+        _selectedText.update { recognizedTextList[selectedIndex] }
+    }*/
+
 
     // a pair of error title and error message
     private val _ocrError = MutableStateFlow<Throwable?>(null)
@@ -83,7 +100,7 @@ class OcrViewModel @Inject constructor(
         val content = geminiApiService.generateContent(request)
 
         if (content is GeminiResponse.Success)
-            onFetch(content.data!!.trim())
+            onFetch(content.data!!)
         else
             onFetch(invalidOcrResultText)
     }
@@ -91,7 +108,6 @@ class OcrViewModel @Inject constructor(
     fun geminiImageToText(
         imageUri: Uri,
         fileName: String,
-        useHtml: Boolean,
         invalidOcrResultText: String
     ) = viewModelScope.launch {
 
@@ -109,24 +125,27 @@ class OcrViewModel @Inject constructor(
 
             fileUriResult.onSuccess { actualFileUri ->
 
-                /** For tests */
-                val systemInstruction =
-                    if (useHtml) Prompt.HTML_OCR_SYSTEM_INSTRUCTION.text
-                    else Prompt.NO_HTML_OCR_SYSTEM_INSTRUCTION.text
+                fetchResponse(
+                    actualFileUri,
+                    Prompt.NO_HTML_OCR_SYSTEM_INSTRUCTION.text,
+                    invalidOcrResultText,
+                    onFetch = {
+                        val cleanedStr = it.replace(
+                            Regex("""^\s+""", RegexOption.MULTILINE), ""
+                        )
+                        updateNoHtmlGeminiResponse(cleanedStr)
+                        updateSelectedText(cleanedStr)
+                    }
+                )
 
-
-                var ind = 0
-                repeat(maxOcrRequests) {
-                    fetchResponse(
-                        actualFileUri,
-                        systemInstruction,
-                        invalidOcrResultText,
-                        onFetch = { response ->
-                            replaceRecognizedText(ind, response)
-                            ind++
-                        }
-                    )
-                }
+                fetchResponse(
+                    actualFileUri,
+                    Prompt.HTML_OCR_SYSTEM_INSTRUCTION.text,
+                    invalidOcrResultText,
+                    onFetch = {
+                        updateHtmlGeminiResponse(it)
+                    }
+                )
 
             }
 

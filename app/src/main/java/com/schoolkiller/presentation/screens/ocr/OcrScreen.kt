@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -23,18 +24,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.button.RadioIndexButton
-import com.schoolkiller.presentation.common.dialog.ErrorAlertDialog
 import com.schoolkiller.presentation.common.button.RoundIconButton
 import com.schoolkiller.presentation.common.button.UniversalButton
+import com.schoolkiller.presentation.common.dialog.ErrorAlertDialog
+import com.schoolkiller.presentation.common.web_view.HtmlTextView
+import java.text.Bidi
 
 @Composable
 fun OcrScreen(
@@ -46,9 +51,14 @@ fun OcrScreen(
 
     val viewModel: OcrViewModel = hiltViewModel()
     val context = LocalContext.current
+
+    val htmlText = viewModel.htmlGeminiResponse.collectAsState()
+    val noHtmlText = viewModel.noHtmlGeminiResponse.collectAsState()
+
     // user chosen version of ocr
     val selectedOcrResultId = remember { mutableIntStateOf(0) }
-    val recognizedTextList = remember { viewModel.recognizedTextList }
+    val selectedText = viewModel.selectedText.collectAsState()
+
     val ocrError = viewModel.ocrError.collectAsState()
 
     val shouldRecognizeText = remember { mutableStateOf(true) }
@@ -68,12 +78,9 @@ fun OcrScreen(
 
     if (shouldRecognizeText.value) {
 
-        // reset list
-        if (recognizedTextList.isNotEmpty())
-            viewModel.clearRecognizedTextList()
-
         // replace first recognized result with placeholder string
-        viewModel.replaceRecognizedText(0, firstOcrResultIsNotReady)
+        viewModel.updateNoHtmlGeminiResponse(firstOcrResultIsNotReady)
+        viewModel.updateHtmlGeminiResponse("")
         selectedOcrResultId.intValue = 0
 
         viewModel.updateOcrError(null)
@@ -82,7 +89,6 @@ fun OcrScreen(
             viewModel.geminiImageToText(
                 imageUri = passedImageUri,
                 fileName = passedImageUri.toString(),
-                false,
                 invalidOcrResultText
             )
         else viewModel.updateOcrError(RuntimeException())
@@ -131,31 +137,52 @@ fun OcrScreen(
                  * Both views are left for testing along with old and new prompts
                  */
 
-                // HTML view
-                /*
-                    HtmlTextView(
-                        recognizedText.value!!,
-                        isPromptEditable
-                    )
-                    { viewModel.updateRecognizedText(it) }
+                /*println(noHtmlText)
+                println("---------------")
+                println(htmlText)*/
 
-                 */
+                // HTML view
+                // testing gemini response web view
+                // show on second radio button click
+                if (selectedOcrResultId.intValue == 1)
+                    HtmlTextView(
+                        htmlContent = htmlText.value,
+                        isEditable = isPromptEditable,
+                        onValueChange = {
+                            viewModel.updateHtmlGeminiResponse(it)
+                        }
+                    )
+
+                fun getTextDir(content: String): LayoutDirection {
+                    val isLtr = Bidi(
+                        content,
+                        Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT
+                    ).isLeftToRight
+                    return if (isLtr) LayoutDirection.Ltr else LayoutDirection.Rtl
+                }
 
                 // Compose text field
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(0.dp, 10.dp),
-                    value = recognizedTextList[selectedOcrResultId.intValue],
-                    onValueChange = {
-                        viewModel.replaceRecognizedText(selectedOcrResultId.intValue, it)
-                    },
-                    textStyle = TextStyle(
-                        fontSize = 25.sp,
-                        textAlign = TextAlign.Start
-                    ),
-                    readOnly = !isPromptEditable.value
-                )
+                // testing gemini response compose view
+                // show on the first radio button click
+                if (selectedOcrResultId.intValue == 0)
+                    CompositionLocalProvider(
+                        LocalLayoutDirection provides getTextDir(noHtmlText.value)
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(0.dp, 10.dp),
+                            value = noHtmlText.value,
+                            onValueChange = {
+                                viewModel.updateNoHtmlGeminiResponse(it)
+                            },
+                            textStyle = TextStyle(
+                                fontSize = 25.sp,
+                                textAlign = TextAlign.Start
+                            ),
+                            readOnly = !isPromptEditable.value,
+                        )
+                    }
             }
 
             Row(
@@ -179,24 +206,28 @@ fun OcrScreen(
                     RadioIndexButton(
                         index = 0,
                         selectedIndex = selectedOcrResultId,
-                        indexMax = {
-                            recognizedTextList.size
+                        isEnabled = noHtmlText.value.isNotEmpty(),
+                        onSelected = {
+                            viewModel.updateSelectedText(noHtmlText.value)
                         }
                     )
 
                     RadioIndexButton(
                         index = 1,
                         selectedIndex = selectedOcrResultId,
-                        indexMax = {
-                            recognizedTextList.size
+                        isEnabled = htmlText.value.isNotEmpty(),
+                        onSelected = {
+                            viewModel.updateSelectedText(htmlText.value)
                         }
                     )
+
 
                     RadioIndexButton(
                         index = 2,
                         selectedIndex = selectedOcrResultId,
-                        indexMax = {
-                            recognizedTextList.size
+                        isEnabled = false,
+                        onSelected = {
+                            // update Tesseract
                         }
                     )
 
@@ -229,12 +260,11 @@ fun OcrScreen(
             Column(
                 modifier = Modifier.navigationBarsPadding()
             ) {
-                val selectedText = recognizedTextList[selectedOcrResultId.intValue]
 
                 fun onNextClick(
                     onNavigate: () -> Unit
                 ) {
-                    if (selectedText.isBlank())
+                    if (selectedText.value.isBlank())
                         Toast.makeText(
                             context,
                             promptIsEmptyWarning, Toast.LENGTH_SHORT
@@ -249,7 +279,7 @@ fun OcrScreen(
                 ) {
                     onNextClick {
                         onNavigateToCheckSolutionOptionsScreen(
-                            selectedText
+                            selectedText.value
                         )
                     }
                 }
@@ -261,7 +291,7 @@ fun OcrScreen(
                 ) {
                     onNextClick {
                         onNavigateToParametersScreen(
-                            selectedText
+                            selectedText.value
                         )
                     }
                 }

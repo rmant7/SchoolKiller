@@ -10,27 +10,24 @@ import androidx.compose.runtime.remember
 fun RadioIndexButton(
     index: Int,
     selectedIndex: MutableIntState,
-    indexMax: () -> Int
+    isEnabled: Boolean,
+    onSelected: (Int) -> Unit
 ) {
-
     val selectedOcrResultId = remember { mutableStateOf(selectedIndex) }
 
     fun changeTextVariant() {
         selectedOcrResultId.value.intValue = index
+        onSelected(index)
     }
 
     fun isSelected(): Boolean {
         return selectedOcrResultId.value.intValue == index
     }
 
-    fun isEnabled(): Boolean {
-        return indexMax.invoke() - 1 >= index
-    }
-
     RadioButton(
         selected = isSelected(),
         onClick = { changeTextVariant() },
-        enabled = isEnabled()
+        enabled = isEnabled
     )
 
 }

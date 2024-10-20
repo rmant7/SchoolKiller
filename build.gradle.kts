@@ -20,10 +20,10 @@ plugins {
     // Dagger-Hilt
     id("com.google.dagger.hilt.android") version "2.51.1" apply false
     // KSP
-    id("com.google.devtools.ksp") version "1.9.10-1.0.13" apply false
+    id("com.google.devtools.ksp") version "1.9.20-1.0.14" apply false
     // Serialization
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0"
-
+    // Google Services
     id("com.google.gms.google-services") version "4.4.2"
 }
 
