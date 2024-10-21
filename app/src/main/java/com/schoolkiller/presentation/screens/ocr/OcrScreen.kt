@@ -36,6 +36,7 @@ import com.schoolkiller.presentation.common.button.RadioIndexButton
 import com.schoolkiller.presentation.common.dialog.ErrorAlertDialog
 import com.schoolkiller.presentation.common.button.RoundIconButton
 import com.schoolkiller.presentation.common.button.UniversalButton
+//import com.schoolkiller.domain.usecases.*
 
 @Composable
 fun OcrScreen(
@@ -79,13 +80,15 @@ fun OcrScreen(
 
         viewModel.updateOcrError(null)
 
-        if (passedImageUri != null)
-            viewModel.geminiImageToText(
+        if (passedImageUri != null) {
+            viewModel.tessaractImageToText(context.applicationContext)
+            /*viewModel.geminiImageToText(
                 imageUri = passedImageUri,
                 fileName = passedImageUri.toString(),
                 false,
                 invalidOcrResultText
-            )
+            )*/
+        }
         else viewModel.updateOcrError(RuntimeException())
         // and close the call
         shouldRecognizeText.value = false

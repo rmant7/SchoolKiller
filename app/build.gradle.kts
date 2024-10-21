@@ -85,6 +85,7 @@ dependencies {
         exclude(module="httpclient")
         exclude (group="com.google.guava", module="guava-jdk5")
     }
+    implementation("com.github.rmtheis:tess-two:9.0.0")
 
     //Scroll bars
     implementation(libs.composescrollbars)

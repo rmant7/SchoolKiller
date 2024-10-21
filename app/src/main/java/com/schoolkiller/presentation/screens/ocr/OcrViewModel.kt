@@ -1,6 +1,7 @@
 package com.schoolkiller.presentation.screens.ocr
 
-
+import android.content.Context
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
@@ -8,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.schoolkiller.data.network.gemini_api.GeminiApiService
 import com.schoolkiller.data.network.gemini_api.GeminiRequest
 import com.schoolkiller.data.network.gemini_api.GeminiResponse
+import com.schoolkiller.domain.usecases.tessaractImage
+import com.schoolkiller.domain.usecases.copyTessDataFiles
 import com.schoolkiller.domain.prompt.Prompt
 import com.schoolkiller.domain.usecases.ImageUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,6 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -81,6 +85,37 @@ class OcrViewModel @Inject constructor(
             content.data!!
         else
             invalidOcrResultText
+    }
+
+    fun tessaractImageToText(context: Context) = viewModelScope.launch {
+        try {
+            // Open the image from assets/images folder
+            val inputStream = context.assets.open("images/shalom.png") // should be replaced by the requested image
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+
+            // Check if the bitmap was successfully loaded
+            if (bitmap != null) {
+                // Copy tessdata files to internal storage
+                val tessDataPath = context.filesDir.absolutePath + "/tessdata"
+                copyTessDataFiles(context, tessDataPath)
+
+                val response = tessaractImage(context, bitmap)
+                response.onSuccess { res ->
+                    addRecognizedText(res)
+                    if (recognizedList.size == 1) {
+                        updateRecognizedText(res)
+                    }
+                }
+                response.onFailure {
+                    updateOcrError(it)
+                }
+            } else {
+                updateOcrError(IOException("Unable to load bitmap from assets"))
+            }
+        } catch (e: Exception) {
+            // Handle any exceptions (like missing file, decoding errors)
+            updateOcrError(e)
+        }
     }
 
     fun geminiImageToText(
