@@ -3,6 +3,7 @@ package com.schoolkiller.domain.usecases
 import android.content.Context
 import android.graphics.Bitmap
 import com.googlecode.tesseract.android.TessBaseAPI
+import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 
@@ -14,19 +15,25 @@ fun tessaractImage(context: Context, bitmap: Bitmap): Result<String> {
     // Initialize Tesseract instance
     val tesseract = TessBaseAPI()
 
+    Timber.d("Init Tesseract")
     // Set the tessdata path and languages (e.g., "eng" for English, "heb" for Hebrew)
-    tesseract.init(tessDataPath, "eng+heb") // Modify languages as per your requirements
+    // eng+heb+rus
+    // changed to heb for hebrew ocr tests
+    tesseract.init(tessDataPath, "heb") // Modify languages as per your requirements
 
     return try {
         // Set the bitmap to Tesseract for OCR
+        Timber.d("Set image to Tesseract")
         tesseract.setImage(bitmap)
 
         // Extract the text
         val extractedText = tesseract.utF8Text
+        Timber.d("Text is extracted by Tesseract.")
         Result.success(extractedText)
 
     } catch (e: Exception) {
         // Handle any exceptions during OCR
+        Timber.e(e, "Unexpected exception during ocr.")
         Result.failure(e)
     } finally {
         // End the Tesseract session to free up resources
@@ -112,7 +119,7 @@ fun getDefaultLibraryPath(): String {
 
 fun copyTessDataFiles(context: Context, destinationPath: String) {
     val assetManager = context.assets
-    val tessDataFiles = arrayOf("eng.traineddata", "heb.traineddata")
+    val tessDataFiles = arrayOf("eng.traineddata", "heb.traineddata", "rus.traineddata")
 
     val tessDataDir = File(destinationPath)
     // Create the tessdata directory if it doesn't exist
@@ -121,7 +128,7 @@ fun copyTessDataFiles(context: Context, destinationPath: String) {
     }
 
     for (file in tessDataFiles) {
-        val destinationFile = File(destinationPath + file)
+        val destinationFile = File("$destinationPath/$file")
         if (!destinationFile.exists()) {
             assetManager.open("tessdata/$file").use { inputStream ->
                 FileOutputStream(destinationFile).use { outputStream ->

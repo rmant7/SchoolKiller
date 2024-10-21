@@ -3,6 +3,7 @@ package com.schoolkiller.presentation.screens.ocr
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.schoolkiller.data.network.gemini_api.GeminiApiService
@@ -24,7 +25,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.IOException
+import java.text.Bidi
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,7 +36,22 @@ class OcrViewModel @Inject constructor(
     private val imageUtils: ImageUtils,
 ) : ViewModel() {
 
-    private val maxOcrRequests = 2
+    private val _textAlignment = MutableStateFlow(LayoutDirection.Ltr)
+    val textAlignment: StateFlow<LayoutDirection> = _textAlignment
+
+    private var isFirstAlignment = true
+
+    fun updateTextAlignment(textAlignment: LayoutDirection) {
+        _textAlignment.update { textAlignment }
+    }
+
+    private fun getTextDir(content: String): LayoutDirection {
+        val isLtr = Bidi(
+            content,
+            Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT
+        ).isLeftToRight
+        return if (isLtr) LayoutDirection.Ltr else LayoutDirection.Rtl
+    }
 
     private val _htmlGeminiResponse = MutableStateFlow("")
     val htmlGeminiResponse: StateFlow<String> = _htmlGeminiResponse
@@ -49,36 +67,23 @@ class OcrViewModel @Inject constructor(
         _noHtmlGeminiResponse.update { recognizedText }
     }
 
-    /*
-    var recognizedTextList: MutableList<String> = mutableStateListOf()
+    private val _tesseractOcrResult = MutableStateFlow("")
+    val tesseractOcrResult: StateFlow<String> = _tesseractOcrResult
 
-    fun replaceRecognizedText(index: Int, recognizedText: String) {
-        if (index < recognizedTextList.size)
-            recognizedTextList[index] = recognizedText
-        else addRecognizedText(recognizedText)
+    fun updateTesseractOcrResult(recognizedText: String) {
+        _tesseractOcrResult.update { recognizedText }
     }
-
-    private fun addRecognizedText(recognizedText: String) {
-        if (recognizedTextList.size < maxOcrRequests)
-            recognizedTextList.add(recognizedText)
-    }
-
-    fun clearRecognizedTextList() {
-        recognizedTextList.clear()
-    }
-*/
 
     private val _selectedText = MutableStateFlow("")
     val selectedText: StateFlow<String> = _selectedText
 
     fun updateSelectedText(recognizedText: String) {
+        if (isFirstAlignment) {
+            updateTextAlignment(getTextDir(recognizedText))
+            isFirstAlignment = false
+        }
         _selectedText.update { recognizedText }
     }
-
-    /*fun updateSelectedText(selectedIndex: Int) {
-        _selectedText.update { recognizedTextList[selectedIndex] }
-    }*/
-
 
     // a pair of error title and error message
     private val _ocrError = MutableStateFlow<Throwable?>(null)
@@ -109,12 +114,18 @@ class OcrViewModel @Inject constructor(
             onFetch(invalidOcrResultText)
     }
 
-    fun tessaractImageToText(context: Context) = viewModelScope.launch {
+    fun tessaractImageToText(
+        passedImageUri: Uri,
+        context: Context
+    ) = viewModelScope.launch(Dispatchers.IO) {
         try {
+            /*
             // Open the image from assets/images folder
             val inputStream = context.assets.open("images/shalom.png") // should be replaced by the requested image
             val bitmap = BitmapFactory.decodeStream(inputStream)
+            */
 
+            val bitmap = imageUtils.convertUriToBitMap(passedImageUri)
             // Check if the bitmap was successfully loaded
             if (bitmap != null) {
                 // Copy tessdata files to internal storage
@@ -123,19 +134,20 @@ class OcrViewModel @Inject constructor(
 
                 val response = tessaractImage(context, bitmap)
                 response.onSuccess { res ->
-                    addRecognizedText(res)
-                    if (recognizedList.size == 1) {
-                        updateRecognizedText(res)
-                    }
+                    Timber.d("Success! Ocr result is $res")
+                    updateTesseractOcrResult(res)
                 }
                 response.onFailure {
+                    Timber.e(it)
                     updateOcrError(it)
                 }
             } else {
+                Timber.e(IOException())
                 updateOcrError(IOException("Unable to load bitmap from assets"))
             }
         } catch (e: Exception) {
             // Handle any exceptions (like missing file, decoding errors)
+            Timber.e(e, "Unexpected Error.")
             updateOcrError(e)
         }
     }
@@ -178,7 +190,10 @@ class OcrViewModel @Inject constructor(
                     Prompt.HTML_OCR_SYSTEM_INSTRUCTION.text,
                     invalidOcrResultText,
                     onFetch = {
-                        updateHtmlGeminiResponse(it)
+                        val cleanedStr = it.replace(
+                            Regex("""^\s+""", RegexOption.MULTILINE), ""
+                        )
+                        updateHtmlGeminiResponse(cleanedStr)
                     }
                 )
 

@@ -40,7 +40,7 @@ class OpenAdUseCase @Inject constructor(
         val adRequest = AdRequest.Builder().build()
         AppOpenAd.load(
             context,
-            Constants.OPEN_AD_SAMPLE_ID,
+            Constants.NEW_OPEN_AD_ID,
             adRequest,
             AppOpenAd.APP_OPEN_AD_ORIENTATION_PORTRAIT,
             object : AppOpenAd.AppOpenAdLoadCallback() {

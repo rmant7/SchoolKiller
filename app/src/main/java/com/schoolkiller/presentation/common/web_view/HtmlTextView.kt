@@ -1,23 +1,24 @@
 package com.schoolkiller.presentation.common.web_view
 
 import android.annotation.SuppressLint
+import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.viewinterop.AndroidView
-import java.text.Bidi
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun HtmlTextView(
     htmlContent: String,
     isEditable: Boolean,
-    onValueChange: (String) -> Unit = {}
+    onValueChange: (String) -> Unit = {},
+    textAlign: LayoutDirection
 ) {
     val content by remember { mutableStateOf(htmlContent) }
 
@@ -39,7 +40,7 @@ fun HtmlTextView(
                 // Load the HTML content with the scripts and contenteditable div
                 loadDataWithBaseURL(
                     null,
-                    createKatexHtml(content, isEditable, isLtr(content)),
+                    createKatexHtml(content, isEditable, getTextDirStr(textAlign)),
                     //createHtmlContent(content, isHtmlEditable.value),
                     "text/html",
                     "utf-8",
@@ -48,7 +49,10 @@ fun HtmlTextView(
             }
         },
         update = { webView ->
-            // could be one function to avoid 2 update view calls
+            // could be one function to avoid 3 update view calls
+            webView.evaluateJavascript(
+                "setTextDir('${getTextDirStr(textAlign)}')", null
+            )
 
             // set text to be editable or not
             webView.evaluateJavascript(
@@ -64,12 +68,8 @@ fun HtmlTextView(
     )
 }
 
-private fun isLtr(content: String): Boolean {
-    val bidi = Bidi(
-        content,
-        Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT
-    )
-   return bidi.isLeftToRight
+private fun getTextDirStr(layoutDirection: LayoutDirection): String {
+    return if (layoutDirection == LayoutDirection.Ltr) "ltr" else "rtl"
 }
 
 private fun cleanHtmlStr(str: String): String {
@@ -84,9 +84,8 @@ private fun cleanHtmlStr(str: String): String {
 private fun createKatexHtml(
     content: String,
     isEditable: Boolean,
-    isLTR: Boolean
+    textDir: String
 ): String {
-    val dir = if(isLTR) "ltr" else "rtl"
     return """
     <!DOCTYPE html>
     <head>
@@ -110,6 +109,10 @@ private fun createKatexHtml(
                 renderMathInElement(document.getElementById("editable").innerHTML);
             }
             
+            function setTextDir(dir){
+                 document.getElementById('editable').setAttribute('dir', dir);
+            }
+            
             document.addEventListener("DOMContentLoaded", function() {
                 renderMathInElement(document.body, {
                     // customised options
@@ -128,7 +131,7 @@ private fun createKatexHtml(
        </script>
     </head>
         <body>
-            <div id="editable" contenteditable="$isEditable" dir="$dir">
+            <div id="editable" contenteditable="$isEditable" dir="$textDir">
                $content
             </div>
         </body>

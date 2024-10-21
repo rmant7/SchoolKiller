@@ -2,6 +2,7 @@ package com.schoolkiller.presentation.screens.result
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.schoolkiller.data.network.gemini_api.GeminiApiService
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.text.Bidi
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,6 +32,21 @@ class ResultViewModel @Inject constructor(
     private val interstitialAdUseCase: InterstitialAdUseCase,
     private val dataStoreRepository: DataStoreRepository
 ) : ViewModel() {
+
+    private val _textAlignment = MutableStateFlow(LayoutDirection.Ltr)
+    val textAlignment: StateFlow<LayoutDirection> = _textAlignment
+
+    fun updateTextAlignment(textAlignment: LayoutDirection) {
+        _textAlignment.update { textAlignment }
+    }
+
+    private fun getTextDir(content: String): LayoutDirection {
+        val isLtr = Bidi(
+            content,
+            Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT
+        ).isLeftToRight
+        return if (isLtr) LayoutDirection.Ltr else LayoutDirection.Rtl
+    }
 
     private val _resultPropertiesState = MutableStateFlow(ResultProperties())
     val resultPropertiesState: StateFlow<ResultProperties> = _resultPropertiesState
@@ -81,6 +98,10 @@ class ResultViewModel @Inject constructor(
     }
 
     fun updateTextGenerationResult(resultText: String?, error: Throwable? = null) {
+
+        if (resultText != null)
+            updateTextAlignment(getTextDir(resultText))
+
         _resultPropertiesState.update { currentState ->
             currentState.copy(
                 textGenerationResult = resultText ?: currentState.textGenerationResult,

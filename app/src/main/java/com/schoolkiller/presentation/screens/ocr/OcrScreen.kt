@@ -38,6 +38,7 @@ import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.button.RadioIndexButton
 import com.schoolkiller.presentation.common.dialog.ErrorAlertDialog
 import com.schoolkiller.presentation.common.button.RoundIconButton
+import com.schoolkiller.presentation.common.button.TextAlignmentButton
 import com.schoolkiller.presentation.common.button.UniversalButton
 import com.schoolkiller.presentation.common.web_view.HtmlTextView
 import java.text.Bidi
@@ -55,6 +56,7 @@ fun OcrScreen(
 
     val htmlText = viewModel.htmlGeminiResponse.collectAsState()
     val noHtmlText = viewModel.noHtmlGeminiResponse.collectAsState()
+    val tesseractOcrResult = viewModel.tesseractOcrResult.collectAsState()
 
     // user chosen version of ocr
     val selectedOcrResultId = remember { mutableIntStateOf(0) }
@@ -68,6 +70,8 @@ fun OcrScreen(
     val invalidOcrResultText = stringResource(R.string.error_gemini_ocr_result_extraction)
     val firstOcrResultIsNotReady = stringResource(R.string.first_ocr_result_is_not_ready)
     val promptIsEmptyWarning = stringResource(R.string.prompt_is_empty)
+
+    val textFieldLayoutDir = viewModel.textAlignment.collectAsState()
 
     val isPromptEditable = remember { mutableStateOf(false) }
     val isEditButtonVisible = remember { mutableStateOf(true) }
@@ -87,14 +91,13 @@ fun OcrScreen(
         viewModel.updateOcrError(null)
 
         if (passedImageUri != null) {
-            viewModel.tessaractImageToText(context.applicationContext)
-            /*viewModel.geminiImageToText(
+            viewModel.tessaractImageToText(passedImageUri, context)
+            viewModel.geminiImageToText(
                 imageUri = passedImageUri,
                 fileName = passedImageUri.toString(),
                 invalidOcrResultText
-            )*/
-        }
-        else viewModel.updateOcrError(RuntimeException())
+            )
+        } else viewModel.updateOcrError(RuntimeException())
         // and close the call
         shouldRecognizeText.value = false
     }
@@ -140,33 +143,10 @@ fun OcrScreen(
                  * Both views are left for testing along with old and new prompts
                  */
 
-                // HTML view
-                // testing gemini response web view
-                // show on second radio button click
-                if (selectedOcrResultId.intValue == 1)
-                    HtmlTextView(
-                        htmlContent = htmlText.value,
-                        isEditable = isPromptEditable.value,
-                        onValueChange = {
-                            viewModel.updateHtmlGeminiResponse(it)
-                            viewModel.updateSelectedText(it)
-                        }
-                    )
-
-                fun getTextDir(content: String): LayoutDirection {
-                    val isLtr = Bidi(
-                        content,
-                        Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT
-                    ).isLeftToRight
-                    return if (isLtr) LayoutDirection.Ltr else LayoutDirection.Rtl
-                }
-
-                // Compose text field
-                // testing gemini response compose view
-                // show on the first radio button click
+                // Compose text field, first result
                 if (selectedOcrResultId.intValue == 0)
                     CompositionLocalProvider(
-                        LocalLayoutDirection provides getTextDir(noHtmlText.value)
+                        LocalLayoutDirection provides textFieldLayoutDir.value
                     ) {
                         OutlinedTextField(
                             modifier = Modifier
@@ -184,6 +164,41 @@ fun OcrScreen(
                             readOnly = !isPromptEditable.value,
                         )
                     }
+
+                // HTML view, second result
+                if (selectedOcrResultId.intValue == 1)
+                    HtmlTextView(
+                        htmlContent = htmlText.value,
+                        isEditable = isPromptEditable.value,
+                        onValueChange = {
+                            viewModel.updateHtmlGeminiResponse(it)
+                            viewModel.updateSelectedText(it)
+                        },
+                        textAlign = textFieldLayoutDir.value
+                    )
+
+                // Tesseract, third result
+                if (selectedOcrResultId.intValue == 2)
+                    CompositionLocalProvider(
+                        LocalLayoutDirection provides textFieldLayoutDir.value
+                    ) {
+                        OutlinedTextField(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(0.dp, 10.dp),
+                            value = tesseractOcrResult.value,
+                            onValueChange = {
+                                viewModel.updateTesseractOcrResult(it)
+                                viewModel.updateSelectedText(it)
+                            },
+                            textStyle = TextStyle(
+                                fontSize = 25.sp,
+                                textAlign = TextAlign.Start
+                            ),
+                            readOnly = !isPromptEditable.value,
+                        )
+                    }
+
             }
 
             Row(
@@ -198,6 +213,16 @@ fun OcrScreen(
                     viewModel.updateOcrError(null)
                 }
 
+                TextAlignmentButton(textFieldLayoutDir.value) {
+                    viewModel.updateTextAlignment(it)
+                }
+
+                fun resetUI(){
+                    isPromptEditable.value = false
+                    isEditButtonVisible.value = true
+                    isSendEditedPromptButtonVisible.value = false
+                }
+
                 // Toggle buttons
                 Row(
                     horizontalArrangement = Arrangement.Center,
@@ -209,6 +234,7 @@ fun OcrScreen(
                         selectedIndex = selectedOcrResultId,
                         isEnabled = noHtmlText.value.isNotEmpty(),
                         onSelected = {
+                            resetUI()
                             viewModel.updateSelectedText(noHtmlText.value)
                         }
                     )
@@ -218,6 +244,7 @@ fun OcrScreen(
                         selectedIndex = selectedOcrResultId,
                         isEnabled = htmlText.value.isNotEmpty(),
                         onSelected = {
+                            resetUI()
                             viewModel.updateSelectedText(htmlText.value)
                         }
                     )
@@ -225,9 +252,10 @@ fun OcrScreen(
                     RadioIndexButton(
                         index = 2,
                         selectedIndex = selectedOcrResultId,
-                        isEnabled = false,
+                        isEnabled = tesseractOcrResult.value.isNotEmpty(),
                         onSelected = {
-                            // update Tesseract
+                            resetUI()
+                            viewModel.updateSelectedText(tesseractOcrResult.value)
                         }
                     )
 
@@ -248,9 +276,7 @@ fun OcrScreen(
                     UniversalButton(label = R.string.Ok) {
                         //prompt isn't editable, this button is invisible
                         // edit button is visible
-                        isPromptEditable.value = false
-                        isEditButtonVisible.value = true
-                        isSendEditedPromptButtonVisible.value = false
+                        resetUI()
                     }
                 }
             }
