@@ -35,6 +35,7 @@ import com.schoolkiller.R
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.dialog.ErrorAlertDialog
 import com.schoolkiller.presentation.common.button.UniversalButton
+import com.schoolkiller.presentation.common.web_view.HtmlTextView
 
 
 @Composable
@@ -163,15 +164,12 @@ fun ResultScreen(
 
                                 /** For tests */
 
-                                /*
                                 HtmlTextView(
-                                    resultProperties.textGenerationResult,
-                                    // Should be just 2 Composables:
-                                    // one with mutable state and other one with boolean
-                                    remember { mutableStateOf(false) }
+                                    htmlContent = resultProperties.textGenerationResult,
+                                    isEditable = false
                                 )
-                                 */
 
+                                /*
                                 OutlinedTextField(
                                     modifier = modifier
                                         //.fillMaxSize(),
@@ -185,6 +183,7 @@ fun ResultScreen(
                                     ),
                                     readOnly = true
                                 )
+                                */
                             }
                         }
                     }

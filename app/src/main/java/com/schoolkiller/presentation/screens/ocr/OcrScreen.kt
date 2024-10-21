@@ -137,19 +137,16 @@ fun OcrScreen(
                  * Both views are left for testing along with old and new prompts
                  */
 
-                /*println(noHtmlText)
-                println("---------------")
-                println(htmlText)*/
-
                 // HTML view
                 // testing gemini response web view
                 // show on second radio button click
                 if (selectedOcrResultId.intValue == 1)
                     HtmlTextView(
                         htmlContent = htmlText.value,
-                        isEditable = isPromptEditable,
+                        isEditable = isPromptEditable.value,
                         onValueChange = {
                             viewModel.updateHtmlGeminiResponse(it)
+                            viewModel.updateSelectedText(it)
                         }
                     )
 
@@ -175,6 +172,7 @@ fun OcrScreen(
                             value = noHtmlText.value,
                             onValueChange = {
                                 viewModel.updateNoHtmlGeminiResponse(it)
+                                viewModel.updateSelectedText(it)
                             },
                             textStyle = TextStyle(
                                 fontSize = 25.sp,

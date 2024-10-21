@@ -110,7 +110,7 @@ fun CheckSolutionScreen(
 
                 onNavigateToResultScreen(
                     viewModel.buildSolutionPrompt(recognizedText),
-                    viewModel.buildSystemInstruction(false)
+                    viewModel.buildSystemInstruction(true)
                 )
 
             }

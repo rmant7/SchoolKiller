@@ -4,6 +4,8 @@ import android.app.Application
 import android.webkit.WebView
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.FirebaseApp
+import com.schoolkiller.presentation.ads.BannerAdUseCase
+import com.schoolkiller.presentation.ads.InterstitialAdUseCase
 import dagger.hilt.android.HiltAndroidApp
 import io.appmetrica.analytics.AppMetrica
 import io.appmetrica.analytics.AppMetricaConfig
@@ -13,9 +15,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.text.Bidi
+import javax.inject.Inject
 
 @HiltAndroidApp
 class SchoolKillerApplication : Application() {
+
+    /* @Inject
+    lateinit var openAppAdUseCase: OpenAdUseCase*/
+
+    @Inject
+    lateinit var bannerAdUseCase: BannerAdUseCase
+
+    @Inject
+    lateinit var interstitialAdUseCase: InterstitialAdUseCase
+
 
     private val adsScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -37,6 +51,11 @@ class SchoolKillerApplication : Application() {
             MobileAds.initialize(this@SchoolKillerApplication) {}
             MobileAds.setAppMuted(true)
         }
+
+        // preloading ads
+        // openAppAdUseCase.loadAdWithNoAdsCheck()
+        bannerAdUseCase.loadAdWithNoAdsCheck()
+        interstitialAdUseCase.loadAdWithNoAdsCheck()
 
         // Initialize AppMetrica on a background thread.
         CoroutineScope(Dispatchers.IO).launch {

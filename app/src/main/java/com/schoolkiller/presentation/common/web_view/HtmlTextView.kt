@@ -16,11 +16,10 @@ import java.text.Bidi
 @Composable
 fun HtmlTextView(
     htmlContent: String,
-    isEditable: MutableState<Boolean>,
+    isEditable: Boolean,
     onValueChange: (String) -> Unit = {}
 ) {
     val content by remember { mutableStateOf(htmlContent) }
-    val isHtmlEditable by remember { mutableStateOf(isEditable) }
 
     AndroidView(
         modifier = Modifier.fillMaxWidth(),
@@ -40,7 +39,7 @@ fun HtmlTextView(
                 // Load the HTML content with the scripts and contenteditable div
                 loadDataWithBaseURL(
                     null,
-                    createKatexHtml(content, isHtmlEditable.value, isLtr(content)),
+                    createKatexHtml(content, isEditable, isLtr(content)),
                     //createHtmlContent(content, isHtmlEditable.value),
                     "text/html",
                     "utf-8",
@@ -53,7 +52,7 @@ fun HtmlTextView(
 
             // set text to be editable or not
             webView.evaluateJavascript(
-                "setEditable(${isHtmlEditable.value})", null
+                "setEditable(${isEditable})", null
             )
 
             // get content every time user changes prompt
