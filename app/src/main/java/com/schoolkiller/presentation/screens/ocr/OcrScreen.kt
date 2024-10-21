@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -35,9 +36,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.button.RadioIndexButton
+import com.schoolkiller.presentation.common.dialog.ErrorAlertDialog
 import com.schoolkiller.presentation.common.button.RoundIconButton
 import com.schoolkiller.presentation.common.button.UniversalButton
-import com.schoolkiller.presentation.common.dialog.ErrorAlertDialog
 import com.schoolkiller.presentation.common.web_view.HtmlTextView
 import java.text.Bidi
 
@@ -85,12 +86,14 @@ fun OcrScreen(
 
         viewModel.updateOcrError(null)
 
-        if (passedImageUri != null)
-            viewModel.geminiImageToText(
+        if (passedImageUri != null) {
+            viewModel.tessaractImageToText(context.applicationContext)
+            /*viewModel.geminiImageToText(
                 imageUri = passedImageUri,
                 fileName = passedImageUri.toString(),
                 invalidOcrResultText
-            )
+            )*/
+        }
         else viewModel.updateOcrError(RuntimeException())
         // and close the call
         shouldRecognizeText.value = false
@@ -99,8 +102,8 @@ fun OcrScreen(
     ApplicationScaffold(
         isShowed = true,
         content = {
-
-            /*if (ocrError.value == null && recognizedTextList.isEmpty()) {
+            // replaced -> recognizedText.value.isNullOrEmpty()
+            /*if (ocrError.value == null && recognizedTextList.isEmpty()) { //recognizedTextList.value.isEmpty()
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -218,7 +221,6 @@ fun OcrScreen(
                             viewModel.updateSelectedText(htmlText.value)
                         }
                     )
-
 
                     RadioIndexButton(
                         index = 2,
