@@ -18,6 +18,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,14 +28,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.schoolkiller.R
 import com.schoolkiller.presentation.common.ApplicationScaffold
+import com.schoolkiller.presentation.common.button.TextAlignmentButton
 import com.schoolkiller.presentation.common.dialog.ErrorAlertDialog
 import com.schoolkiller.presentation.common.button.UniversalButton
+import com.schoolkiller.presentation.common.web_view.HtmlTextView
+import java.text.Bidi
 
 
 @Composable
@@ -58,6 +63,8 @@ fun ResultScreen(
     val invalidSolutionGenerationText = stringResource(
         R.string.error_gemini_solution_result_extraction
     )
+
+    val textFieldLayoutDir = viewModel.textAlignment.collectAsState()
 
     if (resultProperties.requestGeminiResponse && !resultProperties.isResultFetchedStatus) {
         //if (passedImageUri != null) {
@@ -159,19 +166,19 @@ fun ResultScreen(
                             // AI response
                             Text(solutionTextLabel, fontSize = 30.sp)
 
-                            SelectionContainer {
+                            SelectionContainer (
+                                Modifier.fillMaxHeight(0.65f)
+                            ){
 
                                 /** For tests */
 
-                                /*
                                 HtmlTextView(
-                                    resultProperties.textGenerationResult,
-                                    // Should be just 2 Composables:
-                                    // one with mutable state and other one with boolean
-                                    remember { mutableStateOf(false) }
+                                    htmlContent = resultProperties.textGenerationResult,
+                                    isEditable = false,
+                                    textAlign = textFieldLayoutDir.value//getTextDir()
                                 )
-                                 */
 
+                                /*
                                 OutlinedTextField(
                                     modifier = modifier
                                         //.fillMaxSize(),
@@ -185,7 +192,13 @@ fun ResultScreen(
                                     ),
                                     readOnly = true
                                 )
+                                */
                             }
+
+                            TextAlignmentButton(textFieldLayoutDir.value) {
+                                viewModel.updateTextAlignment(it)
+                            }
+
                         }
                     }
                 }

@@ -16,7 +16,6 @@ enum class Prompt(val text: String) {
                 "Separate each task if you see multiple ones." +
                 "Use mathematical symbols instead of markdown." +
 
-                // this prevents AI from repeating exact same words from the commented example
                 "If you recognize any geometric figures describe in language " +
                 "identified on the image recognized shapes, " +
                 "known and unknown variables if you see any. " +
@@ -26,7 +25,8 @@ enum class Prompt(val text: String) {
 
                 // This line removed ** symbols
                 "Don't include font style formatting." +
-                "Don't include images in your response. "
+                "Don't include images in your response. " +
+                "Don't replace images with whitespaces."
     ),
     HTML_OCR_SYSTEM_INSTRUCTION(
         "Answer only in language identified on the image." +

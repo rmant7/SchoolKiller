@@ -41,6 +41,7 @@ runner = "1.6.2"
 googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
 common = "0.10.0"
 secretsGradlePlugin = "2.0.1"
+tessTwo = "9.0.0"
 timber = "5.0.1"
 playServicesAdsLite = "23.3.0"
 workRuntimeKtx = "2.9.1"
@@ -106,6 +107,7 @@ play-services-base = { module = "com.google.android.gms:play-services-base", ver
 push = { module = "io.appmetrica.analytics:push", version.ref = "push" }
 push-provider-hms = { module = "io.appmetrica.analytics:push-provider-hms", version.ref = "pushProviderHms" }
 secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
+tess-two = { module = "com.github.rmtheis:tess-two", version.ref = "tessTwo" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 play-services-ads-lite = { group = "com.google.android.gms", name = "play-services-ads-lite", version.ref = "playServicesAdsLite" }
 

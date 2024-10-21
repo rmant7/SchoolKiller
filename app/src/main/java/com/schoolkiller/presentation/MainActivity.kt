@@ -32,14 +32,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    /* @Inject
-     lateinit var openAppAdUseCase: OpenAdUseCase*/
-
-    @Inject
-    lateinit var bannerAdUseCase: BannerAdUseCase
-
-    @Inject
-    lateinit var interstitialAdUseCase: InterstitialAdUseCase
 
     private lateinit var navController: NavHostController
 
@@ -54,7 +46,8 @@ class MainActivity : ComponentActivity() {
                 ) {
 
                     navController = rememberNavController()
-
+                    // observe back stack entries
+                    navController.currentBackStackEntryAsState().value
                     ApplicationScaffold(
                         isShowed = true,
                         topBar = {
@@ -72,20 +65,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        // preloading ads
-        // openAppAdUseCase.loadAdWithNoAdsCheck()
-        bannerAdUseCase.loadAdWithNoAdsCheck()
-        interstitialAdUseCase.loadAdWithNoAdsCheck()
-    }
-
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun AppTopBar() {
-
-        // observe back stack entries
-        navController.currentBackStackEntryAsState().value
 
         TopAppBar(
             // modifier = Modifier.padding(0.dp, 25.dp),

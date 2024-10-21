@@ -74,6 +74,7 @@ fun HomeScreenContent(
     val selectImageWarningMessage = stringResource(R.string.select_image_warning)
     val corruptedUploadedFile = stringResource(R.string.corrupted_loaded_file)
 
+    viewModel.showAppOpenAd(context)
 
     ApplicationScaffold(
         isShowed = isHomeScreenUIShowed,

@@ -3,7 +3,7 @@ package com.schoolkiller.presentation.screens.ocr
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.schoolkiller.data.network.gemini_api.GeminiApiService
@@ -25,7 +25,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.IOException
+import java.text.Bidi
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,29 +36,53 @@ class OcrViewModel @Inject constructor(
     private val imageUtils: ImageUtils,
 ) : ViewModel() {
 
-    private val maxOcrRequests = 3
+    private val _textAlignment = MutableStateFlow(LayoutDirection.Ltr)
+    val textAlignment: StateFlow<LayoutDirection> = _textAlignment
 
-    var recognizedList: MutableList<String> = mutableStateListOf()
+    private var isFirstAlignment = true
 
-    fun replaceRecognizedText(index: Int, recognizedText: String) {
-        if (index < recognizedList.size)
-            recognizedList[index] = recognizedText
+    fun updateTextAlignment(textAlignment: LayoutDirection) {
+        _textAlignment.update { textAlignment }
     }
 
-    private fun addRecognizedText(recognizedText: String) {
-        if (recognizedList.size < maxOcrRequests)
-            recognizedList.add(recognizedText)
+    private fun getTextDir(content: String): LayoutDirection {
+        val isLtr = Bidi(
+            content,
+            Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT
+        ).isLeftToRight
+        return if (isLtr) LayoutDirection.Ltr else LayoutDirection.Rtl
     }
 
-    fun clearRecognizedTextList() {
-        recognizedList.clear()
+    private val _htmlGeminiResponse = MutableStateFlow("")
+    val htmlGeminiResponse: StateFlow<String> = _htmlGeminiResponse
+
+    fun updateHtmlGeminiResponse(recognizedText: String) {
+        _htmlGeminiResponse.update { recognizedText }
     }
 
-    private val _recognizedText = MutableStateFlow("")
-    val recognizedText: StateFlow<String?> = _recognizedText
+    private val _noHtmlGeminiResponse = MutableStateFlow("")
+    val noHtmlGeminiResponse: StateFlow<String> = _noHtmlGeminiResponse
 
-    fun updateRecognizedText(recognizedText: String) {
-        _recognizedText.update { recognizedText }
+    fun updateNoHtmlGeminiResponse(recognizedText: String) {
+        _noHtmlGeminiResponse.update { recognizedText }
+    }
+
+    private val _tesseractOcrResult = MutableStateFlow("")
+    val tesseractOcrResult: StateFlow<String> = _tesseractOcrResult
+
+    fun updateTesseractOcrResult(recognizedText: String) {
+        _tesseractOcrResult.update { recognizedText }
+    }
+
+    private val _selectedText = MutableStateFlow("")
+    val selectedText: StateFlow<String> = _selectedText
+
+    fun updateSelectedText(recognizedText: String) {
+        if (isFirstAlignment) {
+            updateTextAlignment(getTextDir(recognizedText))
+            isFirstAlignment = false
+        }
+        _selectedText.update { recognizedText }
     }
 
     // a pair of error title and error message
@@ -67,11 +93,12 @@ class OcrViewModel @Inject constructor(
         _ocrError.update { ocrError }
     }
 
-    private suspend fun fetchResponse(
+    private fun fetchResponse(
         actualFileUri: String,
         systemInstruction: String,
-        invalidOcrResultText: String
-    ): String {
+        invalidOcrResultText: String,
+        onFetch: (String) -> Unit
+    ) = viewModelScope.launch(Dispatchers.IO) {
 
         val request = GeminiRequest.buildGeminiRequest(
             actualFileUri,
@@ -81,18 +108,24 @@ class OcrViewModel @Inject constructor(
 
         val content = geminiApiService.generateContent(request)
 
-        return if (content is GeminiResponse.Success)
-            content.data!!
+        if (content is GeminiResponse.Success)
+            onFetch(content.data!!)
         else
-            invalidOcrResultText
+            onFetch(invalidOcrResultText)
     }
 
-    fun tessaractImageToText(context: Context) = viewModelScope.launch {
+    fun tessaractImageToText(
+        passedImageUri: Uri,
+        context: Context
+    ) = viewModelScope.launch(Dispatchers.IO) {
         try {
+            /*
             // Open the image from assets/images folder
             val inputStream = context.assets.open("images/shalom.png") // should be replaced by the requested image
             val bitmap = BitmapFactory.decodeStream(inputStream)
+            */
 
+            val bitmap = imageUtils.convertUriToBitMap(passedImageUri)
             // Check if the bitmap was successfully loaded
             if (bitmap != null) {
                 // Copy tessdata files to internal storage
@@ -101,19 +134,20 @@ class OcrViewModel @Inject constructor(
 
                 val response = tessaractImage(context, bitmap)
                 response.onSuccess { res ->
-                    addRecognizedText(res)
-                    if (recognizedList.size == 1) {
-                        updateRecognizedText(res)
-                    }
+                    Timber.d("Success! Ocr result is $res")
+                    updateTesseractOcrResult(res)
                 }
                 response.onFailure {
+                    Timber.e(it)
                     updateOcrError(it)
                 }
             } else {
+                Timber.e(IOException())
                 updateOcrError(IOException("Unable to load bitmap from assets"))
             }
         } catch (e: Exception) {
             // Handle any exceptions (like missing file, decoding errors)
+            Timber.e(e, "Unexpected Error.")
             updateOcrError(e)
         }
     }
@@ -121,7 +155,6 @@ class OcrViewModel @Inject constructor(
     fun geminiImageToText(
         imageUri: Uri,
         fileName: String,
-        useHtml: Boolean,
         invalidOcrResultText: String
     ) = viewModelScope.launch {
 
@@ -139,42 +172,42 @@ class OcrViewModel @Inject constructor(
 
             fileUriResult.onSuccess { actualFileUri ->
 
-                /** For tests */
-                val systemInstruction =
-                    if (useHtml) Prompt.HTML_OCR_SYSTEM_INSTRUCTION.text
-                    else Prompt.NO_HTML_OCR_SYSTEM_INSTRUCTION.text
-
-                repeat(maxOcrRequests) {
-                    // async calls
-                    launch {
-                        val response = fetchResponse(
-                            actualFileUri,
-                            systemInstruction,
-                            invalidOcrResultText
-                        ).trim()
-                        addRecognizedText(response)
-                        if (recognizedList.size == 1)
-                            updateRecognizedText(response)
-
-                        /*if (list.size == maxOcrRequests) {
-                            updateRecognizedTextList(list)
-                            updateRecognizedText(recognizedTextList.value[0])
-                        }*/
+                fetchResponse(
+                    actualFileUri,
+                    Prompt.NO_HTML_OCR_SYSTEM_INSTRUCTION.text,
+                    invalidOcrResultText,
+                    onFetch = {
+                        val cleanedStr = it.replace(
+                            Regex("""^\s+""", RegexOption.MULTILINE), ""
+                        )
+                        updateNoHtmlGeminiResponse(cleanedStr)
+                        updateSelectedText(cleanedStr)
                     }
-                }
+                )
+
+                fetchResponse(
+                    actualFileUri,
+                    Prompt.HTML_OCR_SYSTEM_INSTRUCTION.text,
+                    invalidOcrResultText,
+                    onFetch = {
+                        val cleanedStr = it.replace(
+                            Regex("""^\s+""", RegexOption.MULTILINE), ""
+                        )
+                        updateHtmlGeminiResponse(cleanedStr)
+                    }
+                )
 
             }
 
             fileUriResult.onFailure {
                 updateOcrError(it)
-                updateRecognizedText(invalidOcrResultText)
             }
         }
         uploadResult.onFailure { updateOcrError(it) }
     }
 
-    //Don't remove, for future development
-
+    // Don't remove, for future development
+    // ChatGpt response
     fun fetchOpenAiResponse(imageUri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             // val key = "API_KEY"

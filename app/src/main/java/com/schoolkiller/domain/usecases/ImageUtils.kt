@@ -15,11 +15,20 @@ class ImageUtils @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
-    fun convertUriToByteArray(imageUri: Uri): ByteArray {
+    fun convertUriToBitMap(imageUri: Uri): Bitmap? {
         val inputStream: InputStream? = context.contentResolver.openInputStream(imageUri)
-        val bitmap = BitmapFactory.decodeStream(inputStream)
+        return BitmapFactory.decodeStream(inputStream)
+    }
+
+    fun convertUriToByteArray(imageUri: Uri): ByteArray {
+        /* val inputStream: InputStream? = context.contentResolver.openInputStream(imageUri)
+         val bitmap = BitmapFactory.decodeStream(inputStream)*/
         val byteArrayOutputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+        convertUriToBitMap(imageUri)?.compress(
+            Bitmap.CompressFormat.JPEG,
+            100,
+            byteArrayOutputStream
+        )
         return byteArrayOutputStream.toByteArray()
     }
 

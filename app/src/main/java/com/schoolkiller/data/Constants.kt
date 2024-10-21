@@ -35,6 +35,9 @@ object Constants {
     const val OPEN_AD_ID = "ca-app-pub-7574006463043131/8938590785"
     const val OPEN_AD_COOLDOWN = 60 * 1000 // 1 minute
 
+    const val NEW_INTERSTITIAL_AD_ID = "ca-app-pub-7574006463043131/3853642842"
+    const val NEW_OPEN_AD_ID = "ca-app-pub-7574006463043131/5059112992"
+
 
     // Deleting device storage images
     const val DELETE_REQUEST_CODE = 123
