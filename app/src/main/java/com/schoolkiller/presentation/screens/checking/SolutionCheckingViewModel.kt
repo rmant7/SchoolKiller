@@ -99,19 +99,6 @@ class SolutionCheckingViewModel @Inject constructor(
         }
     }
 
-    /*
-        fun buildSolutionPrompt() {
-            val originalPrompt = PromptText.CHECK_SOLUTION_PROMPT.promptText
-            val selectedGradeStr = "${solutionPropertiesState.value.grade.arrayIndex}"
-
-            val promptWithGradeOption = if (originalPrompt.contains("(as grade+th grader)")) {
-                originalPrompt.replace("(as grade+th grader)", "as ${selectedGradeStr}th grader")
-            } else {
-                originalPrompt
-            }
-            updateSolutionPromptText(promptWithGradeOption)
-        }
-    */
     // Alternative solution prompt builder
     fun buildSolutionPrompt(recognizedText: String?): String {
         val selectedGradeStr = "${solutionPropertiesState.value.grade.arrayIndex}"
@@ -128,14 +115,8 @@ class SolutionCheckingViewModel @Inject constructor(
         return solutionPrompt.toString()
     }
 
-    fun buildSystemInstruction(hasHtml: Boolean): String {
-        val systemInstruction = StringBuilder(
-            "Answer only in language identified in the (User's solution)."
-        )
-        if (hasHtml) systemInstruction.append(Prompt.HTML_REQUEST.text)
-        else systemInstruction.append(Prompt.NO_HTML_REQUEST.text)
-
-        return systemInstruction.toString()
+    fun buildSystemInstruction(): String {
+        return "Answer only in language identified in the (User's solution)."
     }
 
 

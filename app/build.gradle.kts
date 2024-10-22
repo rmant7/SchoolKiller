@@ -23,8 +23,8 @@ android {
         applicationId = "com.schoolkiller"
         minSdk = 29
         targetSdk = 34
-        versionCode = 9
-        versionName = "1.9"
+        versionCode = 10
+        versionName = "1.10"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

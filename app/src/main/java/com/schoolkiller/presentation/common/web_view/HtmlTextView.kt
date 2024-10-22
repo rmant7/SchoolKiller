@@ -1,8 +1,8 @@
 package com.schoolkiller.presentation.common.web_view
 
 import android.annotation.SuppressLint
-import android.webkit.WebSettings
 import android.webkit.WebView
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,27 +21,43 @@ fun HtmlTextView(
     textAlign: LayoutDirection
 ) {
     val content by remember { mutableStateOf(htmlContent) }
+    val isNightMode = isSystemInDarkTheme()
+
+    // Should be converted to css color scheme
+    // instead of hard coded colours in css style
+    /*
+    val background = MaterialTheme.colorScheme.background
+    val fontColor = MaterialTheme.colorScheme.primary
+    */
 
     AndroidView(
         modifier = Modifier.fillMaxWidth(),
         factory = { context ->
             WebView(context).apply {
                 settings.javaScriptEnabled = true
+
                 webViewClient = AppWebView().getInstance {
+
                     // get content every time page is loaded
                     // so that viewmodel gets not null, but valid content value
                     evaluateJavascript("getContent()") {
-                        val cleanedStr = cleanHtmlStr(it)
-                        //println(cleanedStr)
-                        onValueChange(cleanedStr)
+                        onValueChange(
+                            cleanHtmlStr(
+                                it.substring(1, it.length - 1)
+                            )
+                        )
                     }
                 }
 
                 // Load the HTML content with the scripts and contenteditable div
                 loadDataWithBaseURL(
                     null,
-                    createKatexHtml(content, isEditable, getTextDirStr(textAlign)),
-                    //createHtmlContent(content, isHtmlEditable.value),
+                    createKatexHtml(
+                        cleanHtmlStr(content),
+                        isEditable,
+                        getTextDirStr(textAlign),
+                        isNightMode
+                    ),
                     "text/html",
                     "utf-8",
                     null
@@ -61,10 +77,14 @@ fun HtmlTextView(
 
             // get content every time user changes prompt
             webView.evaluateJavascript("getContent()") {
-                //println("User changed content is: ${it.toJson()}")
-                onValueChange(cleanHtmlStr(it))
+                onValueChange(
+                    cleanHtmlStr(
+                        it.substring(1, it.length - 1)
+                    )
+                )
             }
         }
+
     )
 }
 
@@ -72,8 +92,9 @@ private fun getTextDirStr(layoutDirection: LayoutDirection): String {
     return if (layoutDirection == LayoutDirection.Ltr) "ltr" else "rtl"
 }
 
+// Remove Kotlin String formatting
 private fun cleanHtmlStr(str: String): String {
-    return str.substring(1, str.length - 1)
+    return str
         .replace("\\n", "") // Remove all newline characters
         .replace("\\u003C", "<") // Replace \u003C with <
         .replace("\\u003E", ">") // Replace \u003E with >
@@ -81,11 +102,25 @@ private fun cleanHtmlStr(str: String): String {
         .trim()
 }
 
+// Katex Math rendering
 private fun createKatexHtml(
     content: String,
     isEditable: Boolean,
-    textDir: String
+    textDir: String,
+    nightMode: Boolean
 ): String {
+    // Should be converted to css color scheme
+    // instead of hard coded colours in css style
+    val background: String
+    val fontColor: String
+    if (nightMode) {
+        background = "#14141C"
+        fontColor = "white"
+    } else {
+        background = "white"
+        fontColor = "black"
+    }
+
     return """
     <!DOCTYPE html>
     <head>
@@ -129,6 +164,17 @@ private fun createKatexHtml(
             });
             
        </script>
+       
+       <style>
+       
+       body {
+        background-color: $background;
+        color: $fontColor;
+        font-size: 20px;
+       }
+       
+       </style>
+       
     </head>
         <body>
             <div id="editable" contenteditable="$isEditable" dir="$textDir">
@@ -140,6 +186,8 @@ private fun createKatexHtml(
 
 }
 
+// Unused MathJax
+/*
 private fun createHtmlContent(content: String, isEditable: Boolean): String {
     val html = """
         <html>
@@ -171,8 +219,4 @@ private fun createHtmlContent(content: String, isEditable: Boolean): String {
     """.trimIndent()
     return html
 }
-
-
-private fun String.toJson(): String {
-    return this.replace("\"", "\\\"")
-}
+*/

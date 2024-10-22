@@ -15,7 +15,6 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -26,9 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -39,7 +35,6 @@ import com.schoolkiller.presentation.common.button.TextAlignmentButton
 import com.schoolkiller.presentation.common.dialog.ErrorAlertDialog
 import com.schoolkiller.presentation.common.button.UniversalButton
 import com.schoolkiller.presentation.common.web_view.HtmlTextView
-import java.text.Bidi
 
 
 @Composable
@@ -130,8 +125,10 @@ fun ResultScreen(
 
             LazyColumn(
                 modifier = modifier
+                    .fillMaxWidth()
                     .fillMaxHeight(/*0.65f*/)
                     .padding(0.dp, 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
                 state = responseListState,
                 content = {
 
@@ -166,16 +163,16 @@ fun ResultScreen(
                             // AI response
                             Text(solutionTextLabel, fontSize = 30.sp)
 
-                            SelectionContainer (
+                            SelectionContainer(
                                 Modifier.fillMaxHeight(0.65f)
-                            ){
+                            ) {
 
                                 /** For tests */
 
                                 HtmlTextView(
                                     htmlContent = resultProperties.textGenerationResult,
                                     isEditable = false,
-                                    textAlign = textFieldLayoutDir.value//getTextDir()
+                                    textAlign = textFieldLayoutDir.value
                                 )
 
                                 /*
@@ -195,11 +192,14 @@ fun ResultScreen(
                                 */
                             }
 
-                            TextAlignmentButton(textFieldLayoutDir.value) {
-                                viewModel.updateTextAlignment(it)
-                            }
-
+                            TextAlignmentButton(
+                                layoutDirection = textFieldLayoutDir.value,
+                                onUpdate = {
+                                    viewModel.updateTextAlignment(it)
+                                }
+                            )
                         }
+
                     }
                 }
             )

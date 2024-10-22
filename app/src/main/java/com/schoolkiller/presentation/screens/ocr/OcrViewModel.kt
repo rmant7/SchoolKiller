@@ -1,8 +1,8 @@
 package com.schoolkiller.presentation.screens.ocr
 
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.net.Uri
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -36,37 +36,50 @@ class OcrViewModel @Inject constructor(
     private val imageUtils: ImageUtils,
 ) : ViewModel() {
 
-    private val _textAlignment = MutableStateFlow(LayoutDirection.Ltr)
-    val textAlignment: StateFlow<LayoutDirection> = _textAlignment
+    // Text direction: ltr / rtl
+    private val _textDirection = MutableStateFlow(LayoutDirection.Ltr)
+    val textDirection: StateFlow<LayoutDirection> = _textDirection
 
     private var isFirstAlignment = true
 
-    fun updateTextAlignment(textAlignment: LayoutDirection) {
-        _textAlignment.update { textAlignment }
+    fun updateTextDirection(textDirection: LayoutDirection) {
+        _textDirection.update { textDirection }
     }
 
-    private fun getTextDir(content: String): LayoutDirection {
+    private fun getTextDir(text: String): LayoutDirection {
         val isLtr = Bidi(
-            content,
+            text,
             Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT
         ).isLeftToRight
         return if (isLtr) LayoutDirection.Ltr else LayoutDirection.Rtl
     }
 
-    private val _htmlGeminiResponse = MutableStateFlow("")
-    val htmlGeminiResponse: StateFlow<String> = _htmlGeminiResponse
+    private val _shouldRecognizeText = MutableStateFlow(true)
+    val shouldRecognizeText: StateFlow<Boolean> = _shouldRecognizeText
 
-    fun updateHtmlGeminiResponse(recognizedText: String) {
-        _htmlGeminiResponse.update { recognizedText }
+    fun updateShouldRecognizeText(shouldRecognizeText: Boolean) {
+        _shouldRecognizeText.update { shouldRecognizeText }
     }
 
-    private val _noHtmlGeminiResponse = MutableStateFlow("")
-    val noHtmlGeminiResponse: StateFlow<String> = _noHtmlGeminiResponse
+    private val maxOcrRequests = 2
+    // Html responses from Gemini Ocr
+    var htmlGeminiResponses: MutableList<String> = mutableStateListOf()
 
-    fun updateNoHtmlGeminiResponse(recognizedText: String) {
-        _noHtmlGeminiResponse.update { recognizedText }
+    fun replaceRecognizedText(index: Int, recognizedText: String) {
+        if (index < htmlGeminiResponses.size)
+            htmlGeminiResponses[index] = recognizedText
     }
 
+    private fun addRecognizedText(recognizedText: String) {
+        if (htmlGeminiResponses.size < maxOcrRequests)
+            htmlGeminiResponses.add(recognizedText)
+    }
+
+    fun clearRecognizedTextList() {
+        htmlGeminiResponses.clear()
+    }
+
+    // Tesseract Ocr result.
     private val _tesseractOcrResult = MutableStateFlow("")
     val tesseractOcrResult: StateFlow<String> = _tesseractOcrResult
 
@@ -74,18 +87,19 @@ class OcrViewModel @Inject constructor(
         _tesseractOcrResult.update { recognizedText }
     }
 
+    // Text selected by user
     private val _selectedText = MutableStateFlow("")
     val selectedText: StateFlow<String> = _selectedText
 
     fun updateSelectedText(recognizedText: String) {
         if (isFirstAlignment) {
-            updateTextAlignment(getTextDir(recognizedText))
+            updateTextDirection(getTextDir(recognizedText))
             isFirstAlignment = false
         }
         _selectedText.update { recognizedText }
     }
 
-    // a pair of error title and error message
+    // A pair of error title and error message
     private val _ocrError = MutableStateFlow<Throwable?>(null)
     val ocrError: StateFlow<Throwable?> = _ocrError
 
@@ -93,26 +107,6 @@ class OcrViewModel @Inject constructor(
         _ocrError.update { ocrError }
     }
 
-    private fun fetchResponse(
-        actualFileUri: String,
-        systemInstruction: String,
-        invalidOcrResultText: String,
-        onFetch: (String) -> Unit
-    ) = viewModelScope.launch(Dispatchers.IO) {
-
-        val request = GeminiRequest.buildGeminiRequest(
-            actualFileUri,
-            Prompt.OCR_PROMPT.text,
-            systemInstruction
-        )
-
-        val content = geminiApiService.generateContent(request)
-
-        if (content is GeminiResponse.Success)
-            onFetch(content.data!!)
-        else
-            onFetch(invalidOcrResultText)
-    }
 
     fun tessaractImageToText(
         passedImageUri: Uri,
@@ -172,30 +166,18 @@ class OcrViewModel @Inject constructor(
 
             fileUriResult.onSuccess { actualFileUri ->
 
-                fetchResponse(
-                    actualFileUri,
-                    Prompt.NO_HTML_OCR_SYSTEM_INSTRUCTION.text,
-                    invalidOcrResultText,
-                    onFetch = {
-                        val cleanedStr = it.replace(
-                            Regex("""^\s+""", RegexOption.MULTILINE), ""
-                        )
-                        updateNoHtmlGeminiResponse(cleanedStr)
-                        updateSelectedText(cleanedStr)
-                    }
-                )
-
-                fetchResponse(
-                    actualFileUri,
-                    Prompt.HTML_OCR_SYSTEM_INSTRUCTION.text,
-                    invalidOcrResultText,
-                    onFetch = {
-                        val cleanedStr = it.replace(
-                            Regex("""^\s+""", RegexOption.MULTILINE), ""
-                        )
-                        updateHtmlGeminiResponse(cleanedStr)
-                    }
-                )
+                repeat(maxOcrRequests) {
+                    fetchResponse(
+                        actualFileUri = actualFileUri,
+                        systemInstruction = Prompt.HTML_OCR_SYSTEM_INSTRUCTION.text,
+                        invalidOcrResultText = invalidOcrResultText,
+                        onResultFetched = {
+                            addRecognizedText(it)
+                            if (htmlGeminiResponses.size == 1)
+                                updateSelectedText(it)
+                        }
+                    )
+                }
 
             }
 
@@ -204,6 +186,51 @@ class OcrViewModel @Inject constructor(
             }
         }
         uploadResult.onFailure { updateOcrError(it) }
+    }
+
+    private fun fetchResponse(
+        actualFileUri: String,
+        systemInstruction: String,
+        invalidOcrResultText: String,
+        onResultFetched: (String) -> Unit
+    ) = viewModelScope.launch(Dispatchers.IO) {
+
+        val request = GeminiRequest.buildGeminiRequest(
+            actualFileUri,
+            Prompt.OCR_PROMPT.text,
+            systemInstruction
+        )
+
+        val content = geminiApiService.generateContent(request)
+
+        if (content is GeminiResponse.Success)
+            onResultFetched(cleanHtmlResponse(content.data!!))
+        else
+            onResultFetched(invalidOcrResultText)
+    }
+
+    private fun cleanHtmlResponse(htmlResponse: String): String {
+        return htmlResponse
+            // remove empty spaces
+            .replace(
+                Regex("""(<br\s*/?>\s*){2,}"""), "<br/>"
+            ) // Replace two or more <br/> with a single one
+            .replace(
+                Regex("""(<br\s*/?>\s*)+$"""), ""
+            )  // Remove trailing <br/> tags at the end
+            // remove all images tags
+            .replace(
+                Regex("""<img\s+[^>]*src\s*=\s*"[^"]*"[^>]*>"""), ""
+            )
+            //remove remaining empty lines
+            .replace(
+                Regex("""^\s+""", RegexOption.MULTILINE), ""
+            )
+            .replace(
+                Regex("""<input\s+[^>]*type=["']checkbox["'][^>]*>"""), ""
+            )
+            .replace("\n", "")
+            // making string more compact for further solution processing
     }
 
     // Don't remove, for future development

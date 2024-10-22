@@ -8,40 +8,33 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.schoolkiller.R
 import com.schoolkiller.presentation.common.ApplicationScaffold
 import com.schoolkiller.presentation.common.button.RadioIndexButton
-import com.schoolkiller.presentation.common.dialog.ErrorAlertDialog
 import com.schoolkiller.presentation.common.button.RoundIconButton
 import com.schoolkiller.presentation.common.button.TextAlignmentButton
 import com.schoolkiller.presentation.common.button.UniversalButton
+import com.schoolkiller.presentation.common.dialog.ErrorAlertDialog
 import com.schoolkiller.presentation.common.web_view.HtmlTextView
-import java.text.Bidi
 
 @Composable
 fun OcrScreen(
@@ -54,8 +47,7 @@ fun OcrScreen(
     val viewModel: OcrViewModel = hiltViewModel()
     val context = LocalContext.current
 
-    val htmlText = viewModel.htmlGeminiResponse.collectAsState()
-    val noHtmlText = viewModel.noHtmlGeminiResponse.collectAsState()
+    val htmlGeminiResponses = remember { viewModel.htmlGeminiResponses }
     val tesseractOcrResult = viewModel.tesseractOcrResult.collectAsState()
 
     // user chosen version of ocr
@@ -64,14 +56,14 @@ fun OcrScreen(
 
     val ocrError = viewModel.ocrError.collectAsState()
 
-    val shouldRecognizeText = remember { mutableStateOf(true) }
+    val shouldRecognizeText = viewModel.shouldRecognizeText.collectAsState()
 
     val recognizedTextLabel = stringResource(R.string.recognized_text_value)
     val invalidOcrResultText = stringResource(R.string.error_gemini_ocr_result_extraction)
-    val firstOcrResultIsNotReady = stringResource(R.string.first_ocr_result_is_not_ready)
+    //val firstOcrResultIsNotReady = stringResource(R.string.first_ocr_result_is_not_ready)
     val promptIsEmptyWarning = stringResource(R.string.prompt_is_empty)
 
-    val textFieldLayoutDir = viewModel.textAlignment.collectAsState()
+    val textDirection = viewModel.textDirection.collectAsState()
 
     val isPromptEditable = remember { mutableStateOf(false) }
     val isEditButtonVisible = remember { mutableStateOf(true) }
@@ -84,14 +76,13 @@ fun OcrScreen(
     if (shouldRecognizeText.value) {
 
         // replace first recognized result with placeholder string
-        viewModel.updateNoHtmlGeminiResponse(firstOcrResultIsNotReady)
-        viewModel.updateHtmlGeminiResponse("")
+        viewModel.clearRecognizedTextList()
         selectedOcrResultId.intValue = 0
 
         viewModel.updateOcrError(null)
 
         if (passedImageUri != null) {
-            viewModel.tessaractImageToText(passedImageUri, context)
+           // viewModel.tessaractImageToText(passedImageUri, context)
             viewModel.geminiImageToText(
                 imageUri = passedImageUri,
                 fileName = passedImageUri.toString(),
@@ -99,24 +90,12 @@ fun OcrScreen(
             )
         } else viewModel.updateOcrError(RuntimeException())
         // and close the call
-        shouldRecognizeText.value = false
+        viewModel.updateShouldRecognizeText(false)
     }
 
     ApplicationScaffold(
         isShowed = true,
         content = {
-            // replaced -> recognizedText.value.isNullOrEmpty()
-            /*if (ocrError.value == null && recognizedTextList.isEmpty()) { //recognizedTextList.value.isEmpty()
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 32.dp),
-                    contentAlignment = Alignment.Center,
-                    content = {
-                        CircularProgressIndicator(modifier = Modifier.size(80.dp))
-                    })
-
-            } else {*/
 
             if (ocrError.value != null && shouldShowErrorMessage.value) {
 
@@ -143,6 +122,7 @@ fun OcrScreen(
                  * Both views are left for testing along with old and new prompts
                  */
 
+                /*
                 // Compose text field, first result
                 if (selectedOcrResultId.intValue == 0)
                     CompositionLocalProvider(
@@ -164,23 +144,36 @@ fun OcrScreen(
                             readOnly = !isPromptEditable.value,
                         )
                     }
+                    */
+
+                // HTML view, first result
+                if (htmlGeminiResponses.isNotEmpty() && selectedOcrResultId.intValue == 0)
+                    HtmlTextView(
+                        htmlContent = htmlGeminiResponses[0],
+                        isEditable = isPromptEditable.value,
+                        onValueChange = {
+                            viewModel.replaceRecognizedText(0, it)
+                            viewModel.updateSelectedText(it)
+                        },
+                        textAlign = textDirection.value
+                    )
 
                 // HTML view, second result
                 if (selectedOcrResultId.intValue == 1)
                     HtmlTextView(
-                        htmlContent = htmlText.value,
+                        htmlContent = htmlGeminiResponses[1],
                         isEditable = isPromptEditable.value,
                         onValueChange = {
-                            viewModel.updateHtmlGeminiResponse(it)
+                            viewModel.replaceRecognizedText(1, it)
                             viewModel.updateSelectedText(it)
                         },
-                        textAlign = textFieldLayoutDir.value
+                        textAlign = textDirection.value
                     )
 
                 // Tesseract, third result
-                if (selectedOcrResultId.intValue == 2)
+                /*if (selectedOcrResultId.intValue == 2)
                     CompositionLocalProvider(
-                        LocalLayoutDirection provides textFieldLayoutDir.value
+                        LocalLayoutDirection provides textDirection.value
                     ) {
                         OutlinedTextField(
                             modifier = Modifier
@@ -197,69 +190,35 @@ fun OcrScreen(
                             ),
                             readOnly = !isPromptEditable.value,
                         )
-                    }
+                    }*/
 
+            }
+
+            fun resetUI() {
+                isPromptEditable.value = false
+                isEditButtonVisible.value = true
+                isSendEditedPromptButtonVisible.value = false
             }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
 
                 RoundIconButton(
                     icon = R.drawable.retry_svg
                 ) {
-                    shouldRecognizeText.value = true
+                    viewModel.updateShouldRecognizeText(true)
                     viewModel.updateOcrError(null)
                 }
 
-                TextAlignmentButton(textFieldLayoutDir.value) {
-                    viewModel.updateTextAlignment(it)
-                }
-
-                fun resetUI(){
-                    isPromptEditable.value = false
-                    isEditButtonVisible.value = true
-                    isSendEditedPromptButtonVisible.value = false
-                }
-
-                // Toggle buttons
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    RadioIndexButton(
-                        index = 0,
-                        selectedIndex = selectedOcrResultId,
-                        isEnabled = noHtmlText.value.isNotEmpty(),
-                        onSelected = {
-                            resetUI()
-                            viewModel.updateSelectedText(noHtmlText.value)
-                        }
-                    )
-
-                    RadioIndexButton(
-                        index = 1,
-                        selectedIndex = selectedOcrResultId,
-                        isEnabled = htmlText.value.isNotEmpty(),
-                        onSelected = {
-                            resetUI()
-                            viewModel.updateSelectedText(htmlText.value)
-                        }
-                    )
-
-                    RadioIndexButton(
-                        index = 2,
-                        selectedIndex = selectedOcrResultId,
-                        isEnabled = tesseractOcrResult.value.isNotEmpty(),
-                        onSelected = {
-                            resetUI()
-                            viewModel.updateSelectedText(tesseractOcrResult.value)
-                        }
-                    )
-
-                }
+                TextAlignmentButton(
+                    iconModifier = Modifier.size(48.dp).clip(CircleShape),
+                    layoutDirection= textDirection.value,
+                    onUpdate = {
+                        viewModel.updateTextDirection(it)
+                    }
+                )
 
                 //Spacer(Modifier.weight(1f))
                 if (isEditButtonVisible.value)
@@ -279,6 +238,45 @@ fun OcrScreen(
                         resetUI()
                     }
                 }
+            }
+
+            // Toggle buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                RadioIndexButton(
+                    index = 0,
+                    selectedIndex = selectedOcrResultId,
+                    isEnabled = htmlGeminiResponses.size >= 1,
+                    onSelected = {
+                        resetUI()
+                        viewModel.updateSelectedText(htmlGeminiResponses[0])
+                    }
+                )
+
+                RadioIndexButton(
+                    index = 1,
+                    selectedIndex = selectedOcrResultId,
+                    isEnabled = htmlGeminiResponses.size >= 2,
+                    onSelected = {
+                        resetUI()
+                        viewModel.updateSelectedText(htmlGeminiResponses[1])
+                    }
+                )
+
+                /*RadioIndexButton(
+                    index = 2,
+                    selectedIndex = selectedOcrResultId,
+                    isEnabled = tesseractOcrResult.value.isNotEmpty(),
+                    onSelected = {
+                        resetUI()
+                        viewModel.updateSelectedText(tesseractOcrResult.value)
+                    }
+                )*/
+
             }
             // }
 

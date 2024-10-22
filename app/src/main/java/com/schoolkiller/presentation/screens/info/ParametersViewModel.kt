@@ -101,41 +101,7 @@ class ParametersViewModel @Inject constructor(
         persistSolvePromptTextState(newSolvePromptText)
     }
 
-/*
-    fun buildSolvingPrompt() {
-        val originalPrompt = PromptText.SOLVE_PROMPT.promptText
-        val selectedGradeStr = "${parametersPropertiesState.value.grade.arrayIndex}"
-        // val selectedLanguageStr = "${parametersPropertiesState.value.language.languageName}"
-        val selectedExplanationStr = "${parametersPropertiesState.value.explanationLevel.code}"
-        val description = " ${parametersPropertiesState.value.description}"
 
-        val promptWithGradeOption = if (originalPrompt.contains("(as grade+th grader)")) {
-            originalPrompt.replace("(as grade+th grader)", "as ${selectedGradeStr}th grader")
-        } else {
-            originalPrompt
-        }
-        /*
-                val promptWithLanguageOption =
-                    if (promptWithGradeOption.contains("(language in the user's task in prompt.)")) {
-                        promptWithGradeOption.replace(
-                            "(language in the user's task in prompt.)",
-                            "${selectedLanguageStr.uppercase()} ONLY"
-                        )
-                    } else {
-                        promptWithGradeOption
-                    }*/
-        val promptWithExplanationOption = if (promptWithGradeOption.contains("(briefly)")) {
-            promptWithGradeOption.replace("(briefly)", selectedExplanationStr)
-        } else {
-            promptWithGradeOption
-        }
-        val promptWithDescription = promptWithExplanationOption.plus(description)
-
-        updateSolvePromptText(promptWithDescription)
-    }
-*/
-
-    // Alternative string builder
     fun buildSolvingPrompt(recognizedText: String?) : String{
         val selectedLanguageStr = parametersPropertiesState.value.language.languageName
         val selectedGradeStr = "${parametersPropertiesState.value.grade.arrayIndex}"
@@ -143,7 +109,7 @@ class ParametersViewModel @Inject constructor(
         val description = " ${parametersPropertiesState.value.description}"
 
         val solvingPrompt = StringBuilder()
-            .append("Solve this task as $selectedGradeStr}th grader. ")
+            .append("Solve this task as ${selectedGradeStr}th grader. ")
             .append("Show the solution and explain $selectedExplanationStr how to get there. ")
             .append("If there are multiple tasks, solve them all separately. ")
             .append("Use a chain of thoughts before answering. ")
@@ -153,17 +119,9 @@ class ParametersViewModel @Inject constructor(
         return solvingPrompt.toString()
     }
 
-    fun buildSystemInstruction(hasHtmlTags: Boolean): String {
+    fun buildSystemInstruction(): String {
         val selectedLanguageStr = parametersPropertiesState.value.language.languageName
-
-        val systemInstruction = StringBuilder("Answer only in ${selectedLanguageStr}.")
-
-        if (hasHtmlTags)
-            systemInstruction.append(Prompt.HTML_REQUEST.text)
-        else
-            systemInstruction.append(Prompt.NO_HTML_REQUEST.text)
-
-        return systemInstruction.toString()
+        return "Answer only in ${selectedLanguageStr}."
     }
 
     private fun persistGradeOptionState(gradeOption: GradeOption) {
