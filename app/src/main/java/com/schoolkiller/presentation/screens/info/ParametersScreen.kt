@@ -159,7 +159,7 @@ fun ParametersScreen(
 
                     onNavigateToResultScreen(
                         viewModel.buildSolvingPrompt(recognizedText),
-                        viewModel.buildSystemInstruction(true)
+                        viewModel.buildSystemInstruction()
                     )
 
                 }

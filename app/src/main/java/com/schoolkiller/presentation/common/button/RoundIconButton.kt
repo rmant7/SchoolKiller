@@ -28,7 +28,7 @@ fun RoundIconButton(
     ) {
         Icon(
             painter = painterResource(icon),
-            contentDescription = "Информация о приложении",  // TODO { hardcode string }
+            contentDescription = "App description",  // TODO { hardcode string }
             modifier = iconModifier,
             tint = MaterialTheme.colorScheme.background,
         )

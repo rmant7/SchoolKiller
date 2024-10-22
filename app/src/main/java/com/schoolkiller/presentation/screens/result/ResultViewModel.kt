@@ -10,6 +10,7 @@ import com.schoolkiller.data.network.gemini_api.GeminiRequest
 import com.schoolkiller.data.network.gemini_api.GeminiResponse
 import com.schoolkiller.data.repositories.DataStoreRepository
 import com.schoolkiller.domain.model.ResultProperties
+import com.schoolkiller.domain.prompt.Prompt
 import com.schoolkiller.domain.usecases.ImageUtils
 import com.schoolkiller.presentation.RequestState
 import com.schoolkiller.presentation.ads.InterstitialAdUseCase
@@ -150,8 +151,10 @@ class ResultViewModel @Inject constructor(
         prompt: String,
         textOnExtractionError: String
     ) = viewModelScope.launch {
-
-        val request = GeminiRequest.buildGeminiRequest(prompt, systemInstruction)
+        val request = GeminiRequest.buildGeminiRequest(
+            prompt = prompt,
+            systemInstruction = systemInstruction + Prompt.HTML_REQUEST.text
+        )
         val content = geminiApiService.generateContent(request)
         if (content is GeminiResponse.Success) {
             updateTextGenerationResult(content.data)
