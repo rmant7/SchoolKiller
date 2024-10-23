@@ -51,8 +51,8 @@ fun OcrScreen(
     val context = LocalContext.current
 
     // Notification handler
-   /* val notificationHandler = NotificationHandler(context)
-    val shouldShowOcrNotification = viewModel.shouldShowOcrNotification.collectAsState()*/
+    /* val notificationHandler = NotificationHandler(context)
+     val shouldShowOcrNotification = viewModel.shouldShowOcrNotification.collectAsState()*/
 
     val htmlGeminiResponses = remember { viewModel.htmlGeminiResponses }
     //val tesseractOcrResult = viewModel.tesseractOcrResult.collectAsState()
@@ -265,33 +265,20 @@ fun OcrScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    fun isSelected(index: Int): Boolean {
-                        val isSelected = selectedOcrResultId.intValue == index
-                        return isSelected
+                    for (i in 0..<viewModel.maxOcrRequests) {
+
+                        RadioIndexButton(
+                            index = i,
+                            currentIndex = selectedOcrResultId.intValue,
+                            isEnabled = htmlGeminiResponses.size - 1 >= i,
+                            onSelected = {
+                                resetUI()
+                                selectedOcrResultId.intValue = i
+                                viewModel.updateSelectedText(htmlGeminiResponses[i])
+                            }
+                        )
+
                     }
-
-                    // Should be in Radio button group
-                    RadioIndexButton(
-                        index = 0,
-                        isSelected = isSelected(0),
-                        isEnabled = htmlGeminiResponses.size >= 1,
-                        onSelected = {
-                            resetUI()
-                            selectedOcrResultId.intValue = 0
-                            viewModel.updateSelectedText(htmlGeminiResponses[0])
-                        }
-                    )
-
-                    RadioIndexButton(
-                        index = 1,
-                        isSelected = isSelected(1),
-                        isEnabled = htmlGeminiResponses.size >= 2,
-                        onSelected = {
-                            resetUI()
-                            selectedOcrResultId.intValue = 1
-                            viewModel.updateSelectedText(htmlGeminiResponses[1])
-                        }
-                    )
 
                     /*RadioIndexButton(
                     index = 2,
@@ -304,7 +291,6 @@ fun OcrScreen(
                 )*/
 
                 }
-                // }
 
             }, bottomBar = {
                 Column(

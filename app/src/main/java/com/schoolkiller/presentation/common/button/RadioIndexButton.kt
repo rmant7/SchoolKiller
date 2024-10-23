@@ -11,19 +11,18 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun RadioIndexButton(
     index: Int,
-    isSelected: Boolean,
+    currentIndex:Int,
     isEnabled: Boolean,
     onSelected: (Int) -> Unit
 ) {
-
-    val isClicked = remember { mutableStateOf(false) }
+    val isSelected = currentIndex == index
+    val isClicked = remember { mutableStateOf(isSelected) }
     if (!isEnabled) isClicked.value = false // reset clicks
 
     fun onClick() {
         isClicked.value = true
         onSelected(index)
     }
-
 
     @Composable
     fun getUnselectedButtonColor(): Color {

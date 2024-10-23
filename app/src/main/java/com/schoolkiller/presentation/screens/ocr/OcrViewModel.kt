@@ -72,7 +72,7 @@ class OcrViewModel @Inject constructor(
         _shouldRecognizeText.update { shouldRecognizeText }
     }
 
-    private val maxOcrRequests = 2
+     val maxOcrRequests = 2
     // Html responses from Gemini Ocr
     var htmlGeminiResponses: MutableList<String> = mutableStateListOf()
 
