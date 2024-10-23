@@ -34,10 +34,10 @@ enum class Prompt(val text: String) {
 
                 "If you recognize any geometric figures describe in language " +
                 "identified on the image recognized shapes, " +
-                "known and unknown variables if you see any. " +
+                "known and unknown variables if you see any. " /*+
 
                 "Use Html tags instead of markdown. " +
-                "Don't include images in your response. "
+                "Don't include images in your response. "*/
     ),
     NO_HTML_REQUEST(
         "Use mathematical symbols instead of markdown. "

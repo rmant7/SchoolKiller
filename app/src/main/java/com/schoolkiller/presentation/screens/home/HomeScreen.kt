@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import android.provider.Settings
 import android.widget.Toast
@@ -23,6 +24,9 @@ import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.schoolkiller.R
 import com.schoolkiller.domain.prompt.UploadFileMethodOptions
 import com.schoolkiller.presentation.common.image.EnlargedImage
@@ -35,6 +39,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun HomeScreen(
     onNavigateToOcrScreen: (Uri?) -> Unit,
@@ -154,7 +159,7 @@ fun HomeScreen(
                 viewModel.insertImagesOnTheList(uris)
             } catch (e: Exception) {
                 Timber.w(e, "Image don`t inserted to the list")
-                Toast.makeText(context,somethingWentWrongMessage, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, somethingWentWrongMessage, Toast.LENGTH_SHORT).show()
             }
         }
     )
@@ -168,7 +173,7 @@ fun HomeScreen(
                 )
             } catch (e: Exception) {
                 Timber.w(e, "gallery launcher activity failed")
-                Toast.makeText(context,imageFailedToLoad, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, imageFailedToLoad, Toast.LENGTH_SHORT).show()
             }
             launchGallery = null
         }
@@ -222,6 +227,19 @@ fun HomeScreen(
         }
     }
 
+    /*
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+        val postNotificationPermission = rememberPermissionState(
+            permission = Manifest.permission.POST_NOTIFICATIONS
+        )
+
+        LaunchedEffect(key1 = true) {
+            if (!postNotificationPermission.status.isGranted) {
+                postNotificationPermission.launchPermissionRequest()
+            }
+        }
+    }
+    */
 
     /** Button Cases */
     when (stateProperties.selectedUploadMethodOption) {

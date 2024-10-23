@@ -71,6 +71,8 @@ android {
 
 dependencies {
 
+    implementation("org.jetbrains:markdown:0.7.3")
+
     // Google's "fix" of Guava duplicate issue.
     implementation(libs.listenablefuture)
     // Google cloud vision
