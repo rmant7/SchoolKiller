@@ -8,7 +8,6 @@ import android.os.Build
 
 class PermissionSet {
 
-
     fun getGalleryPermissionSet(): Array<String> {
         return when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> {

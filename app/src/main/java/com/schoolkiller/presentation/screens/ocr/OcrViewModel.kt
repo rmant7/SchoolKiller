@@ -25,6 +25,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.intellij.markdown.flavours.commonmark.CommonMarkFlavourDescriptor
+import org.intellij.markdown.html.HtmlGenerator
+import org.intellij.markdown.parser.MarkdownParser
 import timber.log.Timber
 import java.io.IOException
 import java.text.Bidi
@@ -36,11 +39,10 @@ class OcrViewModel @Inject constructor(
     private val imageUtils: ImageUtils,
 ) : ViewModel() {
 
+    private var isFirstAlignment = true
     // Text direction: ltr / rtl
     private val _textDirection = MutableStateFlow(LayoutDirection.Ltr)
     val textDirection: StateFlow<LayoutDirection> = _textDirection
-
-    private var isFirstAlignment = true
 
     fun updateTextDirection(textDirection: LayoutDirection) {
         _textDirection.update { textDirection }
@@ -54,6 +56,15 @@ class OcrViewModel @Inject constructor(
         return if (isLtr) LayoutDirection.Ltr else LayoutDirection.Rtl
     }
 
+    // Show notification that ocr result is ready
+    private val _shouldShowOcrNotification = MutableStateFlow(false)
+    val shouldShowOcrNotification: StateFlow<Boolean> = _shouldShowOcrNotification
+
+    fun updateShouldShowOcrNotification(shouldShowOcrNotification: Boolean) {
+        _shouldShowOcrNotification.update { shouldShowOcrNotification }
+    }
+
+    // New ocr request condition
     private val _shouldRecognizeText = MutableStateFlow(true)
     val shouldRecognizeText: StateFlow<Boolean> = _shouldRecognizeText
 
@@ -61,7 +72,7 @@ class OcrViewModel @Inject constructor(
         _shouldRecognizeText.update { shouldRecognizeText }
     }
 
-    private val maxOcrRequests = 2
+    val maxOcrRequests = 2
     // Html responses from Gemini Ocr
     var htmlGeminiResponses: MutableList<String> = mutableStateListOf()
 
@@ -150,7 +161,7 @@ class OcrViewModel @Inject constructor(
         imageUri: Uri,
         fileName: String,
         invalidOcrResultText: String
-    ) = viewModelScope.launch {
+    ) = viewModelScope.launch (Dispatchers.IO){
 
         val fileByteArray = imageUtils.convertUriToByteArray(imageUri = imageUri)
         val uploadResult = geminiApiService.uploadFileWithProgress(
@@ -172,6 +183,7 @@ class OcrViewModel @Inject constructor(
                         systemInstruction = Prompt.HTML_OCR_SYSTEM_INSTRUCTION.text,
                         invalidOcrResultText = invalidOcrResultText,
                         onResultFetched = {
+                            //updateShouldShowOcrNotification(true)
                             addRecognizedText(it)
                             if (htmlGeminiResponses.size == 1)
                                 updateSelectedText(it)
@@ -210,27 +222,18 @@ class OcrViewModel @Inject constructor(
     }
 
     private fun cleanHtmlResponse(htmlResponse: String): String {
-        return htmlResponse
-            // remove empty spaces
-            .replace(
-                Regex("""(<br\s*/?>\s*){2,}"""), "<br/>"
-            ) // Replace two or more <br/> with a single one
-            .replace(
-                Regex("""(<br\s*/?>\s*)+$"""), ""
-            )  // Remove trailing <br/> tags at the end
-            // remove all images tags
-            .replace(
-                Regex("""<img\s+[^>]*src\s*=\s*"[^"]*"[^>]*>"""), ""
-            )
-            //remove remaining empty lines
-            .replace(
-                Regex("""^\s+""", RegexOption.MULTILINE), ""
-            )
-            .replace(
-                Regex("""<input\s+[^>]*type=["']checkbox["'][^>]*>"""), ""
-            )
-            .replace("\n", "")
-            // making string more compact for further solution processing
+        val imageRegex = Regex("""!\[.*?]\(.*?\)""", RegexOption.MULTILINE)
+        val emptyLines = Regex("""^\s+""", RegexOption.MULTILINE)
+        val cleanedResponse = htmlResponse
+            .replace(imageRegex, "") // remove all image markdown references
+            .trim() // remove leading and trailing spaces
+            .replace(emptyLines, "") // remove empty lines
+
+        // convert markdown to html
+        val flavour = CommonMarkFlavourDescriptor()
+        val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(cleanedResponse)
+        val html = HtmlGenerator(cleanedResponse, parsedTree, flavour).generateHtml()
+        return html
     }
 
     // Don't remove, for future development

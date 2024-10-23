@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.viewinterop.AndroidView
@@ -18,10 +19,11 @@ fun HtmlTextView(
     htmlContent: String,
     isEditable: Boolean,
     onValueChange: (String) -> Unit = {},
-    textAlign: LayoutDirection
+    textAlign: LayoutDirection,
 ) {
     val content by remember { mutableStateOf(htmlContent) }
     val isNightMode = isSystemInDarkTheme()
+
 
     // Should be converted to css color scheme
     // instead of hard coded colours in css style
@@ -42,9 +44,7 @@ fun HtmlTextView(
                     // so that viewmodel gets not null, but valid content value
                     evaluateJavascript("getContent()") {
                         onValueChange(
-                            cleanHtmlStr(
-                                it.substring(1, it.length - 1)
-                            )
+                            cleanHtmlStr(it)
                         )
                     }
                 }
@@ -53,7 +53,7 @@ fun HtmlTextView(
                 loadDataWithBaseURL(
                     null,
                     createKatexHtml(
-                        cleanHtmlStr(content),
+                        content,
                         isEditable,
                         getTextDirStr(textAlign),
                         isNightMode
@@ -78,9 +78,7 @@ fun HtmlTextView(
             // get content every time user changes prompt
             webView.evaluateJavascript("getContent()") {
                 onValueChange(
-                    cleanHtmlStr(
-                        it.substring(1, it.length - 1)
-                    )
+                    cleanHtmlStr(it)
                 )
             }
         }
@@ -94,12 +92,13 @@ private fun getTextDirStr(layoutDirection: LayoutDirection): String {
 
 // Remove Kotlin String formatting
 private fun cleanHtmlStr(str: String): String {
-    return str
+    val cleanedStr = str.substring(1, str.length - 1)
         .replace("\\n", "") // Remove all newline characters
         .replace("\\u003C", "<") // Replace \u003C with <
         .replace("\\u003E", ">") // Replace \u003E with >
         .replace("\\\"", "\"") // Replace escaped quotes with actual quotes
         .trim()
+    return cleanedStr
 }
 
 // Katex Math rendering
@@ -185,38 +184,3 @@ private fun createKatexHtml(
     """.trimIndent()
 
 }
-
-// Unused MathJax
-/*
-private fun createHtmlContent(content: String, isEditable: Boolean): String {
-    val html = """
-        <html>
-        <head>
-            <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-            <script type="text/javascript" async
-                src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-            </script>
-            <script>
-                function getContent() {
-                    return document.getElementById('editable').innerHTML;  
-                }
-                
-                function setContent(content) {
-                    document.getElementById('editable').innerHTML = content;
-                }
-                
-                function setEditable(edit) {
-                    document.getElementById('editable').setAttribute('contenteditable', edit);
-                }
-            </script>
-        </head>
-        <body>
-            <div id="editable" contenteditable="$isEditable">
-                $content
-            </div>
-        </body>
-        </html>
-    """.trimIndent()
-    return html
-}
-*/

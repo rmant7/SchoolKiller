@@ -23,8 +23,8 @@ android {
         applicationId = "com.schoolkiller"
         minSdk = 29
         targetSdk = 34
-        versionCode = 10
-        versionName = "1.10"
+        versionCode = 11
+        versionName = "1.11"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -70,6 +70,8 @@ android {
 }
 
 dependencies {
+
+    implementation("org.jetbrains:markdown:0.7.3")
 
     // Google's "fix" of Guava duplicate issue.
     implementation(libs.listenablefuture)
