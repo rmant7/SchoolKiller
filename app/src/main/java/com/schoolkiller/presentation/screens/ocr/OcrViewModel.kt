@@ -72,7 +72,7 @@ class OcrViewModel @Inject constructor(
         _shouldRecognizeText.update { shouldRecognizeText }
     }
 
-     val maxOcrRequests = 2
+    val maxOcrRequests = 2
     // Html responses from Gemini Ocr
     var htmlGeminiResponses: MutableList<String> = mutableStateListOf()
 
@@ -161,7 +161,7 @@ class OcrViewModel @Inject constructor(
         imageUri: Uri,
         fileName: String,
         invalidOcrResultText: String
-    ) = viewModelScope.launch {
+    ) = viewModelScope.launch (Dispatchers.IO){
 
         val fileByteArray = imageUtils.convertUriToByteArray(imageUri = imageUri)
         val uploadResult = geminiApiService.uploadFileWithProgress(
