@@ -23,3 +23,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "SchoolKiller"
 include(":app")
+include(":opencv")

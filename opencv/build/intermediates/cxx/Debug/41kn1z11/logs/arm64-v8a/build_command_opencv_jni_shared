@@ -1,0 +1,4 @@
+/Users/eyalhochstadt/Library/Android/sdk/cmake/3.22.1/bin/ninja \
+  -C \
+  /Users/eyalhochstadt/Documents/repos/SchoolKiller/opencv/.cxx/Debug/41kn1z11/arm64-v8a \
+  opencv_jni_shared

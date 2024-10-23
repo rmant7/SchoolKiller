@@ -1,0 +1,3 @@
+/Users/eyalhochstadt/Documents/repos/SchoolKiller/opencv/.cxx/Debug/41kn1z11/x86/CMakeFiles/opencv_jni_shared.dir
+/Users/eyalhochstadt/Documents/repos/SchoolKiller/opencv/.cxx/Debug/41kn1z11/x86/CMakeFiles/edit_cache.dir
+/Users/eyalhochstadt/Documents/repos/SchoolKiller/opencv/.cxx/Debug/41kn1z11/x86/CMakeFiles/rebuild_cache.dir

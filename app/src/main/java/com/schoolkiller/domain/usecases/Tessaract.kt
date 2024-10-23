@@ -7,10 +7,93 @@ import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 
+import org.opencv.core.CvType
+import org.opencv.core.Mat
+import org.opencv.core.Size
+import org.opencv.imgproc.Imgproc
+import org.opencv.core.CvType.CV_8UC1
+import org.opencv.android.Utils
+
+fun preprocessImageForOCR(bitmap: Bitmap): Bitmap {
+    // Convert Bitmap to OpenCV Mat object
+    val srcMat = Mat()
+    Utils.bitmapToMat(bitmap, srcMat)
+
+    // Convert to grayscale
+    val grayMat = Mat()
+    Imgproc.cvtColor(srcMat, grayMat, Imgproc.COLOR_BGR2GRAY)
+
+    // Apply Gaussian Blur to reduce noise
+    Imgproc.GaussianBlur(grayMat, grayMat, Size(5.0, 5.0), 0.0)
+
+    // Apply Otsu's Binarization
+    val binarizedMat = Mat()
+    Imgproc.threshold(grayMat, binarizedMat, 0.0, 255.0, Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU)
+
+    // Convert back to Bitmap
+    val binarizedBitmap = Bitmap.createBitmap(binarizedMat.cols(), binarizedMat.rows(), Bitmap.Config.ARGB_8888)
+    Utils.matToBitmap(binarizedMat, binarizedBitmap)
+
+    return binarizedBitmap
+}
+
+fun resizeBitmap(bitmap: Bitmap, scaleFactor: Float): Bitmap {
+    val width = (bitmap.width * scaleFactor).toInt()
+    val height = (bitmap.height * scaleFactor).toInt()
+    return Bitmap.createScaledBitmap(bitmap, width, height, true)
+}
+
+fun applyMedianBlur(bitmap: Bitmap): Bitmap {
+    // Convert the Bitmap to Mat
+    val srcMat = Mat()
+    Utils.bitmapToMat(bitmap, srcMat)
+
+    // Apply Median Blur
+    val blurredMat = Mat()
+    Imgproc.medianBlur(srcMat, blurredMat, 5)  // Use a kernel size of 5
+
+    // Convert Mat back to Bitmap
+    val blurredBitmap = Bitmap.createBitmap(blurredMat.cols(), blurredMat.rows(), Bitmap.Config.ARGB_8888)
+    Utils.matToBitmap(blurredMat, blurredBitmap)
+
+    return blurredBitmap
+}
+
+fun applyBilateralFilter(bitmap: Bitmap): Bitmap {
+    // Convert Bitmap to Mat
+    val srcMat = Mat()
+    Utils.bitmapToMat(bitmap, srcMat)
+
+    // Check if the image is already in grayscale, if not, convert it
+    var processedMat = Mat()
+    if (srcMat.channels() == 1) {
+        // Already grayscale, no need to convert
+        processedMat = srcMat
+    } else {
+        // Convert to grayscale (1-channel image)
+        Imgproc.cvtColor(srcMat, processedMat, Imgproc.COLOR_BGR2GRAY)
+    }
+
+    // Apply Bilateral Filter
+    val filteredMat = Mat()
+    Imgproc.bilateralFilter(processedMat, filteredMat, 9, 75.0, 75.0)  // Adjust parameters as needed
+
+    // Convert Mat back to Bitmap
+    val filteredBitmap = Bitmap.createBitmap(filteredMat.cols(), filteredMat.rows(), Bitmap.Config.ARGB_8888)
+    Utils.matToBitmap(filteredMat, filteredBitmap)
+
+    return filteredBitmap
+}
+
 /* given an (image) file, extracts text out of it */
 fun tessaractImage(context: Context, bitmap: Bitmap): Result<String> {
 
     val tessDataPath = context.filesDir.absolutePath  // The parent directory where tessdata is located
+
+    //val processedBitmap = preprocessImageForOCR(bitmap)
+
+    // Resize the image (for example, 2x enlargement)
+    //val resizedBitmap = applyBilateralFilter(bitmap)
 
     // Initialize Tesseract instance
     val tesseract = TessBaseAPI()
@@ -19,7 +102,13 @@ fun tessaractImage(context: Context, bitmap: Bitmap): Result<String> {
     // Set the tessdata path and languages (e.g., "eng" for English, "heb" for Hebrew)
     // eng+heb+rus
     // changed to heb for hebrew ocr tests
-    tesseract.init(tessDataPath, "heb") // Modify languages as per your requirements
+    tesseract.init(tessDataPath, "eng+heb") // Modify languages as per your requirements
+
+    // Set Page Segmentation Mode (PSM) here
+    //tesseract.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO)
+
+    // Set a character whitelist, if applicable
+    //tesseract.setVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzםףןךץאבגדהוזחטיכלמנסעפצקרשת-=><.∑∏")
 
     return try {
         // Set the bitmap to Tesseract for OCR

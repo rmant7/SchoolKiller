@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        System.loadLibrary("opencv_java4")
         enableEdgeToEdge()
         setContent {
             SchoolKillerTheme {

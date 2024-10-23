@@ -1,0 +1,37 @@
+{
+  "buildFiles": [
+    "/Users/eyalhochstadt/Documents/repos/SchoolKiller/opencv/libcxx_helper/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/eyalhochstadt/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/eyalhochstadt/Documents/repos/SchoolKiller/opencv/.cxx/Debug/41kn1z11/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/eyalhochstadt/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/eyalhochstadt/Documents/repos/SchoolKiller/opencv/.cxx/Debug/41kn1z11/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "opencv_jni_shared::@6890427a1f51a3e7e1df": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "opencv_jni_shared",
+      "output": "/Users/eyalhochstadt/Documents/repos/SchoolKiller/opencv/.cxx/Debug/41kn1z11/x86/libopencv_jni_shared.a"
+    }
+  },
+  "toolchains": {
+    "toolchain": {
+      "cCompilerExecutable": "/Users/eyalhochstadt/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang.lld",
+      "cppCompilerExecutable": "/Users/eyalhochstadt/Library/Android/sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++.lld"
+    }
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}
