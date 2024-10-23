@@ -32,7 +32,7 @@ fun RadioIndexButton(
                 return@repeat // return from current loop if button is selected
             }
             animatedColor.animateTo(
-                targetValue = Color.Yellow,
+                targetValue = Color.Green,
                 animationSpec = tween(300) // Duration for each flicker
             )
             animatedColor.animateTo(
