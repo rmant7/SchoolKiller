@@ -55,19 +55,17 @@ fun OcrScreen(
     val shouldShowOcrNotification = viewModel.shouldShowOcrNotification.collectAsState()*/
 
     val htmlGeminiResponses = remember { viewModel.htmlGeminiResponses }
-    val tesseractOcrResult = viewModel.tesseractOcrResult.collectAsState()
+    //val tesseractOcrResult = viewModel.tesseractOcrResult.collectAsState()
 
     // user chosen version of ocr
     val selectedOcrResultId = remember { mutableIntStateOf(0) }
     val selectedText = viewModel.selectedText.collectAsState()
 
     val ocrError = viewModel.ocrError.collectAsState()
-
     val shouldRecognizeText = viewModel.shouldRecognizeText.collectAsState()
 
     val recognizedTextLabel = stringResource(R.string.recognized_text_value)
     val invalidOcrResultText = stringResource(R.string.error_gemini_ocr_result_extraction)
-    //val firstOcrResultIsNotReady = stringResource(R.string.first_ocr_result_is_not_ready)
     val promptIsEmptyWarning = stringResource(R.string.prompt_is_empty)
 
     val textDirection = viewModel.textDirection.collectAsState()
@@ -88,7 +86,6 @@ fun OcrScreen(
         viewModel.updateOcrError(null)
 
         if (passedImageUri != null) {
-            // viewModel.tessaractImageToText(passedImageUri, context)
             viewModel.geminiImageToText(
                 imageUri = passedImageUri,
                 fileName = passedImageUri.toString(),
